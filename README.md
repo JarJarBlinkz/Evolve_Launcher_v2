@@ -10,6 +10,9 @@
 ## ✨ Current Features
 
 ### 📱 App Launcher
+
+<img width="3710" height="1895" alt="main" src="https://github.com/user-attachments/assets/a9acac6f-bdba-496e-9a4d-2d77f30fe1d9" />
+
 - Customizable app grid with adjustable icon sizes
 - Real-time search filtering by app name or package
 - Launch any installed app with one tap
