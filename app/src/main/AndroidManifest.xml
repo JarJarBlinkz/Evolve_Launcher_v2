@@ -100,11 +100,6 @@
             android:theme="@style/Theme.Evolve_Launcher"
             android:exported="false" />
 
-        <activity
-            android:name=".PlaytimeStatsActivity"
-            android:theme="@style/Theme.Evolve_Launcher"
-            android:exported="false" />
-
         <!-- App Change Receiver - MUST be exported to receive system broadcasts -->
         <receiver
             android:name=".AppChangeReceiver"
