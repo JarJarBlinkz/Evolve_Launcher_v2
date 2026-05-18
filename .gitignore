@@ -9,6 +9,7 @@ build/
 *.iml
 *.iws
 *.ipr
+local.properties
 .DS_Store
 .cxx/
 local.properties
