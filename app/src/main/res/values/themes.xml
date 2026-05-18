@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.VRPLAUNCHER" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#6B8EFF</item>
+        <item name="colorPrimaryVariant">#4A6AFF</item>
+        <item name="colorOnPrimary">@color/white</item>
+    </style>
+</resources>

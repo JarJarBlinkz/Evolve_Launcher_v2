@@ -1,0 +1,3 @@
+adb shell pm grant com.jarjarblinkz.EvolveLauncher android.permission.PACKAGE_USAGE_STATS
+
+adb shell appops set com.jarjarblinkz.EvolveLauncher GET_USAGE_STATS allow

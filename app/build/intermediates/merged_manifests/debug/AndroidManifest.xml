@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.jarjarblinkz.EvolveLauncher"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="21"
+        android:targetSdkVersion="34" />
+
+    <!-- Internet permission for loading GitHub icons -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Quest specific permissions -->
+    <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
+    <uses-permission android:name="com.oculus.permission.EYE_TRACKING" />
+
+    <!-- Required for VR apps -->
+    <uses-feature
+        android:name="android.hardware.vr.headtracking"
+        android:required="true"
+        android:version="1" />
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+
+    <!-- Uninstall Permissions -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- Query all packages permission for launcher functionality -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
+    <!-- Storage permissions for custom background images -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <!-- NEW: Boot completed permission for auto-start -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- For Android 11+ to launch from background -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Battery stats for status bar -->
+    <uses-permission android:name="android.permission.BATTERY_STATS" />
+
+    <!-- USAGE STAT -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+
+    <!-- USED FOR SETTINGS BACKUP -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <permission
+        android:name="com.jarjarblinkz.EvolveLauncher.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.jarjarblinkz.EvolveLauncher.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+
+    <application
+        android:allowBackup="true"
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        android:debuggable="true"
+        android:extractNativeLibs="true"
+        android:hardwareAccelerated="true"
+        android:icon="@drawable/ic_vr_launcher"
+        android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.VRPLAUNCHER"
+        android:usesCleartextTraffic="true" >
+
+        <!-- Main VR Launcher Activity -->
+        <activity
+            android:name="com.jarjarblinkz.EvolveLauncher.MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- VR-specific metadata -->
+            <meta-data
+                android:name="com.oculus.vr.focusaware"
+                android:value="true" />
+            <meta-data
+                android:name="com.oculus.forced3d"
+                android:value="true" />
+        </activity>
+        <activity
+            android:name="com.jarjarblinkz.EvolveLauncher.PlaytimeStatsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VRPLAUNCHER" />
+
+        <!-- Settings Activity - UPDATED FOR DIALOG STYLE -->
+        <activity
+            android:name="com.jarjarblinkz.EvolveLauncher.SettingsActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity
+            android:name="com.jarjarblinkz.EvolveLauncher.DeviceInfoActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VRPLAUNCHER" />
+        <activity
+            android:name="com.jarjarblinkz.EvolveLauncher.PlaytimeStatsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VRPLAUNCHER" />
+
+        <!-- App Change Receiver - MUST be exported to receive system broadcasts -->
+        <receiver
+            android:name="com.jarjarblinkz.EvolveLauncher.AppChangeReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+
+                <!-- Detect when apps are installed -->
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <!-- Detect when apps are uninstalled -->
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <!-- Detect when apps are updated -->
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <!-- Required to get the package name -->
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
+        <!-- NEW: Boot Receiver - Auto-start on device boot -->
+        <receiver
+            android:name="com.jarjarblinkz.EvolveLauncher.BootReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="com.jarjarblinkz.EvolveLauncher.androidx-startup"
+            android:exported="false" >
+            <meta-data
+                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+                android:value="androidx.startup" />
+        </provider>
+
+        <receiver
+            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+            android:directBootAware="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.DUMP" >
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

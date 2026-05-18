@@ -1,0 +1,4 @@
+include ':libadb'
+include ':app'
+rootProject.name = "libadb-android"
+project(':libadb').name = 'libadb'

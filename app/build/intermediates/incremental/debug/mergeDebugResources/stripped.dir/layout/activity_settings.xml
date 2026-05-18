@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/dialog_background"
+    android:gravity="center_horizontal">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⚙️ VR Launcher Settings"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Device Info Button -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnDeviceInfo"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_marginBottom="4dp"
+        android:backgroundTint="#9C27B0"
+        android:text="📊 Device Information"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp" />
+
+    <!-- NEW: Auto-start on Boot -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="🚀 Auto-start on Boot"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchAutoStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:trackTint="#333333"
+            app:thumbTint="#6B8EFF" />
+    </LinearLayout>
+
+    <!-- Edit Mode -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="✏️ Edit Mode"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchEditMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:trackTint="#333333"
+            app:thumbTint="#6B8EFF" />
+
+    </LinearLayout>
+    <!-- Show Categories -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="🏷️ Show Categories"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchCategories"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:trackTint="#333333"
+            app:thumbTint="#6B8EFF" />
+    </LinearLayout>
+    !-- Manage Categories &amp; Back -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnManageCategories"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:backgroundTint="#FF9800"
+        android:text="📁 Manage Categories"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Icon Size -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="📐 Icon Size (80-140dp)"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="2dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="2dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="80dp"
+            android:textColor="#AAAAAA"
+            android:textSize="11sp" />
+
+        <SeekBar
+            android:id="@+id/seekIconSize"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="4dp"
+            android:max="100"
+            android:progress="50" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="140dp"
+            android:textColor="#AAAAAA"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtIconSize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="160dp"
+        android:textColor="#6B8EFF"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Background Opacity -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🎨 Background Opacity"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:layout_marginBottom="2dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="2dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Transparent"
+            android:textColor="#AAAAAA"
+            android:textSize="11sp" />
+
+        <SeekBar
+            android:id="@+id/seekBgOpacity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="4dp"
+            android:max="100"
+            android:progress="100" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Opaque"
+            android:textColor="#AAAAAA"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtBgOpacity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="100%"
+        android:textColor="#6B8EFF"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Background Buttons in a single row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp"
+        android:gravity="center"
+        android:weightSum="3">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnBgBuiltin"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="2dp"
+            android:backgroundTint="#6B8EFF"
+            android:text="Built-in"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnBgCustom"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="1dp"
+            android:backgroundTint="#4CAF50"
+            android:text="Custom"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnBgDefault"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:layout_marginStart="2dp"
+            android:backgroundTint="#333333"
+            android:text="Default"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- Usage Access Permission -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnUsageAccess"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:backgroundTint="#F44336"
+        android:text="🔓 Grant Usage Access Permission"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:layout_marginBottom="4dp" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnGameStats"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:backgroundTint="#9C27B0"
+        android:text="🏆 Game Playtime &amp; Stats"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Backup & Restore Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#1E1E1E"
+        android:padding="8dp"
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="BACKUP &amp; RESTORE LAUNCHER SETTINGS"
+            android:textColor="#6B8EFF"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnBackup"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="#4CAF50"
+            android:text="Backup"
+            android:textSize="11sp" />
+
+        <Button
+            android:id="@+id/btnRestore"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:backgroundTint="#FF9800"
+            android:text="Restore"
+            android:textSize="11sp" />
+
+    </LinearLayout>
+
+    <!-- Back -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnBack"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:backgroundTint="#333333"
+        android:text="← Back"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp" />
+
+</LinearLayout>

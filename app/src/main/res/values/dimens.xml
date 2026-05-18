@@ -1,0 +1,5 @@
+<resources>
+    <!-- Default card width -->
+    <dimen name="card_width">160dp</dimen>
+    <dimen name="grid_spacing">4dp</dimen>
+</resources>

@@ -1,0 +1,194 @@
+[
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_wifi_low.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_wifi_low.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/layout_activity_device_info.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/activity_device_info.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_quick_settings_button_bg.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/quick_settings_button_bg.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_refresh.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_refresh.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_system_indicator.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/system_indicator.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_rotation.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_rotation.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_wifi_full.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_wifi_full.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_clear.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_clear.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_battery_high.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_battery_high.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_apps.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_apps.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_dnd.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_dnd.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_bg_space.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/bg_space.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_bg_mountains.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/bg_mountains.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_bg_abstract.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/bg_abstract.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_delete.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_delete.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_close.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_close.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_drag_handle.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_drag_handle.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_category_badge_background.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/category_badge_background.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_bg_nebula.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/bg_nebula.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/layout_item_app.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/item_app.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_bluetooth.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_bluetooth.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_bg_circuit.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/bg_circuit.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_digital_clock_bg.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/digital_clock_bg.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_battery_low.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_battery_low.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_play.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_play.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/layout_activity_playtime_stats.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/activity_playtime_stats.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_bg_grid.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/bg_grid.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/layout_item_playtime_stat.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/item_playtime_stat.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_vr_headset.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_vr_headset.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/layout_activity_main.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_storage.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_storage.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_wifi_medium.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_wifi_medium.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_battery_full.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_battery_full.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_wifi_off.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_wifi_off.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_search_background.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/search_background.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/layout_panel_quick_settings.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/panel_quick_settings.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_battery_charging.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_battery_charging.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_settings.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_settings.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_launcher.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_launcher.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_dialog_background.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/dialog_background.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_drag.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_drag.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_battery_half.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_battery_half.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_vr_launcher.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_vr_launcher.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_wifi.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_wifi.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_category_button_background.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/category_button_background.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/layout_item_playtime_stats.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/item_playtime_stats.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/layout_activity_settings.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/activity_settings.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_search.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_search.xml"
+    }
+]

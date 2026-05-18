@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Bar 1 - Filled white with light gray outline -->
+    <path
+        android:pathData="M5,12 L9,12 L9,18 L5,18 Z"
+        android:fillColor="#FF6B6B"
+        android:strokeColor="#CCCCCC"
+        android:strokeWidth="0.5" />
+    <!-- Bar 2 - Light gray outline only -->
+    <path
+        android:pathData="M10,9 L14,9 L14,18 L10,18 Z"
+        android:strokeColor="#CCCCCC"
+        android:strokeWidth="0.5"
+        android:fillColor="@android:color/transparent" />
+    <!-- Bar 3 - Light gray outline only -->
+    <path
+        android:pathData="M15,6 L19,6 L19,18 L15,18 Z"
+        android:strokeColor="#CCCCCC"
+        android:strokeWidth="0.5"
+        android:fillColor="@android:color/transparent" />
+</vector>

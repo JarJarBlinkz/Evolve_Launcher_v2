@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Internet permission for loading GitHub icons -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Quest specific permissions -->
+    <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
+    <uses-permission android:name="com.oculus.permission.EYE_TRACKING" />
+
+    <!-- Required for VR apps -->
+    <uses-feature android:name="android.hardware.vr.headtracking" android:version="1" android:required="true" />
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+
+    <!-- Uninstall Permissions -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- Query all packages permission for launcher functionality -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
+    <!-- Storage permissions for custom background images -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <!-- NEW: Boot completed permission for auto-start -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- For Android 11+ to launch from background -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Battery stats for status bar -->
+    <uses-permission android:name="android.permission.BATTERY_STATS" />
+
+    <!-- USAGE STAT -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- USED FOR SETTINGS BACKUP -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application
+        android:requestLegacyExternalStorage="true"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_vr_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.VRPLAUNCHER"
+        android:supportsRtl="true"
+        android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31">
+
+        <!-- Main VR Launcher Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- VR-specific metadata -->
+            <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
+            <meta-data android:name="com.oculus.forced3d" android:value="true" />
+        </activity>
+
+        <activity
+            android:name=".PlaytimeStatsActivity"
+            android:theme="@style/Theme.VRPLAUNCHER"
+            android:exported="false" />
+
+        <!-- Settings Activity - UPDATED FOR DIALOG STYLE -->
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
+        <activity
+            android:name=".DeviceInfoActivity"
+            android:theme="@style/Theme.VRPLAUNCHER"
+            android:exported="false" />
+
+        <activity
+            android:name=".PlaytimeStatsActivity"
+            android:theme="@style/Theme.VRPLAUNCHER"
+            android:exported="false" />
+
+        <!-- App Change Receiver - MUST be exported to receive system broadcasts -->
+        <receiver
+            android:name=".AppChangeReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <!-- Detect when apps are installed -->
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <!-- Detect when apps are uninstalled -->
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <!-- Detect when apps are updated -->
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <!-- Required to get the package name -->
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
+        <!-- NEW: Boot Receiver - Auto-start on device boot -->
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>

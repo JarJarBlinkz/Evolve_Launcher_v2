@@ -1,0 +1,17 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)  // CHANGED THIS LINE
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "VRPLAUNCHER"
+include ':app'

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <dimen name="card_width">160dp</dimen>
+    <dimen name="grid_spacing">4dp</dimen>
+    <string name="app_icon">App icon</string>
+    <string name="app_name">VR Launcher</string>
+    <style name="Theme.VRPLAUNCHER" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#6B8EFF</item>
+        <item name="colorPrimaryVariant">#4A6AFF</item>
+        <item name="colorOnPrimary">@color/white</item>
+    </style>
+</resources>
