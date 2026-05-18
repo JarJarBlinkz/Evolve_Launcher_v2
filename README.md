@@ -11,7 +11,7 @@
 
 ### 📱 App Launcher
 
-<img width="3710" height="1895" alt="main" src="https://github.com/user-attachments/assets/a9acac6f-bdba-496e-9a4d-2d77f30fe1d9" />
+<img width="3710" height="1895" alt="main" src="https://github.com/user-attachments/assets/a9acac6f-bdba-496e-9a4d-2d77f30fe1d9" /> <img width="3728" height="1953" alt="settings" src="https://github.com/user-attachments/assets/9da831aa-32f7-465d-93bf-448610b19cec" />
 
 - Customizable app grid with adjustable icon sizes
 - Real-time search filtering by app name or package
@@ -25,6 +25,7 @@
 - Category badges displayed on app icons
 - Category bar for quick switching
 
+<img width="3733" height="1954" alt="playtime stats" src="https://github.com/user-attachments/assets/497a910b-965e-4014-b9fd-537459607f65" />
 ### ⏱️ Playtime Tracking
 - Track usage for Today, This Week, This Month, and All Time
 - View playtime leaderboard (most played games)
@@ -43,6 +44,7 @@
 - Adjustable background opacity (0-100%)
 - Transparent/see-through background option
 
+<img width="3710" height="1937" alt="device info" src="https://github.com/user-attachments/assets/7142d0ea-e56e-4847-a70d-7b9703af5e86" />
 ### 📊 System Information
 - Device model and manufacturer
 - Android version and API level
@@ -67,9 +69,9 @@
 ## 📸 Screenshots
 
 <img width="3710" height="1895" alt="main" src="https://github.com/user-attachments/assets/a9acac6f-bdba-496e-9a4d-2d77f30fe1d9" />
-<img width="3728" height="1953" alt="settings" src="https://github.com/user-attachments/assets/9da831aa-32f7-465d-93bf-448610b19cec" />
+
 <img width="3710" height="1937" alt="device info" src="https://github.com/user-attachments/assets/7142d0ea-e56e-4847-a70d-7b9703af5e86" />
-<img width="3733" height="1954" alt="playtime stats" src="https://github.com/user-attachments/assets/497a910b-965e-4014-b9fd-537459607f65" />
+
 
 ---
 
