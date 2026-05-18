@@ -1,0 +1,41 @@
+# Gradle files
+.gradle/
+build/
+*/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Android Studio files
+.idea/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+.cxx/
+local.properties
+captures/
+.externalNativeBuild
+
+# Compiled files
+*.class
+*.apk
+*.aar
+*.dex
+*.jar
+!gradle-wrapper.jar
+
+# Logs
+*.log
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+*.swp
+*.swo
+
+# Keystore files (if you have signing configs)
+*.jks
+*.keystore
+
+# Generated files
+navigation/
+app/generated/
