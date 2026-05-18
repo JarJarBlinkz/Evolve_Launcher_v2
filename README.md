@@ -89,7 +89,7 @@
 
 ### Steps
 
-1. Download `EvolveLauncher.apk` from [Releases](https://github.com/JarJarBlinkz/EvolveLauncher/releases)
+1. Download `EvolveLauncher.apk` from [Releases]([https://github.com/JarJarBlinkz/EvolveLauncher/releases](https://github.com/JarJarBlinkz/Evolve_Launcher_v2/releases))
 
 2. Install via SideQuest:
    - Open SideQuest on your computer
