@@ -56,7 +56,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_vr_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.VRPLAUNCHER"
+        android:theme="@style/Theme.Evolve_Launcher"
         android:supportsRtl="true"
         android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true"
@@ -84,7 +84,7 @@
 
         <activity
             android:name=".PlaytimeStatsActivity"
-            android:theme="@style/Theme.VRPLAUNCHER"
+            android:theme="@style/Theme.Evolve_Launcher"
             android:exported="false" />
 
         <!-- Settings Activity - UPDATED FOR DIALOG STYLE -->
@@ -97,12 +97,12 @@
 
         <activity
             android:name=".DeviceInfoActivity"
-            android:theme="@style/Theme.VRPLAUNCHER"
+            android:theme="@style/Theme.Evolve_Launcher"
             android:exported="false" />
 
         <activity
             android:name=".PlaytimeStatsActivity"
-            android:theme="@style/Theme.VRPLAUNCHER"
+            android:theme="@style/Theme.Evolve_Launcher"
             android:exported="false" />
 
         <!-- App Change Receiver - MUST be exported to receive system broadcasts -->

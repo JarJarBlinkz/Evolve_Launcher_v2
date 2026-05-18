@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "VRPLAUNCHER"
+rootProject.name = "Evolve Launcher"
 include ':app'

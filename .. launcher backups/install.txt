@@ -1,7 +1,0 @@
-adb install -g games.b4t.epicrollercoasters.oculus.apk
-adb push games.b4t.epicrollercoasters.oculus /sdcard/Android/obb/
-adb push usage_stats.sh /sdcard/
-adb shell chmod +x /sdcard/usage_stats.sh
-adb shell sh /sdcard/usage_stats.sh
-adb shell rm /sdcard/usage_stats.sh
-adb shell "echo '✓ INSTALLATION COMPLETE'
