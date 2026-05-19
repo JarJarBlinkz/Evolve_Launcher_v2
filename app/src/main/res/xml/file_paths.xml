@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    File: res/xml/file_paths.xml
+
+    This file is required for FileProvider to work on Android 7.0+
+    It defines which directories can be shared with other apps
+-->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- External storage (for downloaded APKs) -->
+    <external-path
+        name="external_files"
+        path="." />
+
+    <!-- Downloads directory -->
+    <external-path
+        name="downloads"
+        path="Download/" />
+
+    <!-- App's external storage -->
+    <external-files-path
+        name="external_app_files"
+        path="." />
+
+    <!-- Cache directory -->
+    <cache-path
+        name="cache"
+        path="." />
+</paths>
