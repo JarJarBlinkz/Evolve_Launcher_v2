@@ -40,7 +40,7 @@ public class UpdateManager {
     private static final String KEY_UPDATE_FREQUENCY = "update_frequency"; // hours
 
     // IMPORTANT: Replace with your GitHub username and repository name
-    private static final String GITHUB_API_URL = "https://api.github.com/repos/YOUR_USERNAME/YOUR_REPO/releases/latest";
+    private static final String GITHUB_API_URL = "https://api.github.com/repos/JarJarBlinkz/Evolve_Launcher_v2/releases/latest";
 
     private final Context context;
     private final SharedPreferences prefs;
