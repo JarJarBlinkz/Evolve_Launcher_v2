@@ -160,6 +160,10 @@
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/dialog_background.xml"
     },
     {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/xml_file_paths.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/xml/file_paths.xml"
+    },
+    {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_drag.xml.flat",
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_drag.xml"
     },

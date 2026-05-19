@@ -28,10 +28,10 @@ com.jarjarblinkz.EvolveLauncher.app-jetified-startup-runtime-1.1.1-26 C:\Users\J
 com.jarjarblinkz.EvolveLauncher.app-jetified-core-ktx-1.12.0-27 C:\Users\John\.gradle\caches\transforms-3\ef956e787a4cc82ffa33a6fc6a17c5a1\transformed\jetified-core-ktx-1.12.0\res
 com.jarjarblinkz.EvolveLauncher.app-jetified-customview-poolingcontainer-1.0.0-28 C:\Users\John\.gradle\caches\transforms-3\fb37b25617e50f13c81ecb35a4958ca4\transformed\jetified-customview-poolingcontainer-1.0.0\res
 com.jarjarblinkz.EvolveLauncher.app-jetified-emoji2-1.2.0-29 C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\res
-com.jarjarblinkz.EvolveLauncher.app-pngs-30 C:\Users\John\AndroidStudioProjects\VRPLAUNCHER_COMPLETE\app\build\generated\res\pngs\debug
-com.jarjarblinkz.EvolveLauncher.app-resValues-31 C:\Users\John\AndroidStudioProjects\VRPLAUNCHER_COMPLETE\app\build\generated\res\resValues\debug
-com.jarjarblinkz.EvolveLauncher.app-packageDebugResources-32 C:\Users\John\AndroidStudioProjects\VRPLAUNCHER_COMPLETE\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
-com.jarjarblinkz.EvolveLauncher.app-packageDebugResources-33 C:\Users\John\AndroidStudioProjects\VRPLAUNCHER_COMPLETE\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
-com.jarjarblinkz.EvolveLauncher.app-merged_res-34 C:\Users\John\AndroidStudioProjects\VRPLAUNCHER_COMPLETE\app\build\intermediates\merged_res\debug
-com.jarjarblinkz.EvolveLauncher.app-debug-35 C:\Users\John\AndroidStudioProjects\VRPLAUNCHER_COMPLETE\app\src\debug\res
-com.jarjarblinkz.EvolveLauncher.app-main-36 C:\Users\John\AndroidStudioProjects\VRPLAUNCHER_COMPLETE\app\src\main\res
+com.jarjarblinkz.EvolveLauncher.app-pngs-30 C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\build\generated\res\pngs\debug
+com.jarjarblinkz.EvolveLauncher.app-resValues-31 C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\build\generated\res\resValues\debug
+com.jarjarblinkz.EvolveLauncher.app-packageDebugResources-32 C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.jarjarblinkz.EvolveLauncher.app-packageDebugResources-33 C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.jarjarblinkz.EvolveLauncher.app-merged_res-34 C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\build\intermediates\merged_res\debug
+com.jarjarblinkz.EvolveLauncher.app-debug-35 C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\debug\res
+com.jarjarblinkz.EvolveLauncher.app-main-36 C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\res

@@ -6310,6 +6310,11 @@
     <item name="windowActionBar">false</item>
     <item name="windowNoTitle">true</item>
   </style>
+    <style name="Theme.Evolve_Launcher" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#6B8EFF</item>
+        <item name="colorPrimaryVariant">#4A6AFF</item>
+        <item name="colorOnPrimary">@color/white</item>
+    </style>
     <style name="Theme.Material3.Dark" parent="Base.Theme.Material3.Dark"/>
     <style name="Theme.Material3.Dark.BottomSheetDialog" parent="Base.Theme.Material3.Dark.BottomSheetDialog"/>
     <style name="Theme.Material3.Dark.Dialog" parent="Base.Theme.Material3.Dark.Dialog"/>
@@ -6446,11 +6451,6 @@
     <item name="windowActionBar">false</item>
     <item name="windowNoTitle">true</item>
   </style>
-    <style name="Theme.VRPLAUNCHER" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">#6B8EFF</item>
-        <item name="colorPrimaryVariant">#4A6AFF</item>
-        <item name="colorOnPrimary">@color/white</item>
-    </style>
     <style name="ThemeOverlay.AppCompat" parent="Base.ThemeOverlay.AppCompat"/>
     <style name="ThemeOverlay.AppCompat.ActionBar" parent="Base.ThemeOverlay.AppCompat.ActionBar"/>
     <style name="ThemeOverlay.AppCompat.Dark" parent="Base.ThemeOverlay.AppCompat.Dark"/>

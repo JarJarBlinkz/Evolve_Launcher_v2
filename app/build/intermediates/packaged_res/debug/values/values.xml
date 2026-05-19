@@ -6,7 +6,7 @@
     <dimen name="grid_spacing">4dp</dimen>
     <string name="app_icon">App icon</string>
     <string name="app_name">VR Launcher</string>
-    <style name="Theme.VRPLAUNCHER" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.Evolve_Launcher" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">#6B8EFF</item>
         <item name="colorPrimaryVariant">#4A6AFF</item>
         <item name="colorOnPrimary">@color/white</item>
