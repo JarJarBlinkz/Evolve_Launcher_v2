@@ -36,6 +36,10 @@
     <!-- Storage permissions for custom background images -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <!-- WRITE permission for backup functionality -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- MANAGE_EXTERNAL_STORAGE for Android 11+ to save backups to /sdcard/ -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
     <!-- NEW: Boot completed permission for auto-start -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -77,7 +81,8 @@
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
         android:supportsRtl="true"
-        android:theme="@style/Theme.VRPLAUNCHER"
+        android:testOnly="true"
+        android:theme="@style/Theme.Evolve_Launcher"
         android:usesCleartextTraffic="true" >
 
         <!-- Main VR Launcher Activity -->
@@ -106,7 +111,7 @@
         <activity
             android:name="com.jarjarblinkz.EvolveLauncher.PlaytimeStatsActivity"
             android:exported="false"
-            android:theme="@style/Theme.VRPLAUNCHER" />
+            android:theme="@style/Theme.Evolve_Launcher" />
 
         <!-- Settings Activity - UPDATED FOR DIALOG STYLE -->
         <activity
@@ -118,11 +123,7 @@
         <activity
             android:name="com.jarjarblinkz.EvolveLauncher.DeviceInfoActivity"
             android:exported="false"
-            android:theme="@style/Theme.VRPLAUNCHER" />
-        <activity
-            android:name="com.jarjarblinkz.EvolveLauncher.PlaytimeStatsActivity"
-            android:exported="false"
-            android:theme="@style/Theme.VRPLAUNCHER" />
+            android:theme="@style/Theme.Evolve_Launcher" />
 
         <!-- App Change Receiver - MUST be exported to receive system broadcasts -->
         <receiver
@@ -154,6 +155,16 @@
             </intent-filter>
         </receiver>
 
+        <!-- FileProvider for auto-update APK installation (Android 7.0+) -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.jarjarblinkz.EvolveLauncher.provider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="com.jarjarblinkz.EvolveLauncher.androidx-startup"
