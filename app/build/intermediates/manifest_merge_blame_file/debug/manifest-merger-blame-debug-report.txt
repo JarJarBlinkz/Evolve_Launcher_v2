@@ -63,276 +63,301 @@
 38    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 38-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:27:5-76
 38-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:27:22-73
-39
-40    <!-- NEW: Boot completed permission for auto-start -->
-41    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-41-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:30:5-81
-41-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:30:22-78
-42
-43    <!-- For Android 11+ to launch from background -->
-44    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-44-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:33:5-78
-44-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:33:22-75
-45
-46    <!-- Battery stats for status bar -->
-47    <uses-permission android:name="android.permission.BATTERY_STATS" />
-47-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:36:5-72
-47-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:36:22-69
-48
-49    <!-- USAGE STAT -->
-50    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
-50-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:39:5-41:47
-50-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:40:9-62
-51
-52    <!-- USED FOR SETTINGS BACKUP -->
-53    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-53-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:26:5-80
-53-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:26:22-77
-54    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-54-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:45:5-81
-54-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:45:22-78
+39    <!-- WRITE permission for backup functionality -->
+40    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+40-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:29:5-81
+40-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:29:22-78
+41    <!-- MANAGE_EXTERNAL_STORAGE for Android 11+ to save backups to /sdcard/ -->
+42    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+42-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:31:5-111
+42-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:31:22-79
+43
+44    <!-- NEW: Boot completed permission for auto-start -->
+45    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+45-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:34:5-81
+45-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:34:22-78
+46
+47    <!-- For Android 11+ to launch from background -->
+48    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+48-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:37:5-78
+48-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:37:22-75
+49
+50    <!-- Battery stats for status bar -->
+51    <uses-permission android:name="android.permission.BATTERY_STATS" />
+51-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:40:5-72
+51-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:40:22-69
+52
+53    <!-- USAGE STAT -->
+54    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+54-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:43:5-45:47
+54-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:44:9-62
 55
-56    <queries>
-56-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:47:5-52:15
-57        <intent>
-57-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:48:9-51:18
-58            <action android:name="android.intent.action.MAIN" />
-58-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:49:13-65
-58-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:49:21-62
+56    <!-- USED FOR SETTINGS BACKUP -->
+57    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+57-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:26:5-80
+57-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:26:22-77
+58    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+58-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:29:5-81
+58-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:29:22-78
 59
-60            <category android:name="android.intent.category.LAUNCHER" />
-60-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:50:13-73
-60-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:50:23-70
-61        </intent>
-62    </queries>
+60    <queries>
+60-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:51:5-56:15
+61        <intent>
+61-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:52:9-55:18
+62            <action android:name="android.intent.action.MAIN" />
+62-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:53:13-65
+62-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:53:21-62
 63
-64    <permission
-64-->[androidx.core:core:1.12.0] C:\Users\John\.gradle\caches\transforms-3\70f2d17beade087cc9f6602e54f321f6\transformed\core-1.12.0\AndroidManifest.xml:22:5-24:47
-65        android:name="com.jarjarblinkz.EvolveLauncher.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-65-->[androidx.core:core:1.12.0] C:\Users\John\.gradle\caches\transforms-3\70f2d17beade087cc9f6602e54f321f6\transformed\core-1.12.0\AndroidManifest.xml:23:9-81
-66        android:protectionLevel="signature" />
-66-->[androidx.core:core:1.12.0] C:\Users\John\.gradle\caches\transforms-3\70f2d17beade087cc9f6602e54f321f6\transformed\core-1.12.0\AndroidManifest.xml:24:9-44
+64            <category android:name="android.intent.category.LAUNCHER" />
+64-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:54:13-73
+64-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:54:23-70
+65        </intent>
+66    </queries>
 67
-68    <uses-permission android:name="com.jarjarblinkz.EvolveLauncher.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-68-->[androidx.core:core:1.12.0] C:\Users\John\.gradle\caches\transforms-3\70f2d17beade087cc9f6602e54f321f6\transformed\core-1.12.0\AndroidManifest.xml:26:5-97
-68-->[androidx.core:core:1.12.0] C:\Users\John\.gradle\caches\transforms-3\70f2d17beade087cc9f6602e54f321f6\transformed\core-1.12.0\AndroidManifest.xml:26:22-94
-69
-70    <application
-70-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:54:5-131:19
-71        android:allowBackup="true"
-71-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:56:9-35
-72        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-72-->[androidx.core:core:1.12.0] C:\Users\John\.gradle\caches\transforms-3\70f2d17beade087cc9f6602e54f321f6\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
-73        android:debuggable="true"
-74        android:extractNativeLibs="true"
-75        android:hardwareAccelerated="true"
-75-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:61:9-43
-76        android:icon="@drawable/ic_vr_launcher"
-76-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:57:9-48
-77        android:label="@string/app_name"
-77-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:58:9-41
-78        android:requestLegacyExternalStorage="true"
-78-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:55:9-52
-79        android:supportsRtl="true"
-79-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:60:9-35
-80        android:testOnly="true"
-81        android:theme="@style/Theme.Evolve_Launcher"
-81-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:59:9-53
-82        android:usesCleartextTraffic="true" >
-82-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:62:9-44
-83
-84        <!-- Main VR Launcher Activity -->
-85        <activity
-85-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:66:9-83:20
-86            android:name="com.jarjarblinkz.EvolveLauncher.MainActivity"
-86-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:67:13-41
-87            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
-87-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:71:13-87
-88            android:exported="true"
-88-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:68:13-36
-89            android:launchMode="singleTask"
-89-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:69:13-44
-90            android:screenOrientation="landscape" >
-90-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:70:13-50
-91            <intent-filter>
-91-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:73:13-78:29
-92                <action android:name="android.intent.action.MAIN" />
-92-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:49:13-65
-92-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:49:21-62
-93
-94                <category android:name="android.intent.category.LAUNCHER" />
-94-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:50:13-73
-94-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:50:23-70
-95                <category android:name="android.intent.category.HOME" />
-95-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:76:17-73
-95-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:76:27-70
-96                <category android:name="android.intent.category.DEFAULT" />
-96-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:77:17-76
-96-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:77:27-73
-97            </intent-filter>
-98
-99            <!-- VR-specific metadata -->
-100            <meta-data
-100-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:81:13-87
-101                android:name="com.oculus.vr.focusaware"
-101-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:81:24-63
-102                android:value="true" />
-102-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:81:64-84
-103            <meta-data
-103-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:82:13-82
-104                android:name="com.oculus.forced3d"
-104-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:82:24-58
-105                android:value="true" />
-105-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:82:59-79
-106        </activity>
-107        <activity
-107-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:85:9-88:40
-108            android:name="com.jarjarblinkz.EvolveLauncher.PlaytimeStatsActivity"
-108-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:86:13-50
-109            android:exported="false"
-109-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:88:13-37
-110            android:theme="@style/Theme.Evolve_Launcher" />
-110-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:87:13-57
-111
-112        <!-- Settings Activity - UPDATED FOR DIALOG STYLE -->
-113        <activity
-113-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:91:9-96:70
-114            android:name="com.jarjarblinkz.EvolveLauncher.SettingsActivity"
-114-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:92:13-45
-115            android:exported="false"
-115-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:93:13-37
-116            android:screenOrientation="landscape"
-116-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:95:13-50
-117            android:theme="@style/Theme.AppCompat.Dialog"
-117-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:94:13-58
-118            android:windowSoftInputMode="stateHidden|adjustResize" />
-118-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:96:13-67
-119        <activity
-119-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:98:9-101:40
-120            android:name="com.jarjarblinkz.EvolveLauncher.DeviceInfoActivity"
-120-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:99:13-47
-121            android:exported="false"
-121-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:101:13-37
-122            android:theme="@style/Theme.Evolve_Launcher" />
-122-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:100:13-57
-123
-124        <!-- App Change Receiver - MUST be exported to receive system broadcasts -->
-125        <receiver
-125-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:104:9-118:20
-126            android:name="com.jarjarblinkz.EvolveLauncher.AppChangeReceiver"
-126-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:105:13-46
-127            android:enabled="true"
-127-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:106:13-35
-128            android:exported="true" >
-128-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:107:13-36
-129            <intent-filter>
-129-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:108:13-117:29
-130
-131                <!-- Detect when apps are installed -->
-132                <action android:name="android.intent.action.PACKAGE_ADDED" />
-132-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:110:17-78
-132-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:110:25-75
-133                <!-- Detect when apps are uninstalled -->
-134                <action android:name="android.intent.action.PACKAGE_REMOVED" />
-134-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:112:17-80
-134-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:112:25-77
-135                <!-- Detect when apps are updated -->
-136                <action android:name="android.intent.action.PACKAGE_REPLACED" />
-136-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:114:17-81
-136-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:114:25-78
-137                <!-- Required to get the package name -->
-138                <data android:scheme="package" />
-138-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:116:17-50
-138-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:116:23-47
-139            </intent-filter>
-140        </receiver>
-141
-142        <!-- NEW: Boot Receiver - Auto-start on device boot -->
-143        <receiver
-143-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:121:9-129:20
-144            android:name="com.jarjarblinkz.EvolveLauncher.BootReceiver"
-144-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:122:13-41
-145            android:enabled="true"
-145-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:123:13-35
-146            android:exported="true" >
-146-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:124:13-36
-147            <intent-filter>
-147-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:125:13-128:29
-148                <action android:name="android.intent.action.BOOT_COMPLETED" />
-148-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:126:17-79
-148-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:126:25-76
-149
-150                <category android:name="android.intent.category.DEFAULT" />
-150-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:77:17-76
-150-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:77:27-73
-151            </intent-filter>
-152        </receiver>
+68    <permission
+68-->[androidx.core:core:1.12.0] C:\Users\John\.gradle\caches\transforms-3\70f2d17beade087cc9f6602e54f321f6\transformed\core-1.12.0\AndroidManifest.xml:22:5-24:47
+69        android:name="com.jarjarblinkz.EvolveLauncher.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+69-->[androidx.core:core:1.12.0] C:\Users\John\.gradle\caches\transforms-3\70f2d17beade087cc9f6602e54f321f6\transformed\core-1.12.0\AndroidManifest.xml:23:9-81
+70        android:protectionLevel="signature" />
+70-->[androidx.core:core:1.12.0] C:\Users\John\.gradle\caches\transforms-3\70f2d17beade087cc9f6602e54f321f6\transformed\core-1.12.0\AndroidManifest.xml:24:9-44
+71
+72    <uses-permission android:name="com.jarjarblinkz.EvolveLauncher.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+72-->[androidx.core:core:1.12.0] C:\Users\John\.gradle\caches\transforms-3\70f2d17beade087cc9f6602e54f321f6\transformed\core-1.12.0\AndroidManifest.xml:26:5-97
+72-->[androidx.core:core:1.12.0] C:\Users\John\.gradle\caches\transforms-3\70f2d17beade087cc9f6602e54f321f6\transformed\core-1.12.0\AndroidManifest.xml:26:22-94
+73
+74    <application
+74-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:58:5-146:19
+75        android:allowBackup="true"
+75-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:60:9-35
+76        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+76-->[androidx.core:core:1.12.0] C:\Users\John\.gradle\caches\transforms-3\70f2d17beade087cc9f6602e54f321f6\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
+77        android:debuggable="true"
+78        android:extractNativeLibs="true"
+79        android:hardwareAccelerated="true"
+79-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:65:9-43
+80        android:icon="@drawable/ic_vr_launcher"
+80-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:61:9-48
+81        android:label="@string/app_name"
+81-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:62:9-41
+82        android:requestLegacyExternalStorage="true"
+82-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:59:9-52
+83        android:supportsRtl="true"
+83-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:64:9-35
+84        android:testOnly="true"
+85        android:theme="@style/Theme.Evolve_Launcher"
+85-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:63:9-53
+86        android:usesCleartextTraffic="true" >
+86-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:66:9-44
+87
+88        <!-- Main VR Launcher Activity -->
+89        <activity
+89-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:70:9-87:20
+90            android:name="com.jarjarblinkz.EvolveLauncher.MainActivity"
+90-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:71:13-41
+91            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+91-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:75:13-87
+92            android:exported="true"
+92-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:72:13-36
+93            android:launchMode="singleTask"
+93-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:73:13-44
+94            android:screenOrientation="landscape" >
+94-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:74:13-50
+95            <intent-filter>
+95-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:77:13-82:29
+96                <action android:name="android.intent.action.MAIN" />
+96-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:53:13-65
+96-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:53:21-62
+97
+98                <category android:name="android.intent.category.LAUNCHER" />
+98-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:54:13-73
+98-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:54:23-70
+99                <category android:name="android.intent.category.HOME" />
+99-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:80:17-73
+99-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:80:27-70
+100                <category android:name="android.intent.category.DEFAULT" />
+100-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:81:17-76
+100-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:81:27-73
+101            </intent-filter>
+102
+103            <!-- VR-specific metadata -->
+104            <meta-data
+104-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:85:13-87
+105                android:name="com.oculus.vr.focusaware"
+105-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:85:24-63
+106                android:value="true" />
+106-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:85:64-84
+107            <meta-data
+107-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:86:13-82
+108                android:name="com.oculus.forced3d"
+108-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:86:24-58
+109                android:value="true" />
+109-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:86:59-79
+110        </activity>
+111        <activity
+111-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:89:9-92:40
+112            android:name="com.jarjarblinkz.EvolveLauncher.PlaytimeStatsActivity"
+112-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:90:13-50
+113            android:exported="false"
+113-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:92:13-37
+114            android:theme="@style/Theme.Evolve_Launcher" />
+114-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:91:13-57
+115
+116        <!-- Settings Activity - UPDATED FOR DIALOG STYLE -->
+117        <activity
+117-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:95:9-100:70
+118            android:name="com.jarjarblinkz.EvolveLauncher.SettingsActivity"
+118-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:96:13-45
+119            android:exported="false"
+119-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:97:13-37
+120            android:screenOrientation="landscape"
+120-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:99:13-50
+121            android:theme="@style/Theme.AppCompat.Dialog"
+121-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:98:13-58
+122            android:windowSoftInputMode="stateHidden|adjustResize" />
+122-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:100:13-67
+123        <activity
+123-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:102:9-105:40
+124            android:name="com.jarjarblinkz.EvolveLauncher.DeviceInfoActivity"
+124-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:103:13-47
+125            android:exported="false"
+125-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:105:13-37
+126            android:theme="@style/Theme.Evolve_Launcher" />
+126-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:104:13-57
+127
+128        <!-- App Change Receiver - MUST be exported to receive system broadcasts -->
+129        <receiver
+129-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:108:9-122:20
+130            android:name="com.jarjarblinkz.EvolveLauncher.AppChangeReceiver"
+130-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:109:13-46
+131            android:enabled="true"
+131-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:110:13-35
+132            android:exported="true" >
+132-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:111:13-36
+133            <intent-filter>
+133-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:112:13-121:29
+134
+135                <!-- Detect when apps are installed -->
+136                <action android:name="android.intent.action.PACKAGE_ADDED" />
+136-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:114:17-78
+136-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:114:25-75
+137                <!-- Detect when apps are uninstalled -->
+138                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+138-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:116:17-80
+138-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:116:25-77
+139                <!-- Detect when apps are updated -->
+140                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+140-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:118:17-81
+140-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:118:25-78
+141                <!-- Required to get the package name -->
+142                <data android:scheme="package" />
+142-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:120:17-50
+142-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:120:23-47
+143            </intent-filter>
+144        </receiver>
+145
+146        <!-- NEW: Boot Receiver - Auto-start on device boot -->
+147        <receiver
+147-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:125:9-133:20
+148            android:name="com.jarjarblinkz.EvolveLauncher.BootReceiver"
+148-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:126:13-41
+149            android:enabled="true"
+149-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:127:13-35
+150            android:exported="true" >
+150-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:128:13-36
+151            <intent-filter>
+151-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:129:13-132:29
+152                <action android:name="android.intent.action.BOOT_COMPLETED" />
+152-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:130:17-79
+152-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:130:25-76
 153
-154        <provider
-154-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
-155            android:name="androidx.startup.InitializationProvider"
-155-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
-156            android:authorities="com.jarjarblinkz.EvolveLauncher.androidx-startup"
-156-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
-157            android:exported="false" >
-157-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
-158            <meta-data
-158-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
-159                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-159-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
-160                android:value="androidx.startup" />
-160-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
-161            <meta-data
-161-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\John\.gradle\caches\transforms-3\8be0a2315d83ac5cc588858b646ae154\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:29:13-31:52
-162                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-162-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\John\.gradle\caches\transforms-3\8be0a2315d83ac5cc588858b646ae154\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:30:17-78
-163                android:value="androidx.startup" />
-163-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\John\.gradle\caches\transforms-3\8be0a2315d83ac5cc588858b646ae154\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:31:17-49
+154                <category android:name="android.intent.category.DEFAULT" />
+154-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:81:17-76
+154-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:81:27-73
+155            </intent-filter>
+156        </receiver>
+157
+158        <!-- FileProvider for auto-update APK installation (Android 7.0+) -->
+159        <provider
+160            android:name="androidx.core.content.FileProvider"
+160-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:137:13-62
+161            android:authorities="com.jarjarblinkz.EvolveLauncher.provider"
+161-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:138:13-60
+162            android:exported="false"
+162-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:139:13-37
+163            android:grantUriPermissions="true" >
+163-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:140:13-47
 164            <meta-data
-164-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
-165                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-165-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
-166                android:value="androidx.startup" />
-166-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+164-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:141:13-143:54
+165                android:name="android.support.FILE_PROVIDER_PATHS"
+165-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:142:17-67
+166                android:resource="@xml/file_paths" />
+166-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:143:17-51
 167        </provider>
-168
-169        <receiver
-169-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
-170            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-170-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
-171            android:directBootAware="false"
-171-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
-172            android:enabled="true"
-172-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
-173            android:exported="true"
-173-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
-174            android:permission="android.permission.DUMP" >
-174-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
-175            <intent-filter>
-175-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
-176                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-176-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
-176-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
-177            </intent-filter>
-178            <intent-filter>
-178-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
-179                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-179-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
-179-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
-180            </intent-filter>
-181            <intent-filter>
-181-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
-182                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-182-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
-182-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
-183            </intent-filter>
-184            <intent-filter>
-184-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
-185                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-185-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
-185-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
-186            </intent-filter>
-187        </receiver>
-188    </application>
-189
-190</manifest>
+168        <provider
+168-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+169            android:name="androidx.startup.InitializationProvider"
+169-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+170            android:authorities="com.jarjarblinkz.EvolveLauncher.androidx-startup"
+170-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+171            android:exported="false" >
+171-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+172            <meta-data
+172-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+173                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+173-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+174                android:value="androidx.startup" />
+174-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+175            <meta-data
+175-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\John\.gradle\caches\transforms-3\8be0a2315d83ac5cc588858b646ae154\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:29:13-31:52
+176                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+176-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\John\.gradle\caches\transforms-3\8be0a2315d83ac5cc588858b646ae154\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:30:17-78
+177                android:value="androidx.startup" />
+177-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\John\.gradle\caches\transforms-3\8be0a2315d83ac5cc588858b646ae154\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:31:17-49
+178            <meta-data
+178-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+179                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+179-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+180                android:value="androidx.startup" />
+180-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+181        </provider>
+182
+183        <receiver
+183-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+184            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+184-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+185            android:directBootAware="false"
+185-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+186            android:enabled="true"
+186-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+187            android:exported="true"
+187-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+188            android:permission="android.permission.DUMP" >
+188-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+189            <intent-filter>
+189-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+190                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+190-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+190-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+191            </intent-filter>
+192            <intent-filter>
+192-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+193                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+193-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+193-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+194            </intent-filter>
+195            <intent-filter>
+195-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+196                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+196-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+196-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+197            </intent-filter>
+198            <intent-filter>
+198-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+199                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+199-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+199-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+200            </intent-filter>
+201        </receiver>
+202    </application>
+203
+204</manifest>

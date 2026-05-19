@@ -1,4 +1,4 @@
-com.jarjarblinkz.EvolveLauncher.test.app-androidTest-0 C:\Users\John\AndroidStudioProjects\VRPLAUNCHER_COMPLETE\app\build\generated\res\resValues\androidTest\debug
-com.jarjarblinkz.EvolveLauncher.test.app-mergeDebugAndroidTestResources-1 C:\Users\John\AndroidStudioProjects\VRPLAUNCHER_COMPLETE\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
-com.jarjarblinkz.EvolveLauncher.test.app-mergeDebugAndroidTestResources-2 C:\Users\John\AndroidStudioProjects\VRPLAUNCHER_COMPLETE\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
-com.jarjarblinkz.EvolveLauncher.test.app-merged_res-3 C:\Users\John\AndroidStudioProjects\VRPLAUNCHER_COMPLETE\app\build\intermediates\merged_res\debugAndroidTest
+com.jarjarblinkz.EvolveLauncher.test.app-androidTest-0 C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\build\generated\res\resValues\androidTest\debug
+com.jarjarblinkz.EvolveLauncher.test.app-mergeDebugAndroidTestResources-1 C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
+com.jarjarblinkz.EvolveLauncher.test.app-mergeDebugAndroidTestResources-2 C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
+com.jarjarblinkz.EvolveLauncher.test.app-merged_res-3 C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\build\intermediates\merged_res\debugAndroidTest

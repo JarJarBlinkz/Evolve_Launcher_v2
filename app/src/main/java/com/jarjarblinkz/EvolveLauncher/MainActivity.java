@@ -118,6 +118,9 @@ public class MainActivity extends AppCompatActivity {
     private static final boolean ENABLE_IMAGE_CACHING = true;
     public static MainActivity instance;
 
+    // Auto-update manager
+    private UpdateManager updateManager;
+
     private static final String PREFS_NAME = "VRLPrefs";
     private static final String KEY_PERMISSION_GRANTED = "usage_stats_permission_granted";
     private static final String KEY_PERMISSION_CHECKED = "usage_stats_permission_checked";
@@ -417,6 +420,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // Initialize auto-update manager
+        updateManager = new UpdateManager(this);
+
+        // Check for updates if enough time has passed
+        if (updateManager.shouldCheckForUpdates()) {
+            // Check silently in background (don't show toast if no update)
+            updateManager.checkForUpdates(false);
+        }
 
         startStatusUpdates();
 
@@ -2649,6 +2661,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         instance = null;
+
+        // Clean up update manager
+        if (updateManager != null) {
+            updateManager.cleanup();
+        }
 
         if (executorService != null && !executorService.isShutdown()) {
             executorService.shutdown();

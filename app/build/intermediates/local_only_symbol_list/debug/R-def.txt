@@ -56,6 +56,7 @@ id btnBackup
 id btnBgBuiltin
 id btnBgCustom
 id btnBgDefault
+id btnCheckUpdates
 id btnClosePanel
 id btnDeviceInfo
 id btnGameStats
@@ -92,6 +93,7 @@ id seekBgOpacity
 id seekIconSize
 id seekVolume
 id switchAutoStart
+id switchAutoUpdate
 id switchCategories
 id switchEditMode
 id tabTimeRange
@@ -113,6 +115,7 @@ id txtBuildNumber
 id txtBuildVersion
 id txtCpuCores
 id txtCurrentPlaytime
+id txtCurrentVersion
 id txtCurrentlyPlaying
 id txtDensity
 id txtDeviceIP
