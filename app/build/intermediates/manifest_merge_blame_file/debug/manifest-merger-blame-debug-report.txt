@@ -2,7 +2,7 @@
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 3    package="com.jarjarblinkz.EvolveLauncher"
 4    android:versionCode="1"
-5    android:versionName="1.0.0" >
+5    android:versionName="2.0.1" >
 6
 7    <uses-sdk
 8        android:minSdkVersion="21"
@@ -126,7 +126,7 @@
 72-->[androidx.core:core:1.12.0] C:\Users\John\.gradle\caches\transforms-3\70f2d17beade087cc9f6602e54f321f6\transformed\core-1.12.0\AndroidManifest.xml:26:22-94
 73
 74    <application
-74-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:58:5-146:19
+74-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:58:5-152:19
 75        android:allowBackup="true"
 75-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:60:9-35
 76        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
@@ -293,71 +293,82 @@
 166                android:resource="@xml/file_paths" />
 166-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:143:17-51
 167        </provider>
-168        <provider
-168-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
-169            android:name="androidx.startup.InitializationProvider"
-169-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
-170            android:authorities="com.jarjarblinkz.EvolveLauncher.androidx-startup"
-170-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
-171            android:exported="false" >
-171-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
-172            <meta-data
-172-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
-173                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-173-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
-174                android:value="androidx.startup" />
-174-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
-175            <meta-data
-175-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\John\.gradle\caches\transforms-3\8be0a2315d83ac5cc588858b646ae154\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:29:13-31:52
-176                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-176-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\John\.gradle\caches\transforms-3\8be0a2315d83ac5cc588858b646ae154\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:30:17-78
-177                android:value="androidx.startup" />
-177-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\John\.gradle\caches\transforms-3\8be0a2315d83ac5cc588858b646ae154\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:31:17-49
-178            <meta-data
-178-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
-179                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-179-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
-180                android:value="androidx.startup" />
-180-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
-181        </provider>
-182
-183        <receiver
-183-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
-184            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-184-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
-185            android:directBootAware="false"
-185-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
-186            android:enabled="true"
-186-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
-187            android:exported="true"
-187-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
-188            android:permission="android.permission.DUMP" >
-188-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
-189            <intent-filter>
-189-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
-190                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-190-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
-190-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
-191            </intent-filter>
-192            <intent-filter>
-192-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
-193                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-193-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
-193-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
-194            </intent-filter>
-195            <intent-filter>
-195-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
-196                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-196-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
-196-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
-197            </intent-filter>
-198            <intent-filter>
-198-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
-199                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-199-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
-199-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
-200            </intent-filter>
-201        </receiver>
-202    </application>
-203
-204</manifest>
+168
+169        <!-- VR Shell Monitor Service - Auto-restart launcher if VR shell restarts -->
+170        <service
+170-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:147:9-150:40
+171            android:name="com.jarjarblinkz.EvolveLauncher.VRShellMonitorService"
+171-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:148:13-50
+172            android:enabled="true"
+172-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:149:13-35
+173            android:exported="false" />
+173-->C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:150:13-37
+174
+175        <provider
+175-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+176            android:name="androidx.startup.InitializationProvider"
+176-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+177            android:authorities="com.jarjarblinkz.EvolveLauncher.androidx-startup"
+177-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+178            android:exported="false" >
+178-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+179            <meta-data
+179-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+180                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+180-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+181                android:value="androidx.startup" />
+181-->[androidx.emoji2:emoji2:1.2.0] C:\Users\John\.gradle\caches\transforms-3\ffc9f230be04c872a4d3d8344b79f804\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+182            <meta-data
+182-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\John\.gradle\caches\transforms-3\8be0a2315d83ac5cc588858b646ae154\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:29:13-31:52
+183                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+183-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\John\.gradle\caches\transforms-3\8be0a2315d83ac5cc588858b646ae154\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:30:17-78
+184                android:value="androidx.startup" />
+184-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\John\.gradle\caches\transforms-3\8be0a2315d83ac5cc588858b646ae154\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:31:17-49
+185            <meta-data
+185-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+186                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+186-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+187                android:value="androidx.startup" />
+187-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+188        </provider>
+189
+190        <receiver
+190-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+191            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+191-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+192            android:directBootAware="false"
+192-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+193            android:enabled="true"
+193-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+194            android:exported="true"
+194-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+195            android:permission="android.permission.DUMP" >
+195-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+196            <intent-filter>
+196-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+197                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+197-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+197-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+198            </intent-filter>
+199            <intent-filter>
+199-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+200                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+200-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+200-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+201            </intent-filter>
+202            <intent-filter>
+202-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+203                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+203-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+203-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+204            </intent-filter>
+205            <intent-filter>
+205-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+206                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+206-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+206-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\John\.gradle\caches\transforms-3\3adce4beab7a9ef561125662a0269d94\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+207            </intent-filter>
+208        </receiver>
+209    </application>
+210
+211</manifest>

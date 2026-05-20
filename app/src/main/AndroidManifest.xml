@@ -143,6 +143,12 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <!-- VR Shell Monitor Service - Auto-restart launcher if VR shell restarts -->
+        <service
+            android:name=".VRShellMonitorService"
+            android:enabled="true"
+            android:exported="false" />
+
     </application>
 
 </manifest>

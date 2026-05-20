@@ -1,38 +1,34 @@
 [
     {
-        "merged": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:\\layout\\activity_playtime_stats.xml",
-        "source": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-main-36:\\layout\\activity_playtime_stats.xml"
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/item_app.xml",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/item_app.xml"
     },
     {
-        "merged": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:\\layout\\item_playtime_stats.xml",
-        "source": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-main-36:\\layout\\item_playtime_stats.xml"
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/activity_device_info.xml",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/activity_device_info.xml"
     },
     {
-        "merged": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:\\layout\\activity_main.xml",
-        "source": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-main-36:\\layout\\activity_main.xml"
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/activity_playtime_stats.xml",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/activity_playtime_stats.xml"
     },
     {
-        "merged": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:\\layout\\item_app.xml",
-        "source": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-main-36:\\layout\\item_app.xml"
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/item_playtime_stat.xml",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/item_playtime_stat.xml"
     },
     {
-        "merged": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:\\layout\\panel_quick_settings.xml",
-        "source": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-main-36:\\layout\\panel_quick_settings.xml"
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/panel_quick_settings.xml",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/panel_quick_settings.xml"
     },
     {
-        "merged": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:\\layout\\item_playtime_stat.xml",
-        "source": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-main-36:\\layout\\item_playtime_stat.xml"
-    },
-    {
-        "merged": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:\\layout\\activity_settings.xml",
-        "source": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-main-36:\\layout\\activity_settings.xml"
-    },
-    {
-        "merged": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:\\layout\\activity_device_info.xml",
-        "source": "C:\\Users\\John\\.gradle\\daemon\\8.2\\com.jarjarblinkz.EvolveLauncher.app-main-36:\\layout\\activity_device_info.xml"
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/item_playtime_stats.xml",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/item_playtime_stats.xml"
     },
     {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/activity_settings.xml",
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/activity_settings.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/activity_main.xml",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/activity_main.xml"
     }
 ]

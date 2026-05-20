@@ -11,10 +11,10 @@ INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\A
 	android:name
 		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:137:13-62
 manifest
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-148:12
-INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-148:12
-INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-148:12
-INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-148:12
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-154:12
+INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-154:12
+INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-154:12
+INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-154:12
 MERGED from [androidx.databinding:viewbinding:8.1.0] C:\Users\John\.gradle\caches\transforms-3\00e2acebc093f31fc101cbde970cc5f3\transformed\jetified-viewbinding-8.1.0\AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\John\.gradle\caches\transforms-3\c4900d639e954e0b7108cc66d146b04a\transformed\material-1.11.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\John\.gradle\caches\transforms-3\5ac1a77a0c0acea2ffed7e0e03c7c5d2\transformed\jetified-appcompat-resources-1.6.1\AndroidManifest.xml:17:1-22:12
@@ -172,8 +172,8 @@ ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\Andr
 	android:name
 		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:54:23-70
 application
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:58:5-146:19
-INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:58:5-146:19
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:58:5-152:19
+INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:58:5-152:19
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\John\.gradle\caches\transforms-3\c4900d639e954e0b7108cc66d146b04a\transformed\material-1.11.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\John\.gradle\caches\transforms-3\c4900d639e954e0b7108cc66d146b04a\transformed\material-1.11.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\John\.gradle\caches\transforms-3\2f25c0cdca40d8c1a5ae019468d900ef\transformed\constraintlayout-2.0.1\AndroidManifest.xml:9:5-20
@@ -314,6 +314,14 @@ action#android.intent.action.BOOT_COMPLETED
 ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:130:17-79
 	android:name
 		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:130:25-76
+service#com.jarjarblinkz.EvolveLauncher.VRShellMonitorService
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:147:9-150:40
+	android:enabled
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:149:13-35
+	android:exported
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:150:13-37
+	android:name
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:148:13-50
 meta-data#android.support.FILE_PROVIDER_PATHS
 ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:141:13-143:54
 	android:resource

@@ -27,6 +27,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -429,6 +430,9 @@ public class MainActivity extends AppCompatActivity {
             // Check silently in background (don't show toast if no update)
             updateManager.checkForUpdates(false);
         }
+
+        // Start VR Shell Monitor service to auto-restart launcher if VR shell restarts
+        startVRShellMonitor();
 
         startStatusUpdates();
 
@@ -2637,6 +2641,21 @@ public class MainActivity extends AppCompatActivity {
             unregisterReceiver(appChangeListener);
         } catch (IllegalArgumentException e) {
             // Receiver not registered, safe to ignore
+        }
+    }
+
+    /**
+     * Start VR Shell Monitor service to auto-restart launcher
+     */
+    private void startVRShellMonitor() {
+        try {
+            Intent serviceIntent = new Intent(this, VRShellMonitorService.class);
+            // Use startService instead of startForegroundService for background monitoring
+            // This avoids the need for startForeground() notification
+            startService(serviceIntent);
+            Log.i("MainActivity", "VR Shell Monitor service started");
+        } catch (Exception e) {
+            Log.e("MainActivity", "Failed to start VR Shell Monitor service", e);
         }
     }
 

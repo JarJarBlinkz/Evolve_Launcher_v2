@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jarjarblinkz.EvolveLauncher"
     android:versionCode="1"
-    android:versionName="1.0.0" >
+    android:versionName="2.0.1" >
 
     <uses-sdk
         android:minSdkVersion="21"
@@ -165,6 +165,13 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <!-- VR Shell Monitor Service - Auto-restart launcher if VR shell restarts -->
+        <service
+            android:name="com.jarjarblinkz.EvolveLauncher.VRShellMonitorService"
+            android:enabled="true"
+            android:exported="false" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="com.jarjarblinkz.EvolveLauncher.androidx-startup"
