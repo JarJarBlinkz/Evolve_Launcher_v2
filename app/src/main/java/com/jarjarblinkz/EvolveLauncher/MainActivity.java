@@ -119,9 +119,6 @@ public class MainActivity extends AppCompatActivity {
     private static final boolean ENABLE_IMAGE_CACHING = true;
     public static MainActivity instance;
 
-    // Auto-update manager
-    private UpdateManager updateManager;
-
     private static final String PREFS_NAME = "VRLPrefs";
     private static final String KEY_PERMISSION_GRANTED = "usage_stats_permission_granted";
     private static final String KEY_PERMISSION_CHECKED = "usage_stats_permission_checked";
@@ -422,22 +419,36 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Initialize auto-update manager
-        updateManager = new UpdateManager(this);
-
-        // Check for updates if enough time has passed
-        if (updateManager.shouldCheckForUpdates()) {
-            // Check silently in background (don't show toast if no update)
-            updateManager.checkForUpdates(false);
-        }
-
-        // Start VR Shell Monitor service to auto-restart launcher if VR shell restarts
-        startVRShellMonitor();
-
         startStatusUpdates();
 
         // Setup Quick Settings panel
         setupQuickSettings();
+
+        // Start VR Shell Monitor service for auto-restart functionality
+        startVRShellMonitor();
+    }
+
+    /**
+     * Start VR Shell Monitor service to auto-restart launcher
+     * This service monitors when the user returns to Quest home and
+     * automatically reopens the launcher
+     */
+    private void startVRShellMonitor() {
+        try {
+            Intent serviceIntent = new Intent(this, VRShellMonitorService.class);
+
+            // Use startForegroundService for Android 8.0+
+            // Service will call startForeground() with notification
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
+
+            Log.i("MainActivity", "VR Shell Monitor service started");
+        } catch (Exception e) {
+            Log.e("MainActivity", "Failed to start VR Shell Monitor service", e);
+        }
     }
 
     // ===== QUICK SETTINGS METHODS =====
@@ -2644,21 +2655,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Start VR Shell Monitor service to auto-restart launcher
-     */
-    private void startVRShellMonitor() {
-        try {
-            Intent serviceIntent = new Intent(this, VRShellMonitorService.class);
-            // Use startService instead of startForegroundService for background monitoring
-            // This avoids the need for startForeground() notification
-            startService(serviceIntent);
-            Log.i("MainActivity", "VR Shell Monitor service started");
-        } catch (Exception e) {
-            Log.e("MainActivity", "Failed to start VR Shell Monitor service", e);
-        }
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -2680,11 +2676,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         instance = null;
-
-        // Clean up update manager
-        if (updateManager != null) {
-            updateManager.cleanup();
-        }
 
         if (executorService != null && !executorService.isShutdown()) {
             executorService.shutdown();

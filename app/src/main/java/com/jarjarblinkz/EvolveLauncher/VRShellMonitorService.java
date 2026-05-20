@@ -1,5 +1,8 @@
 package com.jarjarblinkz.EvolveLauncher;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,8 +21,8 @@ import android.util.Log;
 public class VRShellMonitorService extends Service {
 
     private static final String TAG = "VRShellMonitor";
-    private static final long CHECK_INTERVAL = 1000; // Check every 1 second (aggressive!)
-    private static final long IMMEDIATE_RESTART_DELAY = 500; // 500ms delay before restart
+    private static final long CHECK_INTERVAL = 500; // Check every 500ms (more responsive!)
+    private static final long IMMEDIATE_RESTART_DELAY = 200; // 200ms delay before restart (faster!)
 
     private Handler handler;
     private Runnable checkRunnable;
@@ -32,6 +35,9 @@ public class VRShellMonitorService extends Service {
         super.onCreate();
         Log.i(TAG, "AGGRESSIVE VR Shell Monitor Service created - launcher will ALWAYS be open in home");
 
+        // Start as foreground service to run in background
+        startForegroundService();
+
         handler = new Handler(Looper.getMainLooper());
 
         // Register all receivers for maximum coverage
@@ -41,6 +47,54 @@ public class VRShellMonitorService extends Service {
 
         // Start aggressive periodic checking
         startAggressiveCheck();
+    }
+
+    /**
+     * Start as foreground service with notification
+     * Required for Android 8.0+ to run in background
+     */
+    private void startForegroundService() {
+        try {
+            String channelId = "vrshell_monitor";
+
+            // Create notification channel (Android 8.0+)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = new NotificationChannel(
+                        channelId,
+                        "Launcher Monitor",
+                        NotificationManager.IMPORTANCE_LOW
+                );
+                channel.setDescription("Keeps launcher ready");
+                channel.setShowBadge(false);
+
+                NotificationManager manager = getSystemService(NotificationManager.class);
+                if (manager != null) {
+                    manager.createNotificationChannel(channel);
+                }
+            }
+
+            // Create minimal notification
+            Notification.Builder builder;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                builder = new Notification.Builder(this, channelId);
+            } else {
+                builder = new Notification.Builder(this);
+            }
+
+            Notification notification = builder
+                    .setContentTitle("Evolve Launcher")
+                    .setContentText("Launcher is ready")
+                    .setSmallIcon(android.R.drawable.ic_menu_view)
+                    .setOngoing(true)
+                    .build();
+
+            // Start foreground
+            startForeground(1, notification);
+            Log.i(TAG, "Started as foreground service");
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error starting foreground service", e);
+        }
     }
 
     /**
@@ -194,48 +248,59 @@ public class VRShellMonitorService extends Service {
      */
     private boolean isUserInHomeEnvironment() {
         try {
-            android.app.ActivityManager am = (android.app.ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                // Check running tasks
-                java.util.List<android.app.ActivityManager.AppTask> tasks = am.getAppTasks();
-                if (tasks == null || tasks.isEmpty()) {
-                    // No tasks running = user in home
-                    return true;
-                }
-            }
-
-            // Check which app is in foreground
+            // Get foreground app
             String foregroundPackage = getForegroundPackage();
 
             if (foregroundPackage == null || foregroundPackage.isEmpty()) {
-                // No app in foreground = user in home
+                // Can't determine foreground = might be in home
+                Log.d(TAG, "No foreground package detected - might be in home");
+                return true; // Err on the side of reopening
+            }
+
+            Log.d(TAG, "Foreground app: " + foregroundPackage);
+
+            // CRITICAL: DON'T restart if we're already the foreground app!
+            if (foregroundPackage.equals(getPackageName())) {
+                Log.d(TAG, "We're already foreground - no restart needed");
+                return false;
+            }
+
+            // User is in home environment if VR shell is foreground
+            boolean isVRShellForeground = foregroundPackage.equals("com.oculus.vrshell");
+
+            // Also check for other Meta system components that indicate home
+            boolean isMetaHome = foregroundPackage.equals("com.oculus.home") ||
+                    foregroundPackage.equals("com.oculus.systemux") ||
+                    foregroundPackage.equals("com.oculus.homebase") ||
+                    foregroundPackage.equals("com.meta.horizon") ||
+                    foregroundPackage.contains("com.oculus.systemactivities");
+
+            // Check for Android system UI (appears during transitions)
+            boolean isSystemUI = foregroundPackage.equals("com.android.systemui") ||
+                    foregroundPackage.equals("android");
+
+            if (isVRShellForeground) {
+                Log.i(TAG, "✅ VR Shell is foreground - user in home!");
                 return true;
             }
 
-            // If system UI or launcher or nothing = user in home
-            if (foregroundPackage.contains("systemui") ||
-                    foregroundPackage.contains("launcher") ||
-                    foregroundPackage.equals(getPackageName())) {
+            if (isMetaHome) {
+                Log.i(TAG, "✅ Meta home component is foreground - user in home!");
                 return true;
             }
 
-            // Check if it's a system app/overlay - these don't count as "user in app"
-            if (foregroundPackage.contains("android") ||
-                    foregroundPackage.contains("com.android") ||
-                    foregroundPackage.contains("com.oculus") ||
-                    foregroundPackage.contains("com.meta")) {
-                // System app in foreground = treat as home environment
+            if (isSystemUI) {
+                Log.i(TAG, "✅ System UI is foreground - likely transitioning to home");
                 return true;
             }
 
-            // A real user app is running in foreground
+            // Otherwise user is in another app
+            Log.d(TAG, "User in app: " + foregroundPackage);
             return false;
 
         } catch (Exception e) {
             Log.e(TAG, "Error checking home environment", e);
-            // Default to true - assume home environment if we can't tell
-            return true;
+            return false;
         }
     }
 
@@ -333,7 +398,7 @@ public class VRShellMonitorService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "VR Shell Monitor Service destroyed - attempting to restart...");
+        Log.i(TAG, "VR Shell Monitor Service destroyed - will auto-restart via START_STICKY");
 
         // Clean up handlers
         if (handler != null && checkRunnable != null) {
@@ -359,14 +424,9 @@ public class VRShellMonitorService extends Service {
             Log.e(TAG, "Error unregistering package receiver", e);
         }
 
-        // Try to restart ourselves
-        try {
-            Intent restartIntent = new Intent(getApplicationContext(), VRShellMonitorService.class);
-            startService(restartIntent);
-            Log.i(TAG, "Service restart initiated");
-        } catch (Exception e) {
-            Log.e(TAG, "Could not restart service", e);
-        }
+        // Don't manually restart - START_STICKY will automatically restart us
+        // Manual restart causes BackgroundServiceStartNotAllowedException on Android 8.0+
+        Log.i(TAG, "Cleanup complete - Android will auto-restart service");
     }
 
     @Override

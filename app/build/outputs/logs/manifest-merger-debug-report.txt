@@ -1,20 +1,9 @@
 -- Merging decision tree log ---
-provider#androidx.core.content.FileProvider
-INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:136:9-144:20
-	android:grantUriPermissions
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:140:13-47
-	android:authorities
-		INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:138:13-60
-	android:exported
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:139:13-37
-	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:137:13-62
 manifest
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-154:12
-INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-154:12
-INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-154:12
-INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-154:12
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-149:12
+INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-149:12
+INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-149:12
+INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:2:1-149:12
 MERGED from [androidx.databinding:viewbinding:8.1.0] C:\Users\John\.gradle\caches\transforms-3\00e2acebc093f31fc101cbde970cc5f3\transformed\jetified-viewbinding-8.1.0\AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\John\.gradle\caches\transforms-3\c4900d639e954e0b7108cc66d146b04a\transformed\material-1.11.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\John\.gradle\caches\transforms-3\5ac1a77a0c0acea2ffed7e0e03c7c5d2\transformed\jetified-appcompat-resources-1.6.1\AndroidManifest.xml:17:1-22:12
@@ -131,49 +120,59 @@ uses-permission#android.permission.READ_MEDIA_IMAGES
 ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:27:5-76
 	android:name
 		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:27:22-73
-uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:29:5-81
-	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:29:22-78
-uses-permission#android.permission.MANAGE_EXTERNAL_STORAGE
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:31:5-111
-	tools:ignore
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:31:80-108
-	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:31:22-79
 uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:34:5-81
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:30:5-81
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:34:22-78
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:30:22-78
 uses-permission#android.permission.SYSTEM_ALERT_WINDOW
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:37:5-78
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:33:5-78
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:37:22-75
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:33:22-75
 uses-permission#android.permission.BATTERY_STATS
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:40:5-72
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:36:5-72
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:40:22-69
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:36:22-69
 uses-permission#android.permission.PACKAGE_USAGE_STATS
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:43:5-45:47
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:39:5-41:47
 	tools:ignore
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:45:9-44
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:41:9-44
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:44:9-62
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:40:9-62
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:45:5-81
+	android:name
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:45:22-78
+uses-permission#android.permission.MANAGE_EXTERNAL_STORAGE
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:48:5-82
+	android:name
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:48:22-79
+uses-permission#android.permission.FOREGROUND_SERVICE
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:51:5-77
+	android:name
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:51:22-74
+uses-permission#android.permission.GET_TASKS
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:52:5-68
+	android:name
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:52:22-65
+uses-permission#android.permission.FOREGROUND_SERVICE_DATA_SYNC
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:53:5-87
+	android:name
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:53:22-84
 queries
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:51:5-56:15
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:55:5-60:15
 intent#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:52:9-55:18
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:56:9-59:18
 action#android.intent.action.MAIN
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:53:13-65
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:57:13-65
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:53:21-62
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:57:21-62
 category#android.intent.category.LAUNCHER
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:54:13-73
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:58:13-73
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:54:23-70
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:58:23-70
 application
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:58:5-152:19
-INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:58:5-152:19
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:62:5-147:19
+INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:62:5-147:19
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\John\.gradle\caches\transforms-3\c4900d639e954e0b7108cc66d146b04a\transformed\material-1.11.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\John\.gradle\caches\transforms-3\c4900d639e954e0b7108cc66d146b04a\transformed\material-1.11.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\John\.gradle\caches\transforms-3\2f25c0cdca40d8c1a5ae019468d900ef\transformed\constraintlayout-2.0.1\AndroidManifest.xml:9:5-20
@@ -193,141 +192,139 @@ MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Jo
 	android:extractNativeLibs
 		INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml
 	android:requestLegacyExternalStorage
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:59:9-52
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:63:9-52
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.12.0] C:\Users\John\.gradle\caches\transforms-3\70f2d17beade087cc9f6602e54f321f6\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:64:9-35
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:69:9-35
 	android:label
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:62:9-41
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:67:9-41
 	android:hardwareAccelerated
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:65:9-43
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:70:9-43
+	android:roundIcon
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:66:9-54
 	tools:targetApi
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:67:9-29
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:72:9-29
 	android:icon
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:61:9-48
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:65:9-43
 	android:allowBackup
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:60:9-35
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:64:9-35
 	android:theme
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:63:9-53
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:68:9-53
 	android:usesCleartextTraffic
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:66:9-44
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:71:9-44
 activity#com.jarjarblinkz.EvolveLauncher.MainActivity
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:70:9-87:20
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:75:9-92:20
 	android:screenOrientation
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:74:13-50
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:79:13-50
 	android:launchMode
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:73:13-44
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:78:13-44
 	android:exported
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:72:13-36
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:77:13-36
 	android:configChanges
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:75:13-87
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:80:13-87
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:71:13-41
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:76:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.DEFAULT+category:name:android.intent.category.HOME+category:name:android.intent.category.LAUNCHER
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:77:13-82:29
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:82:13-87:29
 category#android.intent.category.HOME
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:80:17-73
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:85:17-73
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:80:27-70
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:85:27-70
 category#android.intent.category.DEFAULT
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:81:17-76
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:86:17-76
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:81:27-73
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:86:27-73
 meta-data#com.oculus.vr.focusaware
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:85:13-87
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:90:13-87
 	android:value
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:85:64-84
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:90:64-84
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:85:24-63
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:90:24-63
 meta-data#com.oculus.forced3d
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:86:13-82
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:91:13-82
 	android:value
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:86:59-79
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:91:59-79
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:86:24-58
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:91:24-58
 activity#com.jarjarblinkz.EvolveLauncher.PlaytimeStatsActivity
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:89:9-92:40
-	android:exported
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:92:13-37
-	android:theme
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:91:13-57
-	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:90:13-50
-activity#com.jarjarblinkz.EvolveLauncher.SettingsActivity
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:95:9-100:70
-	android:screenOrientation
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:99:13-50
-	android:windowSoftInputMode
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:100:13-67
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:94:9-97:40
 	android:exported
 		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:97:13-37
 	android:theme
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:98:13-58
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:96:13-57
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:96:13-45
-activity#com.jarjarblinkz.EvolveLauncher.DeviceInfoActivity
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:102:9-105:40
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:95:13-50
+activity#com.jarjarblinkz.EvolveLauncher.SettingsActivity
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:100:9-105:70
+	android:screenOrientation
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:104:13-50
+	android:windowSoftInputMode
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:105:13-67
 	android:exported
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:105:13-37
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:102:13-37
 	android:theme
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:104:13-57
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:103:13-58
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:103:13-47
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:101:13-45
+activity#com.jarjarblinkz.EvolveLauncher.DeviceInfoActivity
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:107:9-110:40
+	android:exported
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:110:13-37
+	android:theme
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:109:13-57
+	android:name
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:108:13-47
 receiver#com.jarjarblinkz.EvolveLauncher.AppChangeReceiver
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:108:9-122:20
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:113:9-127:20
 	android:enabled
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:110:13-35
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:115:13-35
 	android:exported
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:111:13-36
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:116:13-36
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:109:13-46
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:114:13-46
 intent-filter#action:name:android.intent.action.PACKAGE_ADDED+action:name:android.intent.action.PACKAGE_REMOVED+action:name:android.intent.action.PACKAGE_REPLACED+data:scheme:package
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:112:13-121:29
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:117:13-126:29
 action#android.intent.action.PACKAGE_ADDED
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:114:17-78
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:119:17-78
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:114:25-75
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:119:25-75
 action#android.intent.action.PACKAGE_REMOVED
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:116:17-80
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:121:17-80
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:116:25-77
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:121:25-77
 action#android.intent.action.PACKAGE_REPLACED
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:118:17-81
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:123:17-81
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:118:25-78
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:123:25-78
 data
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:120:17-50
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:125:17-50
 	android:scheme
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:120:23-47
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:125:23-47
 receiver#com.jarjarblinkz.EvolveLauncher.BootReceiver
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:125:9-133:20
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:130:9-138:20
 	android:enabled
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:127:13-35
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:132:13-35
 	android:exported
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:128:13-36
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:133:13-36
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:126:13-41
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:131:13-41
 intent-filter#action:name:android.intent.action.BOOT_COMPLETED+category:name:android.intent.category.DEFAULT
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:129:13-132:29
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:134:13-137:29
 action#android.intent.action.BOOT_COMPLETED
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:130:17-79
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:135:17-79
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:130:25-76
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:135:25-76
 service#com.jarjarblinkz.EvolveLauncher.VRShellMonitorService
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:147:9-150:40
+ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:141:9-145:56
 	android:enabled
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:149:13-35
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:143:13-35
 	android:exported
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:150:13-37
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:144:13-37
+	android:foregroundServiceType
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:145:13-53
 	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:148:13-50
-meta-data#android.support.FILE_PROVIDER_PATHS
-ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:141:13-143:54
-	android:resource
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:143:17-51
-	android:name
-		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:142:17-67
+		ADDED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml:142:13-50
 uses-sdk
 INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\John\AndroidStudioProjects\Evolve_COMPLETE\app\src\main\AndroidManifest.xml

@@ -41,32 +41,32 @@
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:layout_marginEnd="8dp"
-                        android:src="@drawable/ic_vr_headset"
-                        android:tint="#6B8EFF" />
+                        android:src="@drawable/ic_evolve_logo"/>
+                <!--android:tint="#6B8EFF" />-->
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Evolve Launcher"
-                            android:textColor="#FFFFFF"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Evolve Launcher"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Quest Edition"
-                            android:textColor="#B3FFFFFF"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-                </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Quest Edition"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="10sp" />
+            </LinearLayout>
+        </LinearLayout>
 
-                <!-- Right Side Controls (Settings, Battery, Search) -->
+        <!-- Right Side Controls (Settings, Battery, Search) -->
                 <LinearLayout
                     android:id="@+id/rightControls"
                     android:layout_width="wrap_content"

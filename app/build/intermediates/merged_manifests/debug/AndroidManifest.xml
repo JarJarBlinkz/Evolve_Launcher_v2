@@ -36,10 +36,6 @@
     <!-- Storage permissions for custom background images -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <!-- WRITE permission for backup functionality -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!-- MANAGE_EXTERNAL_STORAGE for Android 11+ to save backups to /sdcard/ -->
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
     <!-- NEW: Boot completed permission for auto-start -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -56,6 +52,14 @@
     <!-- USED FOR SETTINGS BACKUP -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- NEW: For backup to /sdcard/ (Android 11+) -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+
+    <!-- NEW: VRShellMonitorService permissions -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <queries>
         <intent>
@@ -77,9 +81,10 @@
         android:debuggable="true"
         android:extractNativeLibs="true"
         android:hardwareAccelerated="true"
-        android:icon="@drawable/ic_vr_launcher"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:testOnly="true"
         android:theme="@style/Theme.Evolve_Launcher"
@@ -155,22 +160,12 @@
             </intent-filter>
         </receiver>
 
-        <!-- FileProvider for auto-update APK installation (Android 7.0+) -->
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="com.jarjarblinkz.EvolveLauncher.provider"
-            android:exported="false"
-            android:grantUriPermissions="true" >
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
-
-        <!-- VR Shell Monitor Service - Auto-restart launcher if VR shell restarts -->
+        <!-- NEW: VR Shell Monitor Service - Auto-restart launcher -->
         <service
             android:name="com.jarjarblinkz.EvolveLauncher.VRShellMonitorService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <provider
             android:name="androidx.startup.InitializationProvider"

@@ -2935,8 +2935,8 @@ drawable ic_delete
 drawable ic_dnd
 drawable ic_drag
 drawable ic_drag_handle
+drawable ic_evolve_logo
 drawable ic_keyboard_black_24dp
-drawable ic_launcher
 drawable ic_m3_chip_check
 drawable ic_m3_chip_checked_circle
 drawable ic_m3_chip_close
@@ -2952,7 +2952,6 @@ drawable ic_search_black_24
 drawable ic_settings
 drawable ic_storage
 drawable ic_vr_headset
-drawable ic_vr_launcher
 drawable ic_wifi
 drawable ic_wifi_full
 drawable ic_wifi_low
@@ -3812,6 +3811,8 @@ layout select_dialog_item_material
 layout select_dialog_multichoice_material
 layout select_dialog_singlechoice_material
 layout support_simple_spinner_dropdown_item
+mipmap ic_launcher
+mipmap ic_launcher_round
 plurals mtrl_badge_content_description
 string abc_action_bar_home_description
 string abc_action_bar_up_description

@@ -27,7 +27,7 @@ drawable ic_delete
 drawable ic_dnd
 drawable ic_drag
 drawable ic_drag_handle
-drawable ic_launcher
+drawable ic_evolve_logo
 drawable ic_play
 drawable ic_refresh
 drawable ic_rotation
@@ -35,7 +35,6 @@ drawable ic_search
 drawable ic_settings
 drawable ic_storage
 drawable ic_vr_headset
-drawable ic_vr_launcher
 drawable ic_wifi
 drawable ic_wifi_full
 drawable ic_wifi_low
@@ -161,6 +160,8 @@ layout item_app
 layout item_playtime_stat
 layout item_playtime_stats
 layout panel_quick_settings
+mipmap ic_launcher
+mipmap ic_launcher_round
 string app_icon
 string app_name
 style Theme.Evolve_Launcher
