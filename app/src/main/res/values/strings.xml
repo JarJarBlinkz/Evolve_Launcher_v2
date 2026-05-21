@@ -2,4 +2,10 @@
 <resources>
     <string name="app_name">VR Launcher</string>
     <string name="app_icon">App icon</string>
+
+    <!-- Auto-Restart Feature -->
+    <string name="auto_restart_title">Auto-Restart Launcher</string>
+    <string name="auto_restart_summary">Automatically reopen launcher when returning to Quest home</string>
+    <string name="auto_restart_enabled">Auto-restart is ON - Launcher will reopen automatically</string>
+    <string name="auto_restart_disabled">Auto-restart is OFF - Launcher stays closed</string>
 </resources>

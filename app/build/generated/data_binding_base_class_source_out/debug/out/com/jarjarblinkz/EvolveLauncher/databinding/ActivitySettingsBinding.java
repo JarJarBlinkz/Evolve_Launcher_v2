@@ -24,6 +24,12 @@ public final class ActivitySettingsBinding implements ViewBinding {
   private final LinearLayout rootView;
 
   @NonNull
+  public final TextView autoRestartStatus;
+
+  @NonNull
+  public final SwitchCompat autoRestartSwitch;
+
+  @NonNull
   public final AppCompatButton btnBack;
 
   @NonNull
@@ -83,18 +89,21 @@ public final class ActivitySettingsBinding implements ViewBinding {
   @NonNull
   public final TextView txtIconSize;
 
-  private ActivitySettingsBinding(@NonNull LinearLayout rootView, @NonNull AppCompatButton btnBack,
-      @NonNull Button btnBackup, @NonNull AppCompatButton btnBgBuiltin,
-      @NonNull AppCompatButton btnBgCustom, @NonNull AppCompatButton btnBgDefault,
-      @NonNull AppCompatButton btnCheckUpdates, @NonNull AppCompatButton btnDeviceInfo,
-      @NonNull AppCompatButton btnGameStats, @NonNull AppCompatButton btnManageCategories,
-      @NonNull Button btnRestore, @NonNull AppCompatButton btnUsageAccess,
-      @NonNull SeekBar seekBgOpacity, @NonNull SeekBar seekIconSize,
-      @NonNull SwitchCompat switchAutoStart, @NonNull SwitchCompat switchAutoUpdate,
-      @NonNull SwitchCompat switchCategories, @NonNull SwitchCompat switchEditMode,
-      @NonNull TextView txtBgOpacity, @NonNull TextView txtCurrentVersion,
-      @NonNull TextView txtIconSize) {
+  private ActivitySettingsBinding(@NonNull LinearLayout rootView,
+      @NonNull TextView autoRestartStatus, @NonNull SwitchCompat autoRestartSwitch,
+      @NonNull AppCompatButton btnBack, @NonNull Button btnBackup,
+      @NonNull AppCompatButton btnBgBuiltin, @NonNull AppCompatButton btnBgCustom,
+      @NonNull AppCompatButton btnBgDefault, @NonNull AppCompatButton btnCheckUpdates,
+      @NonNull AppCompatButton btnDeviceInfo, @NonNull AppCompatButton btnGameStats,
+      @NonNull AppCompatButton btnManageCategories, @NonNull Button btnRestore,
+      @NonNull AppCompatButton btnUsageAccess, @NonNull SeekBar seekBgOpacity,
+      @NonNull SeekBar seekIconSize, @NonNull SwitchCompat switchAutoStart,
+      @NonNull SwitchCompat switchAutoUpdate, @NonNull SwitchCompat switchCategories,
+      @NonNull SwitchCompat switchEditMode, @NonNull TextView txtBgOpacity,
+      @NonNull TextView txtCurrentVersion, @NonNull TextView txtIconSize) {
     this.rootView = rootView;
+    this.autoRestartStatus = autoRestartStatus;
+    this.autoRestartSwitch = autoRestartSwitch;
     this.btnBack = btnBack;
     this.btnBackup = btnBackup;
     this.btnBgBuiltin = btnBgBuiltin;
@@ -144,6 +153,18 @@ public final class ActivitySettingsBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.autoRestartStatus;
+      TextView autoRestartStatus = ViewBindings.findChildViewById(rootView, id);
+      if (autoRestartStatus == null) {
+        break missingId;
+      }
+
+      id = R.id.autoRestartSwitch;
+      SwitchCompat autoRestartSwitch = ViewBindings.findChildViewById(rootView, id);
+      if (autoRestartSwitch == null) {
+        break missingId;
+      }
+
       id = R.id.btnBack;
       AppCompatButton btnBack = ViewBindings.findChildViewById(rootView, id);
       if (btnBack == null) {
@@ -264,11 +285,11 @@ public final class ActivitySettingsBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivitySettingsBinding((LinearLayout) rootView, btnBack, btnBackup, btnBgBuiltin,
-          btnBgCustom, btnBgDefault, btnCheckUpdates, btnDeviceInfo, btnGameStats,
-          btnManageCategories, btnRestore, btnUsageAccess, seekBgOpacity, seekIconSize,
-          switchAutoStart, switchAutoUpdate, switchCategories, switchEditMode, txtBgOpacity,
-          txtCurrentVersion, txtIconSize);
+      return new ActivitySettingsBinding((LinearLayout) rootView, autoRestartStatus,
+          autoRestartSwitch, btnBack, btnBackup, btnBgBuiltin, btnBgCustom, btnBgDefault,
+          btnCheckUpdates, btnDeviceInfo, btnGameStats, btnManageCategories, btnRestore,
+          btnUsageAccess, seekBgOpacity, seekIconSize, switchAutoStart, switchAutoUpdate,
+          switchCategories, switchEditMode, txtBgOpacity, txtCurrentVersion, txtIconSize);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

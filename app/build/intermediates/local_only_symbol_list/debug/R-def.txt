@@ -48,6 +48,8 @@ id appIcon
 id appName
 id appVersion
 id appsGrid
+id autoRestartStatus
+id autoRestartSwitch
 id batteryContainer
 id batteryIcon
 id btnBack
@@ -164,5 +166,9 @@ mipmap ic_launcher
 mipmap ic_launcher_round
 string app_icon
 string app_name
+string auto_restart_disabled
+string auto_restart_enabled
+string auto_restart_summary
+string auto_restart_title
 style Theme.Evolve_Launcher
 xml file_paths

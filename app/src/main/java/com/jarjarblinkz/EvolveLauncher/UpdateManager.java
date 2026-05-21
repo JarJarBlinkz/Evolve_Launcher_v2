@@ -222,6 +222,100 @@ public class UpdateManager {
     }
 
     /**
+     * Check for updates with callback (for SettingsActivity)
+     */
+    public void checkForUpdates(UpdateCallback callback) {
+        executor.execute(() -> {
+            try {
+                markUpdateChecked();
+
+                // Get current version
+                String currentVersion = getCurrentVersion().replaceAll("[^0-9.]", "");
+
+                // Check if GitHub URL is configured
+                if (GITHUB_API_URL.contains("YOUR_USERNAME") || GITHUB_API_URL.contains("YOUR_REPO")) {
+                    ((Activity) context).runOnUiThread(() -> {
+                        callback.onError("Update check not configured. Please set your GitHub repository URL in UpdateManager.java line 43");
+                    });
+                    return;
+                }
+
+                URL url = new URL(GITHUB_API_URL);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(10000);
+                connection.setReadTimeout(10000);
+                connection.setRequestProperty("User-Agent", "EvolveLauncher-UpdateChecker");
+
+                int responseCode = connection.getResponseCode();
+                Log.d(TAG, "GitHub API response: " + responseCode);
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    reader.close();
+
+                    JSONObject release = new JSONObject(response.toString());
+                    String latestVersion = release.getString("tag_name").replaceAll("[^0-9.]", "");
+                    String releaseNotes = release.optString("body", "No release notes available");
+
+                    Log.d(TAG, "Current: " + currentVersion + ", Latest: " + latestVersion);
+
+                    // Find the APK asset
+                    JSONArray assets = release.getJSONArray("assets");
+                    String downloadUrl = null;
+
+                    for (int i = 0; i < assets.length(); i++) {
+                        JSONObject asset = assets.getJSONObject(i);
+                        String name = asset.getString("name");
+                        if (name.endsWith(".apk")) {
+                            downloadUrl = asset.getString("browser_download_url");
+                            break;
+                        }
+                    }
+
+                    if (downloadUrl == null) {
+                        final String errorMsg = "No APK found in latest GitHub release";
+                        ((Activity) context).runOnUiThread(() -> callback.onError(errorMsg));
+                        return;
+                    }
+
+                    final String finalDownloadUrl = downloadUrl;
+                    final String finalLatestVersion = latestVersion;
+                    final String finalReleaseNotes = releaseNotes;
+
+                    // Compare versions
+                    if (compareVersions(latestVersion, currentVersion) > 0) {
+                        // New version available
+                        ((Activity) context).runOnUiThread(() -> {
+                            callback.onUpdateAvailable(finalLatestVersion, finalDownloadUrl, finalReleaseNotes);
+                        });
+                    } else {
+                        // No update available
+                        ((Activity) context).runOnUiThread(() -> {
+                            callback.onNoUpdateAvailable(currentVersion);
+                        });
+                    }
+                } else {
+                    final String errorMsg = "Failed to check for updates: HTTP " + responseCode;
+                    ((Activity) context).runOnUiThread(() -> callback.onError(errorMsg));
+                }
+
+                connection.disconnect();
+
+            } catch (Exception e) {
+                Log.e(TAG, "Error checking for updates", e);
+                final String errorMsg = "Error checking for updates: " + e.getMessage();
+                ((Activity) context).runOnUiThread(() -> callback.onError(errorMsg));
+            }
+        });
+    }
+
+    /**
      * Compare two version strings
      * @return positive if v1 > v2, negative if v1 < v2, 0 if equal
      */
@@ -319,6 +413,28 @@ public class UpdateManager {
                 builder.setNegativeButton("Cancel", null);
                 builder.show();
             }
+        }
+    }
+
+    /**
+     * Download and install update from URL (public wrapper for SettingsActivity)
+     */
+    public void downloadAndInstall(String downloadUrl) {
+        try {
+            // Extract filename from URL
+            String fileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
+            if (!fileName.endsWith(".apk")) {
+                fileName = "EvolveLauncher-update.apk";
+            }
+
+            Log.d(TAG, "Starting download: " + fileName);
+
+            // Call the private method with both parameters
+            downloadAndInstallUpdate(downloadUrl, fileName);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error in downloadAndInstall", e);
+            Toast.makeText(context, "Error starting download: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -476,5 +592,30 @@ public class UpdateManager {
         if (executor != null && !executor.isShutdown()) {
             executor.shutdown();
         }
+    }
+
+    /**
+     * Callback interface for update checks
+     */
+    public interface UpdateCallback {
+        /**
+         * Called when a new update is available
+         * @param version New version number
+         * @param downloadUrl URL to download the update
+         * @param releaseNotes Release notes for the update
+         */
+        void onUpdateAvailable(String version, String downloadUrl, String releaseNotes);
+
+        /**
+         * Called when no update is available
+         * @param currentVersion Current app version
+         */
+        void onNoUpdateAvailable(String currentVersion);
+
+        /**
+         * Called when an error occurs during update check
+         * @param error Error message
+         */
+        void onError(String error);
     }
 }

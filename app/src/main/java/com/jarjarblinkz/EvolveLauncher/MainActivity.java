@@ -430,11 +430,19 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Start VR Shell Monitor service to auto-restart launcher
-     * This service monitors when the user returns to Quest home and
-     * automatically reopens the launcher
+     * Only starts if user has enabled the feature in settings
      */
     private void startVRShellMonitor() {
         try {
+            // Check if auto-restart is enabled in settings
+            SharedPreferences prefs = getSharedPreferences("EvolvePrefs", MODE_PRIVATE);
+            boolean autoRestartEnabled = prefs.getBoolean("auto_restart_enabled", true); // Default: enabled
+
+            if (!autoRestartEnabled) {
+                Log.i("MainActivity", "Auto-restart is disabled - not starting VR Shell Monitor");
+                return;
+            }
+
             Intent serviceIntent = new Intent(this, VRShellMonitorService.class);
 
             // Use startForegroundService for Android 8.0+
@@ -445,7 +453,7 @@ public class MainActivity extends AppCompatActivity {
                 startService(serviceIntent);
             }
 
-            Log.i("MainActivity", "VR Shell Monitor service started");
+            Log.i("MainActivity", "VR Shell Monitor service started (auto-restart enabled)");
         } catch (Exception e) {
             Log.e("MainActivity", "Failed to start VR Shell Monitor service", e);
         }

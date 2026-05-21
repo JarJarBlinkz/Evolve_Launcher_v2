@@ -3122,6 +3122,8 @@ id auto
 id autoComplete
 id autoCompleteToEnd
 id autoCompleteToStart
+id autoRestartStatus
+id autoRestartSwitch
 id barrier
 id baseline
 id batteryContainer
@@ -3845,6 +3847,10 @@ string androidx_startup
 string app_icon
 string app_name
 string appbar_scrolling_view_behavior
+string auto_restart_disabled
+string auto_restart_enabled
+string auto_restart_summary
+string auto_restart_title
 string bottom_sheet_behavior
 string bottomsheet_action_collapse
 string bottomsheet_action_expand

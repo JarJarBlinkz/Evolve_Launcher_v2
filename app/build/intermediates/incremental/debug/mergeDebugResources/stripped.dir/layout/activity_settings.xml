@@ -60,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="8dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -76,6 +76,47 @@
                     android:layout_height="wrap_content"
                     app:trackTint="#333333"
                     app:thumbTint="#6B8EFF" />
+            </LinearLayout>
+
+            <!-- NEW: Auto-Restart Toggle -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🔄 Auto-Restart Launcher"
+                        android:textColor="#FFFFFF"
+                        android:textSize="13sp" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/autoRestartSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        app:trackTint="#333333"
+                        app:thumbTint="#6B8EFF" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/autoRestartStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/auto_restart_enabled"
+                    android:textColor="#4CAF50"
+                    android:textSize="11sp"
+                    android:textStyle="italic" />
             </LinearLayout>
 
             <!-- Divider -->

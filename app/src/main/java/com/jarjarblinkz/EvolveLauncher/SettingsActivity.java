@@ -38,8 +38,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,9 +52,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     private SharedPreferences prefs;
     private SharedPreferences categoryPrefs;
-
-    // Auto-update manager
-    private UpdateManager updateManager;
 
     private static final String PREFS_NAME = "VRLPrefs";
     private static final String CATEGORY_PREFS = "vr_categories";
@@ -88,9 +83,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         Window window = getWindow();
         android.view.WindowManager.LayoutParams lp = window.getAttributes();
-        // Increased to 0.85 width for optimal 2-column display
-        lp.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.85);
-        lp.height = (int) (getResources().getDisplayMetrics().heightPixels * 0.95);
+        lp.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.5);
+        lp.height = (int) (getResources().getDisplayMetrics().heightPixels * 0.9);
         window.setAttributes(lp);
 
         prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -117,20 +111,6 @@ public class SettingsActivity extends AppCompatActivity {
         Button btnBackup = findViewById(R.id.btnBackup);
         Button btnRestore = findViewById(R.id.btnRestore);
 
-        // Initialize update manager
-        updateManager = new UpdateManager(this);
-
-        // Get update UI elements
-        SwitchCompat switchAutoUpdate = findViewById(R.id.switchAutoUpdate);
-        AppCompatButton btnCheckUpdates = findViewById(R.id.btnCheckUpdates);
-        TextView txtCurrentVersion = findViewById(R.id.txtCurrentVersion);
-
-        // Set current version
-        txtCurrentVersion.setText("Version: " + updateManager.getCurrentVersion());
-
-        // Set initial auto-update state
-        switchAutoUpdate.setChecked(updateManager.isAutoUpdateEnabled());
-
         // Set initial values
         switchEditMode.setChecked(prefs.getBoolean(KEY_EDIT_MODE, false));
         switchCategories.setChecked(prefs.getBoolean(KEY_SHOW_CATEGORIES, true));
@@ -153,20 +133,6 @@ public class SettingsActivity extends AppCompatActivity {
         switchAutoStart.setOnCheckedChangeListener((b, c) -> {
             prefs.edit().putBoolean(KEY_AUTO_START, c).apply();
             Toast.makeText(this, c ? "Auto-start enabled - App will launch on boot" : "Auto-start disabled", Toast.LENGTH_SHORT).show();
-        });
-
-        // Auto-update switch listener
-        switchAutoUpdate.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            updateManager.setAutoUpdateEnabled(isChecked);
-            Toast.makeText(this,
-                    isChecked ? "Auto-update enabled" : "Auto-update disabled",
-                    Toast.LENGTH_SHORT).show();
-        });
-
-        // Check for updates button
-        btnCheckUpdates.setOnClickListener(v -> {
-            Toast.makeText(this, "Checking for updates...", Toast.LENGTH_SHORT).show();
-            updateManager.checkForUpdates(true); // Show toast even if no update
         });
 
         switchCategories.setOnCheckedChangeListener((b, c) -> {
@@ -236,6 +202,12 @@ public class SettingsActivity extends AppCompatActivity {
         // ADD BACKUP/RESTORE BUTTON LISTENERS
         btnBackup.setOnClickListener(v -> backupLayout());
         btnRestore.setOnClickListener(v -> restoreLayout());
+
+        // Setup auto-restart toggle
+        setupAutoRestartToggle();
+
+        // Setup version display and update checker
+        setupVersionAndUpdates();
     }
 
     // ===== USAGE ACCESS PERMISSION =====
@@ -308,24 +280,10 @@ public class SettingsActivity extends AppCompatActivity {
         try {
             JSONObject backup = new JSONObject();
 
-            // Save VRLPrefs - preserve types properly
+            // Save VRLPrefs
             JSONObject prefsData = new JSONObject();
             for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
-                Object value = entry.getValue();
-                if (value instanceof Boolean) {
-                    prefsData.put(entry.getKey(), (Boolean) value);
-                } else if (value instanceof Integer) {
-                    prefsData.put(entry.getKey(), (Integer) value);
-                } else if (value instanceof Long) {
-                    prefsData.put(entry.getKey(), (Long) value);
-                } else if (value instanceof Float) {
-                    prefsData.put(entry.getKey(), (Float) value);
-                } else if (value instanceof Set) {
-                    // Skip sets here, they go in categories
-                    continue;
-                } else {
-                    prefsData.put(entry.getKey(), String.valueOf(value));
-                }
+                prefsData.put(entry.getKey(), String.valueOf(entry.getValue()));
             }
             backup.put("vrprefs", prefsData);
 
@@ -339,7 +297,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
             backup.put("categories", categoriesData);
 
-            // Try Storage Access Framework first
+            // Use Storage Access Framework to let user choose where to save
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("application/json");
@@ -354,85 +312,10 @@ public class SettingsActivity extends AppCompatActivity {
                 intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialUri);
             }
 
-            try {
-                startActivityForResult(intent, REQUEST_CODE_CREATE_BACKUP);
-            } catch (ActivityNotFoundException e) {
-                android.util.Log.e("SettingsActivity", "File picker not available, using fallback", e);
-                // Fallback: save directly to Downloads folder
-                saveBackupDirectly(backup, fileName);
-            }
+            startActivityForResult(intent, REQUEST_CODE_CREATE_BACKUP);
 
         } catch (Exception e) {
-            android.util.Log.e("SettingsActivity", "Backup failed", e);
-            Toast.makeText(this, "Backup failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
-
-    // Fallback method: save to /sdcard/evolve_backups with permission check
-    private void saveBackupDirectly(JSONObject backup, String fileName) {
-        try {
-            // Check if we have permission to write to external storage
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                // Android 11+ requires MANAGE_EXTERNAL_STORAGE permission
-                if (!Environment.isExternalStorageManager()) {
-                    // Show dialog explaining why we need this permission
-                    new AlertDialog.Builder(this)
-                            .setTitle("Storage Permission Needed")
-                            .setMessage("To save backups to /sdcard/, we need storage access permission.\n\nWould you like to grant this permission now?")
-                            .setPositiveButton("Grant Permission", (dialog, which) -> {
-                                try {
-                                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                                    Uri uri = Uri.fromParts("package", getPackageName(), null);
-                                    intent.setData(uri);
-                                    startActivity(intent);
-                                    Toast.makeText(this, "Please enable 'Allow management of all files' and try backup again", Toast.LENGTH_LONG).show();
-                                } catch (Exception e) {
-                                    android.util.Log.e("SettingsActivity", "Failed to open settings", e);
-                                    Toast.makeText(this, "Please manually enable storage permission in Settings", Toast.LENGTH_LONG).show();
-                                }
-                            })
-                            .setNegativeButton("Cancel", null)
-                            .show();
-                    return;
-                }
-            }
-
-            // Create /sdcard/evolve_backups directory
-            File externalStorage = Environment.getExternalStorageDirectory();
-            File backupDir = new File(externalStorage, "evolve_backups");
-
-            // Create directory if it doesn't exist
-            if (!backupDir.exists()) {
-                boolean created = backupDir.mkdirs();
-                android.util.Log.i("SettingsActivity", "Creating backup directory: " + backupDir.getAbsolutePath() + ", created=" + created);
-
-                if (!created && !backupDir.exists()) {
-                    throw new Exception("Failed to create backup directory. Please grant storage permission in Settings.");
-                }
-            }
-
-            // Verify directory exists and is writable
-            if (!backupDir.exists()) {
-                throw new Exception("Backup directory doesn't exist: " + backupDir.getAbsolutePath());
-            }
-
-            if (!backupDir.canWrite()) {
-                throw new Exception("Backup directory not writable. Please grant storage permission in Settings.");
-            }
-
-            File backupFile = new File(backupDir, fileName);
-            android.util.Log.i("SettingsActivity", "Writing backup to: " + backupFile.getAbsolutePath());
-
-            FileOutputStream fos = new FileOutputStream(backupFile);
-            fos.write(backup.toString(2).getBytes());
-            fos.flush();
-            fos.close();
-
-            Toast.makeText(this, "Backup saved to:\n/sdcard/evolve_backups/" + fileName, Toast.LENGTH_LONG).show();
-            android.util.Log.i("SettingsActivity", "Backup saved successfully: " + backupFile.getAbsolutePath());
-        } catch (Exception e) {
-            android.util.Log.e("SettingsActivity", "Fallback backup failed: " + e.getMessage(), e);
-            Toast.makeText(this, "Backup failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Backup failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -442,14 +325,10 @@ public class SettingsActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/json");
 
-        // Set initial directory to /sdcard/evolve_backups
+        // Optional: specify initial directory
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            File externalStorage = Environment.getExternalStorageDirectory();
-            File backupDir = new File(externalStorage, "evolve_backups");
-            if (backupDir.exists()) {
-                Uri backupUri = Uri.fromFile(backupDir);
-                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, backupUri);
-            }
+            Uri initialUri = Uri.parse("content://com.android.externalstorage.documents/document/primary%3A");
+            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialUri);
         }
 
         startActivityForResult(intent, REQUEST_CODE_OPEN_BACKUP);
@@ -529,26 +408,10 @@ public class SettingsActivity extends AppCompatActivity {
             }
             backup.put("categories", categoriesData);
 
-            // Write to the selected URI with proper stream handling
-            OutputStream outputStream = null;
-            try {
-                outputStream = getContentResolver().openOutputStream(uri);
-                if (outputStream != null) {
-                    outputStream.write(backup.toString(2).getBytes());
-                    outputStream.flush();
-                    Toast.makeText(this, "Backup saved successfully!", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(this, "Failed to open file for writing", Toast.LENGTH_SHORT).show();
-                }
-            } finally {
-                if (outputStream != null) {
-                    try {
-                        outputStream.close();
-                    } catch (Exception closeEx) {
-                        // Ignore close errors
-                    }
-                }
-            }
+            // Write to the selected URI
+            getContentResolver().openOutputStream(uri).write(backup.toString(2).getBytes());
+
+            Toast.makeText(this, "Backup saved successfully!", Toast.LENGTH_LONG).show();
 
         } catch (Exception e) {
             Toast.makeText(this, "Backup failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -556,17 +419,10 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void restoreFromUri(Uri uri) {
-        InputStream inputStream = null;
         try {
-            // Read from URI with proper stream handling
-            inputStream = getContentResolver().openInputStream(uri);
-            if (inputStream == null) {
-                Toast.makeText(this, "Failed to open backup file", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            byte[] data = new byte[inputStream.available()];
-            inputStream.read(data);
+            // Read from URI
+            byte[] data = new byte[getContentResolver().openInputStream(uri).available()];
+            getContentResolver().openInputStream(uri).read(data);
 
             String backupStr = new String(data);
             JSONObject backup = new JSONObject(backupStr);
@@ -676,14 +532,6 @@ public class SettingsActivity extends AppCompatActivity {
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (Exception closeEx) {
-                    // Ignore close errors
-                }
-            }
         }
     }
 
@@ -1057,11 +905,154 @@ public class SettingsActivity extends AppCompatActivity {
                 .show();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (updateManager != null) {
-            updateManager.cleanup();
+    // ===== AUTO-RESTART TOGGLE =====
+
+    /**
+     * Setup Auto-Restart toggle
+     * Allows users to enable/disable the VRShellMonitor service
+     */
+    private void setupAutoRestartToggle() {
+        // Find the toggle switch
+        SwitchCompat autoRestartSwitch = findViewById(R.id.autoRestartSwitch);
+        TextView autoRestartStatus = findViewById(R.id.autoRestartStatus);
+
+        if (autoRestartSwitch == null || autoRestartStatus == null) {
+            Log.w("SettingsActivity", "Auto-restart UI elements not found in layout");
+            return;
+        }
+
+        // Load current setting
+        boolean isEnabled = prefs.getBoolean("auto_restart_enabled", true);
+        autoRestartSwitch.setChecked(isEnabled);
+        updateAutoRestartStatus(autoRestartStatus, isEnabled);
+
+        // Handle toggle changes
+        autoRestartSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // Save preference
+            prefs.edit().putBoolean("auto_restart_enabled", isChecked).apply();
+
+            // Update status text
+            updateAutoRestartStatus(autoRestartStatus, isChecked);
+
+            // Start or stop the service
+            Intent serviceIntent = new Intent(this, VRShellMonitorService.class);
+
+            if (isChecked) {
+                // Enable: Start the service
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(serviceIntent);
+                    } else {
+                        startService(serviceIntent);
+                    }
+                    Toast.makeText(this, "Auto-restart enabled", Toast.LENGTH_SHORT).show();
+                    Log.i("SettingsActivity", "Auto-restart enabled - service started");
+                } catch (Exception e) {
+                    Log.e("SettingsActivity", "Failed to start service", e);
+                    Toast.makeText(this, "Failed to enable auto-restart", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                // Disable: Stop the service
+                try {
+                    stopService(serviceIntent);
+                    Toast.makeText(this, "Auto-restart disabled", Toast.LENGTH_SHORT).show();
+                    Log.i("SettingsActivity", "Auto-restart disabled - service stopped");
+                } catch (Exception e) {
+                    Log.e("SettingsActivity", "Failed to stop service", e);
+                }
+            }
+        });
+    }
+
+    /**
+     * Update auto-restart status text
+     */
+    private void updateAutoRestartStatus(TextView statusText, boolean isEnabled) {
+        if (statusText == null) return;
+
+        if (isEnabled) {
+            statusText.setText(R.string.auto_restart_enabled);
+            statusText.setTextColor(0xFF4CAF50); // Green
+        } else {
+            statusText.setText(R.string.auto_restart_disabled);
+            statusText.setTextColor(0xFF9E9E9E); // Gray
+        }
+    }
+
+    // ===== VERSION & UPDATES =====
+
+    /**
+     * Setup version display and update checker
+     */
+    private void setupVersionAndUpdates() {
+        // Find UI elements
+        TextView txtCurrentVersion = findViewById(R.id.txtCurrentVersion);
+        AppCompatButton btnCheckUpdates = findViewById(R.id.btnCheckUpdates);
+        SwitchCompat switchAutoUpdate = findViewById(R.id.switchAutoUpdate);
+
+        // Set current version from BuildConfig
+        if (txtCurrentVersion != null) {
+            try {
+                String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                txtCurrentVersion.setText(versionName);
+            } catch (Exception e) {
+                Log.e("SettingsActivity", "Error getting version", e);
+                txtCurrentVersion.setText("Unknown");
+            }
+        }
+
+        // Setup auto-update toggle
+        if (switchAutoUpdate != null) {
+            boolean autoUpdateEnabled = prefs.getBoolean("auto_update_enabled", true);
+            switchAutoUpdate.setChecked(autoUpdateEnabled);
+
+            switchAutoUpdate.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                prefs.edit().putBoolean("auto_update_enabled", isChecked).apply();
+                Toast.makeText(this,
+                        isChecked ? "Auto-update enabled" : "Auto-update disabled",
+                        Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        // Setup check for updates button
+        if (btnCheckUpdates != null) {
+            btnCheckUpdates.setOnClickListener(v -> {
+                Toast.makeText(this, "Checking for updates...", Toast.LENGTH_SHORT).show();
+
+                // Create UpdateManager and check for updates
+                UpdateManager updateManager = new UpdateManager(this);
+
+                updateManager.checkForUpdates(new UpdateManager.UpdateCallback() {
+                    @Override
+                    public void onUpdateAvailable(String version, String downloadUrl, String releaseNotes) {
+                        // Show update dialog
+                        new AlertDialog.Builder(SettingsActivity.this)
+                                .setTitle("Update Available! 🎉")
+                                .setMessage("Version " + version + " is available!\n\n" +
+                                        "Release Notes:\n" + releaseNotes)
+                                .setPositiveButton("Download", (d, w) -> {
+                                    updateManager.downloadAndInstall(downloadUrl);
+                                })
+                                .setNegativeButton("Later", null)
+                                .show();
+                    }
+
+                    @Override
+                    public void onNoUpdateAvailable(String currentVersion) {
+                        new AlertDialog.Builder(SettingsActivity.this)
+                                .setTitle("Up to Date ✓")
+                                .setMessage("You're already running the latest version!\n\nCurrent version: " + currentVersion)
+                                .setPositiveButton("OK", null)
+                                .show();
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        Toast.makeText(SettingsActivity.this, error, Toast.LENGTH_LONG).show();
+                        Log.e("SettingsActivity", "Update check error: " + error);
+                    }
+                });
+            });
         }
     }
 }

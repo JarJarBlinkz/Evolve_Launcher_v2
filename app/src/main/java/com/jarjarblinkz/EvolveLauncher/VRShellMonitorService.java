@@ -24,6 +24,50 @@ public class VRShellMonitorService extends Service {
     private static final long CHECK_INTERVAL = 500; // Check every 500ms (more responsive!)
     private static final long IMMEDIATE_RESTART_DELAY = 200; // 200ms delay before restart (faster!)
 
+    // Cooldown tracking - prevents immediate reopen after user closes launcher
+    private long lastManualCloseTime = 0;
+    private long cooldownPeriodMs = 10000; // 10 seconds default cooldown
+    private boolean userWentToApp = false; // Track if user opened another app after closing launcher
+    private String lastForegroundApp = "";
+
+    /**
+     * GLOBAL CHECK: Should we allow restart right now?
+     * Called by ALL restart logic to respect cooldown period
+     */
+    private boolean shouldAllowRestart() {
+        // If launcher is visible, no need to restart
+        if (isLauncherVisible()) {
+            return false;
+        }
+
+        // If no cooldown set, check when it was closed
+        if (lastManualCloseTime == 0) {
+            // First time detecting launcher is closed - mark the time
+            Log.i(TAG, "🚪 Launcher closed detected - starting cooldown");
+            lastManualCloseTime = System.currentTimeMillis();
+            userWentToApp = false;
+            return false; // Don't restart on first detection
+        }
+
+        // Check cooldown - don't restart if user just closed us
+        long timeSinceClose = System.currentTimeMillis() - lastManualCloseTime;
+        if (timeSinceClose < cooldownPeriodMs && !userWentToApp) {
+            if (timeSinceClose % 2000 < 500) { // Log every ~2 seconds to avoid spam
+                Log.d(TAG, "⏸️ COOLDOWN ACTIVE (" + (timeSinceClose/1000) + "s/" + (cooldownPeriodMs/1000) + "s) - BLOCKING ALL RESTARTS");
+            }
+            return false;
+        }
+
+        // Cooldown expired or user went to another app - allow restart
+        if (userWentToApp) {
+            Log.i(TAG, "✅ User used another app - cooldown cleared, allowing restart");
+        } else {
+            Log.i(TAG, "✅ Cooldown expired - allowing restart");
+        }
+
+        return true;
+    }
+
     private Handler handler;
     private Runnable checkRunnable;
     private BroadcastReceiver homeReceiver;
@@ -41,12 +85,46 @@ public class VRShellMonitorService extends Service {
         handler = new Handler(Looper.getMainLooper());
 
         // Register all receivers for maximum coverage
-        registerHomeReceiver();
-        registerScreenReceiver();
-        registerPackageReceiver();
+        // Simple double-tap HOME button to open launcher
+        registerDoubleTapHomeReceiver();
+    }
 
-        // Start aggressive periodic checking
-        startAggressiveCheck();
+    /**
+     * Listen for double-tap HOME button to open launcher
+     * Simple, user-controlled, no aggressive auto-restart
+     */
+    private long lastHomeButtonPress = 0;
+    private static final long DOUBLE_TAP_WINDOW = 500; // 500ms for double-tap
+
+    private void registerDoubleTapHomeReceiver() {
+        homeReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+
+                if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(action)) {
+                    long currentTime = System.currentTimeMillis();
+                    long timeSinceLastPress = currentTime - lastHomeButtonPress;
+
+                    if (timeSinceLastPress < DOUBLE_TAP_WINDOW) {
+                        // DOUBLE TAP detected!
+                        Log.i(TAG, "🏠🏠 DOUBLE TAP HOME detected - opening launcher!");
+                        forceRestartLauncher();
+                        lastHomeButtonPress = 0; // Reset
+                    } else {
+                        // Single tap - just track it
+                        Log.d(TAG, "🏠 Single HOME press (wait for double-tap)");
+                        lastHomeButtonPress = currentTime;
+                    }
+                }
+            }
+        };
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+        registerReceiver(homeReceiver, filter);
+
+        Log.i(TAG, "Double-tap HOME receiver registered");
     }
 
     /**
@@ -106,11 +184,22 @@ public class VRShellMonitorService extends Service {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
-                Log.i(TAG, "HOME event detected: " + action + " - IMMEDIATELY opening launcher");
+                Log.i(TAG, "HOME event detected: " + action);
+
+                // Mark that user went to an app (HOME button usually means leaving an app)
+                // This clears the cooldown
+                userWentToApp = true;
 
                 // User pressed HOME or returned to home environment
-                // Restart launcher IMMEDIATELY with minimal delay
-                handler.postDelayed(() -> forceRestartLauncher(), 200);
+                // Check if we should restart (respects cooldown)
+                handler.postDelayed(() -> {
+                    if (shouldAllowRestart()) {
+                        Log.i(TAG, "HOME button - restarting launcher");
+                        forceRestartLauncher();
+                    } else {
+                        Log.d(TAG, "HOME button - restart blocked by cooldown");
+                    }
+                }, 200);
             }
         };
 
@@ -131,11 +220,25 @@ public class VRShellMonitorService extends Service {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
                 if (Intent.ACTION_SCREEN_ON.equals(action)) {
-                    Log.i(TAG, "Screen ON - User put on headset - opening launcher NOW");
-                    handler.postDelayed(() -> forceRestartLauncher(), 1500);
+                    Log.i(TAG, "Screen ON - User put on headset");
+                    handler.postDelayed(() -> {
+                        if (shouldAllowRestart()) {
+                            Log.i(TAG, "Opening launcher after screen on");
+                            forceRestartLauncher();
+                        } else {
+                            Log.d(TAG, "Screen on restart blocked by cooldown");
+                        }
+                    }, 1500);
                 } else if (Intent.ACTION_USER_PRESENT.equals(action)) {
-                    Log.i(TAG, "User PRESENT - opening launcher NOW");
-                    handler.postDelayed(() -> forceRestartLauncher(), 500);
+                    Log.i(TAG, "User PRESENT detected");
+                    handler.postDelayed(() -> {
+                        if (shouldAllowRestart()) {
+                            Log.i(TAG, "Opening launcher - user present");
+                            forceRestartLauncher();
+                        } else {
+                            Log.d(TAG, "User present restart blocked by cooldown");
+                        }
+                    }, 500);
                 } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                     Log.i(TAG, "Screen OFF - User took off headset");
                 }
@@ -204,16 +307,21 @@ public class VRShellMonitorService extends Service {
     private void checkAndRestartLauncher() {
         try {
             // Check if we're the default home launcher
-            String packageName = getPackageName();
-
-            // If we're the default home launcher, we should ALWAYS be visible
-            // unless the user is actively inside another app
             if (isDefaultHomeLauncher()) {
                 if (isUserInHomeEnvironment()) {
-                    // User is in home environment but launcher might not be visible
-                    if (!isLauncherVisible()) {
-                        Log.i(TAG, "User in HOME environment but launcher NOT visible - RESTARTING NOW");
+                    // Check if we should restart (respects cooldown, tracks close time)
+                    if (shouldAllowRestart()) {
+                        Log.i(TAG, "Restarting launcher - check passed");
                         forceRestartLauncher();
+
+                        // Reset tracking after successful restart
+                        userWentToApp = false;
+                        lastManualCloseTime = 0;
+                    }
+                } else {
+                    // User in another app - reset close time if it was set
+                    if (lastManualCloseTime != 0 && !isLauncherVisible()) {
+                        lastManualCloseTime = 0;
                     }
                 }
             }
@@ -296,6 +404,17 @@ public class VRShellMonitorService extends Service {
 
             // Otherwise user is in another app
             Log.d(TAG, "User in app: " + foregroundPackage);
+
+            // TRACK APP TRANSITIONS: If user went to a real app (not home/system), mark it
+            if (!foregroundPackage.equals(lastForegroundApp)) {
+                // User switched apps
+                if (!isVRShellForeground && !isMetaHome && !isSystemUI) {
+                    Log.i(TAG, "📱 User opened app: " + foregroundPackage + " - cooldown cleared");
+                    userWentToApp = true; // User opened another app, allow restart now
+                }
+                lastForegroundApp = foregroundPackage;
+            }
+
             return false;
 
         } catch (Exception e) {
