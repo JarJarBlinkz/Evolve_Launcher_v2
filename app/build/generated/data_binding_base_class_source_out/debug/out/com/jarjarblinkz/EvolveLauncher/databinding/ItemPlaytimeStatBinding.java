@@ -4,6 +4,7 @@ package com.jarjarblinkz.EvolveLauncher.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +19,9 @@ import java.lang.String;
 public final class ItemPlaytimeStatBinding implements ViewBinding {
   @NonNull
   private final MaterialCardView rootView;
+
+  @NonNull
+  public final ImageView imgGameCover;
 
   @NonNull
   public final TextView txtAppName;
@@ -40,11 +44,13 @@ public final class ItemPlaytimeStatBinding implements ViewBinding {
   @NonNull
   public final TextView txtUpdateDate;
 
-  private ItemPlaytimeStatBinding(@NonNull MaterialCardView rootView, @NonNull TextView txtAppName,
+  private ItemPlaytimeStatBinding(@NonNull MaterialCardView rootView,
+      @NonNull ImageView imgGameCover, @NonNull TextView txtAppName,
       @NonNull TextView txtBuildVersion, @NonNull TextView txtInstallDate,
       @NonNull TextView txtPercentage, @NonNull TextView txtPlaytime, @NonNull TextView txtType,
       @NonNull TextView txtUpdateDate) {
     this.rootView = rootView;
+    this.imgGameCover = imgGameCover;
     this.txtAppName = txtAppName;
     this.txtBuildVersion = txtBuildVersion;
     this.txtInstallDate = txtInstallDate;
@@ -81,6 +87,12 @@ public final class ItemPlaytimeStatBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.imgGameCover;
+      ImageView imgGameCover = ViewBindings.findChildViewById(rootView, id);
+      if (imgGameCover == null) {
+        break missingId;
+      }
+
       id = R.id.txtAppName;
       TextView txtAppName = ViewBindings.findChildViewById(rootView, id);
       if (txtAppName == null) {
@@ -123,8 +135,8 @@ public final class ItemPlaytimeStatBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemPlaytimeStatBinding((MaterialCardView) rootView, txtAppName, txtBuildVersion,
-          txtInstallDate, txtPercentage, txtPlaytime, txtType, txtUpdateDate);
+      return new ItemPlaytimeStatBinding((MaterialCardView) rootView, imgGameCover, txtAppName,
+          txtBuildVersion, txtInstallDate, txtPercentage, txtPlaytime, txtType, txtUpdateDate);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

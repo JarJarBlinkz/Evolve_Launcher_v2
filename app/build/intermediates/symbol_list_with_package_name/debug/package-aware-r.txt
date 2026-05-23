@@ -2951,6 +2951,7 @@ drawable ic_search
 drawable ic_search_black_24
 drawable ic_settings
 drawable ic_storage
+drawable ic_view_module
 drawable ic_vr_headset
 drawable ic_wifi
 drawable ic_wifi_full
@@ -3035,6 +3036,7 @@ drawable system_indicator
 drawable test_level_drawable
 drawable tooltip_frame_dark
 drawable tooltip_frame_light
+drawable type_badge_background
 id ALT
 id BOTTOM_END
 id BOTTOM_START
@@ -3149,6 +3151,7 @@ id btnResetStats
 id btnRestore
 id btnSettings
 id btnUsageAccess
+id btnViewToggle
 id btnVolumeDown
 id btnVolumeUp
 id buttonPanel
@@ -3267,6 +3270,7 @@ id ifRoom
 id ignore
 id ignoreRequest
 id image
+id imgGameCover
 id indeterminate
 id info
 id internalStorageProgress
@@ -3286,6 +3290,7 @@ id legacy
 id line1
 id line3
 id linear
+id listHeadersContainer
 id listMode
 id list_item
 id m3_side_sheet
@@ -3479,6 +3484,7 @@ id stop
 id stretch
 id submenuarrow
 id submit_area
+id summaryStatsContainer
 id switchAutoStart
 id switchAutoUpdate
 id switchCategories
@@ -3740,6 +3746,7 @@ layout design_text_input_start_icon
 layout ime_base_split_test_activity
 layout ime_secondary_split_test_activity
 layout item_app
+layout item_playtime_card
 layout item_playtime_stat
 layout item_playtime_stats
 layout m3_alert_dialog

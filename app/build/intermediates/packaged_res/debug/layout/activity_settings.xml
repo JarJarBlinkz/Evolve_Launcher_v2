@@ -15,25 +15,25 @@
         android:textSize="16sp"
         android:textStyle="bold"
         android:gravity="center"
-        android:padding="12dp"
+        android:padding="10dp"
         android:background="#1E1E1E" />
 
-    <!-- 2-Column Content -->
+    <!-- 3-Column Content -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="horizontal"
-        android:padding="12dp"
-        android:weightSum="2">
+        android:padding="10dp"
+        android:weightSum="3">
 
-        <!-- LEFT COLUMN -->
+        <!-- COLUMN 1: SYSTEM & UPDATES -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:paddingEnd="6dp">
+            android:paddingEnd="5dp">
 
             <!-- SYSTEM -->
             <TextView
@@ -43,32 +43,88 @@
                 android:textColor="#6B8EFF"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnDeviceInfo"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginBottom="8dp"
-                android:backgroundTint="#9C27B0"
-                android:text="📊 Device Information"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp" />
+                android:layout_marginBottom="6dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="4dp">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="🚀 Auto-start on Boot"
+                    android:text="✏️ Edit Mode"
                     android:textColor="#FFFFFF"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchEditMode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:trackTint="#333333"
+                    app:thumbTint="#6B8EFF" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="📁 Show Categories"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchCategories"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:trackTint="#333333"
+                    app:thumbTint="#6B8EFF" />
+            </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnManageCategories"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginBottom="6dp"
+                android:backgroundTint="#4CAF50"
+                android:text="📂 Manage Categories"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnDeviceInfo"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginBottom="6dp"
+                android:backgroundTint="#9C27B0"
+                android:text="📊 Device Info"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="🚀 Auto-start"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp" />
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/switchAutoStart"
@@ -78,27 +134,25 @@
                     app:thumbTint="#6B8EFF" />
             </LinearLayout>
 
-            <!-- NEW: Auto-Restart Toggle -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="6dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="4dp">
+                    android:gravity="center_vertical">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="🔄 Auto-Restart Launcher"
+                        android:text="🔄 Auto-Restart"
                         android:textColor="#FFFFFF"
-                        android:textSize="13sp" />
+                        android:textSize="12sp" />
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/autoRestartSwitch"
@@ -115,7 +169,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/auto_restart_enabled"
                     android:textColor="#4CAF50"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textStyle="italic" />
             </LinearLayout>
 
@@ -124,7 +178,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#333333"
-                android:layout_marginVertical="8dp" />
+                android:layout_marginVertical="6dp" />
 
             <!-- UPDATES -->
             <TextView
@@ -134,22 +188,22 @@
                 android:textColor="#6B8EFF"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="6dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="4dp">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Current Version"
+                    android:text="Version"
                     android:textColor="#AAAAAA"
-                    android:textSize="12sp" />
+                    android:textSize="11sp" />
 
                 <TextView
                     android:id="@+id/txtCurrentVersion"
@@ -157,7 +211,7 @@
                     android:layout_height="wrap_content"
                     android:text="1.0.0"
                     android:textColor="#6B8EFF"
-                    android:textSize="12sp" />
+                    android:textSize="11sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -165,15 +219,15 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="6dp">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="🔄 Auto-check for updates"
+                    android:text="🔄 Auto-check"
                     android:textColor="#FFFFFF"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/switchAutoUpdate"
@@ -186,21 +240,22 @@
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnCheckUpdates"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:text="🔎 Check for Updates Now"
+                android:layout_height="36dp"
+                android:text="🔎 Check Updates"
                 android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:backgroundTint="#2196F3"
-                android:layout_marginBottom="16dp" />
+                android:textSize="11sp"
+                android:backgroundTint="#2196F3" />
 
-            <!-- Divider -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#333333"
-                android:layout_marginVertical="8dp" />
+        </LinearLayout>
 
-            <!-- APPEARANCE -->
+        <!-- COLUMN 2: APPEARANCE -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingHorizontal="5dp">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -208,80 +263,23 @@
                 android:textColor="#6B8EFF"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="6dp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="✏️ Edit Mode"
-                    android:textColor="#FFFFFF"
-                    android:textSize="13sp" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switchEditMode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:trackTint="#333333"
-                    app:thumbTint="#6B8EFF" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="🏷️ Show Categories"
-                    android:textColor="#FFFFFF"
-                    android:textSize="13sp" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switchCategories"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:trackTint="#333333"
-                    app:thumbTint="#6B8EFF" />
-            </LinearLayout>
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnManageCategories"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:backgroundTint="#FF9800"
-                android:text="📁 Manage Categories"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:layout_marginBottom="8dp" />
-
+            <!-- Icon Size -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="📐 Icon Size"
+                android:text="📏 Icon Size"
                 android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp" />
+                android:textSize="12sp"
+                android:layout_marginBottom="2dp" />
 
             <SeekBar
                 android:id="@+id/seekIconSize"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:max="100"
-                android:progress="50"
-                android:layout_marginBottom="4dp" />
+                android:progress="50" />
 
             <TextView
                 android:id="@+id/txtIconSize"
@@ -289,26 +287,25 @@
                 android:layout_height="wrap_content"
                 android:text="110dp"
                 android:textColor="#6B8EFF"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:gravity="center"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="6dp" />
 
+            <!-- Background Opacity -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="🎨 Background Opacity"
                 android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp" />
+                android:textSize="12sp"
+                android:layout_marginBottom="2dp" />
 
             <SeekBar
                 android:id="@+id/seekBgOpacity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:max="100"
-                android:progress="100"
-                android:layout_marginBottom="4dp" />
+                android:progress="100" />
 
             <TextView
                 android:id="@+id/txtBgOpacity"
@@ -316,10 +313,11 @@
                 android:layout_height="wrap_content"
                 android:text="100%"
                 android:textColor="#6B8EFF"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:gravity="center"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="6dp" />
 
+            <!-- Background Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -330,126 +328,126 @@
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnBgBuiltin"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="36dp"
                     android:layout_weight="1"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginEnd="2dp"
                     android:backgroundTint="#6B8EFF"
                     android:text="Built-in"
                     android:textColor="#FFFFFF"
-                    android:textSize="11sp" />
+                    android:textSize="10sp" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnBgCustom"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="36dp"
                     android:layout_weight="1"
-                    android:layout_marginHorizontal="2dp"
+                    android:layout_marginHorizontal="1dp"
                     android:backgroundTint="#4CAF50"
                     android:text="Custom"
                     android:textColor="#FFFFFF"
-                    android:textSize="11sp" />
+                    android:textSize="10sp" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnBgDefault"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="36dp"
                     android:layout_weight="1"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="2dp"
                     android:backgroundTint="#333333"
                     android:text="Default"
                     android:textColor="#FFFFFF"
-                    android:textSize="11sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
 
         </LinearLayout>
 
-        <!-- RIGHT COLUMN -->
+        <!-- COLUMN 3: DATA & BACKUP -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:paddingStart="6dp">
+            android:paddingStart="5dp">
 
             <!-- DATA & STATS -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
                 android:text="DATA &amp; STATS"
                 android:textColor="#6B8EFF"
                 android:textSize="12sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
+                android:textStyle="bold" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnUsageAccess"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="36dp"
+                android:layout_marginBottom="6dp"
                 android:backgroundTint="#F44336"
                 android:text="🔓 Grant Usage Access"
                 android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:layout_marginBottom="8dp" />
+                android:textSize="11sp" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnGameStats"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="36dp"
+                android:layout_marginBottom="10dp"
                 android:backgroundTint="#9C27B0"
-                android:text="🏆 Game Playtime &amp; Stats"
+                android:text="🏆 Game Stats"
                 android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:layout_marginBottom="16dp" />
+                android:textSize="11sp" />
 
             <!-- Divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#333333"
-                android:layout_marginVertical="8dp" />
+                android:layout_marginVertical="6dp"
+                android:background="#333333" />
 
             <!-- BACKUP & RESTORE -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
                 android:text="BACKUP &amp; RESTORE"
                 android:textColor="#6B8EFF"
                 android:textSize="12sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
                 android:text="Save and restore all launcher settings"
                 android:textColor="#AAAAAA"
-                android:textSize="11sp"
-                android:layout_marginBottom="8dp" />
+                android:textSize="10sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/btnBackup"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
                     android:backgroundTint="#4CAF50"
                     android:text="💾 Backup"
-                    android:textSize="12sp" />
+                    android:textSize="11sp" />
 
                 <Button
                     android:id="@+id/btnRestore"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="36dp"
                     android:layout_weight="1"
                     android:backgroundTint="#FF9800"
                     android:text="📥 Restore"
-                    android:textSize="12sp" />
+                    android:textSize="11sp" />
             </LinearLayout>
 
         </LinearLayout>
@@ -462,16 +460,16 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="#1E1E1E"
-        android:padding="10dp">
+        android:padding="8dp">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnBack"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
+            android:layout_height="42dp"
             android:backgroundTint="#333333"
             android:text="← Back"
             android:textColor="#FFFFFF"
-            android:textSize="13sp" />
+            android:textSize="12sp" />
     </LinearLayout>
 
 </LinearLayout>

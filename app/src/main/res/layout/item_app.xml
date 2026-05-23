@@ -5,10 +5,12 @@
     android:id="@+id/cardApp"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
+    android:layout_margin="12dp"
     app:cardBackgroundColor="#1E1E1E"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="20dp"
+    app:cardElevation="16dp"
+    app:strokeWidth="3dp"
+    app:strokeColor="#FF0000">
 
     <RelativeLayout
         android:layout_width="wrap_content"

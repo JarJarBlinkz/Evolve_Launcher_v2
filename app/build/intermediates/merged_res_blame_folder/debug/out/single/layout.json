@@ -1,5 +1,9 @@
 [
     {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/item_playtime_card.xml",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/item_playtime_card.xml"
+    },
+    {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/item_app.xml",
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/item_app.xml"
     },

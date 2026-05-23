@@ -41,6 +41,15 @@
             android:padding="4dp" />
 
         <ImageView
+            android:id="@+id/btnViewToggle"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/ic_view_module"
+            android:tint="#6B8EFF"
+            android:padding="4dp" />
+
+        <ImageView
             android:id="@+id/btnRefresh"
             android:layout_width="24dp"
             android:layout_height="24dp"
@@ -143,6 +152,7 @@
 
     <!-- Summary Stats Cards -->
     <LinearLayout
+        android:id="@+id/summaryStatsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -319,6 +329,7 @@
 
             <!-- Playtime List Header - Matching the updated single line item layout -->
             <LinearLayout
+                android:id="@+id/listHeadersContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"

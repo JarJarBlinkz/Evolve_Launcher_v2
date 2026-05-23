@@ -83,8 +83,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         Window window = getWindow();
         android.view.WindowManager.LayoutParams lp = window.getAttributes();
-        lp.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.5);
-        lp.height = (int) (getResources().getDisplayMetrics().heightPixels * 0.9);
+        lp.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.90);
+        lp.height = (int) (getResources().getDisplayMetrics().heightPixels * 1.00);
         window.setAttributes(lp);
 
         prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -280,10 +280,36 @@ public class SettingsActivity extends AppCompatActivity {
         try {
             JSONObject backup = new JSONObject();
 
-            // Save VRLPrefs
+            // Save VRLPrefs - preserve types properly
             JSONObject prefsData = new JSONObject();
             for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
-                prefsData.put(entry.getKey(), String.valueOf(entry.getValue()));
+                Object value = entry.getValue();
+
+                // DEBUG: Log the actual type
+                android.util.Log.d("SettingsActivity", "Key: " + entry.getKey() +
+                        ", Value: " + value +
+                        ", Type: " + (value != null ? value.getClass().getName() : "null"));
+
+                if (value instanceof Boolean) {
+                    android.util.Log.d("SettingsActivity", "  -> Saving as Boolean");
+                    prefsData.put(entry.getKey(), (Boolean) value);
+                } else if (value instanceof Integer) {
+                    android.util.Log.d("SettingsActivity", "  -> Saving as Integer");
+                    prefsData.put(entry.getKey(), (Integer) value);
+                } else if (value instanceof Long) {
+                    android.util.Log.d("SettingsActivity", "  -> Saving as Long");
+                    prefsData.put(entry.getKey(), (Long) value);
+                } else if (value instanceof Float) {
+                    android.util.Log.d("SettingsActivity", "  -> Saving as Float");
+                    prefsData.put(entry.getKey(), (Float) value);
+                } else if (value instanceof Set) {
+                    android.util.Log.d("SettingsActivity", "  -> Skipping Set");
+                    // Skip sets here, they go in categories
+                    continue;
+                } else {
+                    android.util.Log.d("SettingsActivity", "  -> Saving as String");
+                    prefsData.put(entry.getKey(), String.valueOf(value));
+                }
             }
             backup.put("vrprefs", prefsData);
 
@@ -297,25 +323,102 @@ public class SettingsActivity extends AppCompatActivity {
             }
             backup.put("categories", categoriesData);
 
-            // Use Storage Access Framework to let user choose where to save
-            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("application/json");
-
+            // Quest VR doesn't support file picker reliably - save directly to /sdcard/
             String fileName = "vrlauncher_backup_" +
                     new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()) + ".json";
-            intent.putExtra(Intent.EXTRA_TITLE, fileName);
 
-            // Optional: specify initial directory
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Uri initialUri = Uri.parse("content://com.android.externalstorage.documents/document/primary%3A");
-                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialUri);
-            }
-
-            startActivityForResult(intent, REQUEST_CODE_CREATE_BACKUP);
+            saveBackupDirectly(backup, fileName);
 
         } catch (Exception e) {
             Toast.makeText(this, "Backup failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Fallback method: save to /sdcard/evolve_backups with permission check
+    private void saveBackupDirectly(JSONObject backup, String fileName) {
+        try {
+            // Check if we have permission to write to external storage
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // Android 11+ requires MANAGE_EXTERNAL_STORAGE permission
+                if (!Environment.isExternalStorageManager()) {
+                    // Show dialog explaining why we need this permission
+                    new AlertDialog.Builder(this)
+                            .setTitle("Storage Permission Needed")
+                            .setMessage("To save backups to /sdcard/, we need storage access permission.\n\nWould you like to grant this permission now?")
+                            .setPositiveButton("Grant Permission", (dialog, which) -> {
+                                try {
+                                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                                    Uri uri = Uri.fromParts("package", getPackageName(), null);
+                                    intent.setData(uri);
+                                    startActivity(intent);
+                                    Toast.makeText(this, "Please enable 'Allow management of all files' and try backup again", Toast.LENGTH_LONG).show();
+                                } catch (Exception e) {
+                                    android.util.Log.e("SettingsActivity", "Failed to open settings", e);
+                                    Toast.makeText(this, "Please manually enable storage permission in Settings", Toast.LENGTH_LONG).show();
+                                }
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                    return;
+                }
+            }
+
+            // Create /sdcard/evolve_backups directory
+            File externalStorage = Environment.getExternalStorageDirectory();
+            File backupDir = new File(externalStorage, "evolve_backups");
+
+            // Create directory if it doesn't exist
+            if (!backupDir.exists()) {
+                boolean created = backupDir.mkdirs();
+                android.util.Log.i("SettingsActivity", "Creating backup directory: " + backupDir.getAbsolutePath() + ", created=" + created);
+
+                if (!created && !backupDir.exists()) {
+                    throw new Exception("Failed to create backup directory. Please grant storage permission in Settings.");
+                }
+            }
+
+            // Verify directory exists and is writable
+            if (!backupDir.exists()) {
+                throw new Exception("Backup directory doesn't exist: " + backupDir.getAbsolutePath());
+            }
+
+            if (!backupDir.canWrite()) {
+                throw new Exception("Backup directory not writable. Please grant storage permission in Settings.");
+            }
+
+            File backupFile = new File(backupDir, fileName);
+            android.util.Log.i("SettingsActivity", "Writing backup to: " + backupFile.getAbsolutePath());
+
+            FileOutputStream fos = new FileOutputStream(backupFile);
+            fos.write(backup.toString(2).getBytes());
+            fos.flush();
+            fos.close();
+
+            android.util.Log.i("SettingsActivity", "Backup saved successfully: " + backupFile.getAbsolutePath());
+
+            // Show success dialog instead of toast (more reliable on Quest)
+            android.util.Log.d("SettingsActivity", "Creating success dialog...");
+            try {
+                AlertDialog dialog = new AlertDialog.Builder(this)
+                        .setTitle("✅ Backup Successful")
+                        .setMessage("Backup saved to:\n\n/sdcard/evolve_backups/" + fileName)
+                        .setPositiveButton("OK", null)
+                        .create();
+                android.util.Log.d("SettingsActivity", "Showing dialog...");
+                dialog.show();
+                android.util.Log.d("SettingsActivity", "Dialog shown successfully");
+            } catch (Exception dialogEx) {
+                android.util.Log.e("SettingsActivity", "Failed to show dialog: " + dialogEx.getMessage(), dialogEx);
+                // Fallback to toast if dialog fails
+                Toast.makeText(this, "Backup saved to:\n/sdcard/evolve_backups/" + fileName, Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            android.util.Log.e("SettingsActivity", "Fallback backup failed: " + e.getMessage(), e);
+            new AlertDialog.Builder(this)
+                    .setTitle("❌ Backup Failed")
+                    .setMessage(e.getMessage())
+                    .setPositiveButton("OK", null)
+                    .show();
         }
     }
 

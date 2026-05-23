@@ -2,7 +2,9 @@ package com.jarjarblinkz.EvolveLauncher;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +24,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.tabs.TabLayout;
 
@@ -44,8 +50,11 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
     private TextView txtCurrentPlaytime;
     private MaterialCardView currentlyPlayingCard;
     private MaterialCardView permissionCard;
+    private LinearLayout summaryStatsContainer;
+    private LinearLayout listHeadersContainer;
     private ImageView btnResetStats;
     private ImageView btnRefresh;
+    private ImageView btnViewToggle;
     private View btnBack;
     private View btnGrantPermission;
 
@@ -53,6 +62,8 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
     private List<PlaytimeTracker.PlaytimeEntry> entries = new ArrayList<>();
     private Handler updateHandler = new Handler();
     private Runnable updateRunnable;
+
+    private boolean isCardView = true; // Default to card view
 
     // Permanent permission storage
     private SharedPreferences prefs;
@@ -63,6 +74,10 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
     // Cache the permission state permanently after first successful check
     private boolean permissionState = false;
     private boolean permissionChecked = false;
+
+    // GitHub cover images URL
+    private static final String GITHUB_ICON_BASE_URL =
+            "https://raw.githubusercontent.com/JarJarBlinkz/LauncherIcons/main/oculus_landscape/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,13 +102,16 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
         txtCurrentPlaytime = findViewById(R.id.txtCurrentPlaytime);
         currentlyPlayingCard = findViewById(R.id.currentlyPlayingCard);
         permissionCard = findViewById(R.id.permissionCard);
+        summaryStatsContainer = findViewById(R.id.summaryStatsContainer);
+        listHeadersContainer = findViewById(R.id.listHeadersContainer);
         btnResetStats = findViewById(R.id.btnResetStats);
         btnRefresh = findViewById(R.id.btnRefresh);
+        btnViewToggle = findViewById(R.id.btnViewToggle);
         btnBack = findViewById(R.id.btnBack);
         btnGrantPermission = findViewById(R.id.btnGrantPermission);
 
-        // Setup RecyclerView
-        playtimeList.setLayoutManager(new LinearLayoutManager(this));
+        // Setup RecyclerView with Grid Layout - 6 columns
+        playtimeList.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(this, 6));
         adapter = new PlaytimeAdapter();
         playtimeList.setAdapter(adapter);
 
@@ -123,6 +141,11 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
         // Button listeners
         btnRefresh.setOnClickListener(v -> refreshData());
         btnBack.setOnClickListener(v -> finish());
+
+        btnViewToggle.setOnClickListener(v -> {
+            isCardView = !isCardView;
+            switchViewMode();
+        });
 
         btnResetStats.setOnClickListener(v -> {
             new AlertDialog.Builder(PlaytimeStatsActivity.this)
@@ -170,6 +193,9 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
 
         // Start periodic updates
         startPeriodicUpdates();
+
+        // Set initial UI state based on default view mode (card view)
+        setInitialViewState();
 
         // Initial data load
         refreshData();
@@ -345,14 +371,55 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
         }
     }
 
+    private String getGitHubIconUrl(String packageName) {
+        return GITHUB_ICON_BASE_URL + packageName + ".jpg";
+    }
+
+    private void setInitialViewState() {
+        // Set initial visibility based on default isCardView = true
+        if (isCardView) {
+            summaryStatsContainer.setVisibility(View.GONE);
+            currentlyPlayingCard.setVisibility(View.GONE);
+            listHeadersContainer.setVisibility(View.GONE);
+        } else {
+            summaryStatsContainer.setVisibility(View.VISIBLE);
+            currentlyPlayingCard.setVisibility(View.VISIBLE);
+            listHeadersContainer.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void switchViewMode() {
+        if (isCardView) {
+            // Card view - hide summary stats, currently playing, and list headers
+            summaryStatsContainer.setVisibility(View.GONE);
+            currentlyPlayingCard.setVisibility(View.GONE);
+            listHeadersContainer.setVisibility(View.GONE);
+            playtimeList.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(this, 6));
+        } else {
+            // List view - show all stats
+            summaryStatsContainer.setVisibility(View.VISIBLE);
+            currentlyPlayingCard.setVisibility(View.VISIBLE);
+            listHeadersContainer.setVisibility(View.VISIBLE);
+            playtimeList.setLayoutManager(new LinearLayoutManager(this));
+        }
+
+        // Recreate adapter with new layout
+        adapter = new PlaytimeAdapter();
+        playtimeList.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
+        refreshData();
+    }
+
     // Adapter class for RecyclerView
     private class PlaytimeAdapter extends RecyclerView.Adapter<PlaytimeAdapter.ViewHolder> {
 
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            int layoutId = isCardView ? R.layout.item_playtime_card : R.layout.item_playtime_stat;
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_playtime_stat, parent, false);
+                    .inflate(layoutId, parent, false);
             return new ViewHolder(view);
         }
 
@@ -367,6 +434,28 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
             }
             holder.txtAppName.setText(appName);
 
+            // Load game cover from GitHub
+            String githubIconUrl = getGitHubIconUrl(entry.getPackageName());
+
+            Drawable appIcon = null;
+            try {
+                appIcon = getPackageManager().getApplicationIcon(entry.getPackageName());
+            } catch (PackageManager.NameNotFoundException e) {
+                appIcon = getDrawable(android.R.drawable.sym_def_app_icon);
+            }
+
+            Glide.with(PlaytimeStatsActivity.this)
+                    .load(githubIconUrl)
+                    .apply(new RequestOptions()
+                            .placeholder(appIcon)
+                            .error(appIcon)
+                            .centerCrop()
+                            .override(400, 225)
+                            .skipMemoryCache(false)
+                            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                            .dontAnimate())
+                    .into(holder.imgGameCover);
+
             // Playtime
             holder.txtPlaytime.setText(entry.getFormattedPlaytime());
 
@@ -376,7 +465,8 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
                 totalMs += e.playtime;
             }
             int percent = totalMs > 0 ? (int) ((entry.playtime * 100) / totalMs) : 0;
-            holder.txtPercentage.setText(percent + "%");
+            int rank = position + 1; // Position starts at 0, rank starts at 1
+            holder.txtPercentage.setText("Rank #" + rank + " (" + percent + "%)");
 
             if (entry.appInfo != null) {
                 // Build+Version in format: v{build}+{version}
@@ -436,6 +526,7 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
+            ImageView imgGameCover;
             TextView txtAppName;
             TextView txtPlaytime;
             TextView txtPercentage;
@@ -448,6 +539,7 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
             ViewHolder(View itemView) {
                 super(itemView);
                 cardView = (MaterialCardView) itemView;
+                imgGameCover = itemView.findViewById(R.id.imgGameCover);
                 txtAppName = itemView.findViewById(R.id.txtAppName);
                 txtPlaytime = itemView.findViewById(R.id.txtPlaytime);
                 txtPercentage = itemView.findViewById(R.id.txtPercentage);

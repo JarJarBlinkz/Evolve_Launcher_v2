@@ -34,6 +34,7 @@ drawable ic_rotation
 drawable ic_search
 drawable ic_settings
 drawable ic_storage
+drawable ic_view_module
 drawable ic_vr_headset
 drawable ic_wifi
 drawable ic_wifi_full
@@ -43,6 +44,7 @@ drawable ic_wifi_off
 drawable quick_settings_button_bg
 drawable search_background
 drawable system_indicator
+drawable type_badge_background
 id appCategory
 id appIcon
 id appName
@@ -68,6 +70,7 @@ id btnResetStats
 id btnRestore
 id btnSettings
 id btnUsageAccess
+id btnViewToggle
 id btnVolumeDown
 id btnVolumeUp
 id cardApp
@@ -77,8 +80,10 @@ id categoryTitle
 id clearSearch
 id currentlyPlayingCard
 id dragHandle
+id imgGameCover
 id internalStorageProgress
 id ipWifiContainer
+id listHeadersContainer
 id mainLayout
 id percentageBar
 id permissionCard
@@ -93,6 +98,7 @@ id searchStatus
 id seekBgOpacity
 id seekIconSize
 id seekVolume
+id summaryStatsContainer
 id switchAutoStart
 id switchAutoUpdate
 id switchCategories
@@ -159,6 +165,7 @@ layout activity_main
 layout activity_playtime_stats
 layout activity_settings
 layout item_app
+layout item_playtime_card
 layout item_playtime_stat
 layout item_playtime_stats
 layout panel_quick_settings

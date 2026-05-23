@@ -37,13 +37,22 @@ public final class ActivityPlaytimeStatsBinding implements ViewBinding {
   public final ImageView btnResetStats;
 
   @NonNull
+  public final ImageView btnViewToggle;
+
+  @NonNull
   public final MaterialCardView currentlyPlayingCard;
+
+  @NonNull
+  public final LinearLayout listHeadersContainer;
 
   @NonNull
   public final MaterialCardView permissionCard;
 
   @NonNull
   public final RecyclerView playtimeList;
+
+  @NonNull
+  public final LinearLayout summaryStatsContainer;
 
   @NonNull
   public final TabLayout tabTimeRange;
@@ -69,19 +78,24 @@ public final class ActivityPlaytimeStatsBinding implements ViewBinding {
   private ActivityPlaytimeStatsBinding(@NonNull LinearLayout rootView,
       @NonNull AppCompatButton btnBack, @NonNull AppCompatButton btnGrantPermission,
       @NonNull ImageView btnRefresh, @NonNull ImageView btnResetStats,
-      @NonNull MaterialCardView currentlyPlayingCard, @NonNull MaterialCardView permissionCard,
-      @NonNull RecyclerView playtimeList, @NonNull TabLayout tabTimeRange,
-      @NonNull TextView txtCurrentPlaytime, @NonNull TextView txtCurrentlyPlaying,
-      @NonNull TextView txtGameCount, @NonNull TextView txtLastUpdated,
-      @NonNull TextView txtMostPlayed, @NonNull TextView txtTotalPlaytime) {
+      @NonNull ImageView btnViewToggle, @NonNull MaterialCardView currentlyPlayingCard,
+      @NonNull LinearLayout listHeadersContainer, @NonNull MaterialCardView permissionCard,
+      @NonNull RecyclerView playtimeList, @NonNull LinearLayout summaryStatsContainer,
+      @NonNull TabLayout tabTimeRange, @NonNull TextView txtCurrentPlaytime,
+      @NonNull TextView txtCurrentlyPlaying, @NonNull TextView txtGameCount,
+      @NonNull TextView txtLastUpdated, @NonNull TextView txtMostPlayed,
+      @NonNull TextView txtTotalPlaytime) {
     this.rootView = rootView;
     this.btnBack = btnBack;
     this.btnGrantPermission = btnGrantPermission;
     this.btnRefresh = btnRefresh;
     this.btnResetStats = btnResetStats;
+    this.btnViewToggle = btnViewToggle;
     this.currentlyPlayingCard = currentlyPlayingCard;
+    this.listHeadersContainer = listHeadersContainer;
     this.permissionCard = permissionCard;
     this.playtimeList = playtimeList;
+    this.summaryStatsContainer = summaryStatsContainer;
     this.tabTimeRange = tabTimeRange;
     this.txtCurrentPlaytime = txtCurrentPlaytime;
     this.txtCurrentlyPlaying = txtCurrentlyPlaying;
@@ -142,9 +156,21 @@ public final class ActivityPlaytimeStatsBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btnViewToggle;
+      ImageView btnViewToggle = ViewBindings.findChildViewById(rootView, id);
+      if (btnViewToggle == null) {
+        break missingId;
+      }
+
       id = R.id.currentlyPlayingCard;
       MaterialCardView currentlyPlayingCard = ViewBindings.findChildViewById(rootView, id);
       if (currentlyPlayingCard == null) {
+        break missingId;
+      }
+
+      id = R.id.listHeadersContainer;
+      LinearLayout listHeadersContainer = ViewBindings.findChildViewById(rootView, id);
+      if (listHeadersContainer == null) {
         break missingId;
       }
 
@@ -157,6 +183,12 @@ public final class ActivityPlaytimeStatsBinding implements ViewBinding {
       id = R.id.playtimeList;
       RecyclerView playtimeList = ViewBindings.findChildViewById(rootView, id);
       if (playtimeList == null) {
+        break missingId;
+      }
+
+      id = R.id.summaryStatsContainer;
+      LinearLayout summaryStatsContainer = ViewBindings.findChildViewById(rootView, id);
+      if (summaryStatsContainer == null) {
         break missingId;
       }
 
@@ -203,9 +235,9 @@ public final class ActivityPlaytimeStatsBinding implements ViewBinding {
       }
 
       return new ActivityPlaytimeStatsBinding((LinearLayout) rootView, btnBack, btnGrantPermission,
-          btnRefresh, btnResetStats, currentlyPlayingCard, permissionCard, playtimeList,
-          tabTimeRange, txtCurrentPlaytime, txtCurrentlyPlaying, txtGameCount, txtLastUpdated,
-          txtMostPlayed, txtTotalPlaytime);
+          btnRefresh, btnResetStats, btnViewToggle, currentlyPlayingCard, listHeadersContainer,
+          permissionCard, playtimeList, summaryStatsContainer, tabTimeRange, txtCurrentPlaytime,
+          txtCurrentlyPlaying, txtGameCount, txtLastUpdated, txtMostPlayed, txtTotalPlaytime);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
