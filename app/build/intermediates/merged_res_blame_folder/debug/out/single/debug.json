@@ -12,6 +12,10 @@
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/quick_settings_button_bg.xml"
     },
     {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/layout_item_bundled_app.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/item_bundled_app.xml"
+    },
+    {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_refresh.xml.flat",
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_refresh.xml"
     },
@@ -40,12 +44,20 @@
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_battery_high.xml"
     },
     {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/anim_fade_slide_in.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/anim/fade_slide_in.xml"
+    },
+    {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable-xxhdpi_ic_vr_headset.png.flat",
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable-xxhdpi/ic_vr_headset.png"
     },
     {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/layout_item_playtime_card.xml.flat",
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/item_playtime_card.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/anim_item_scale_in.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/anim/item_scale_in.xml"
     },
     {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable-xhdpi_ic_vr_headset.png.flat",
@@ -60,20 +72,8 @@
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_dnd.xml"
     },
     {
-        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_bg_space.xml.flat",
-        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/bg_space.xml"
-    },
-    {
-        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_bg_mountains.xml.flat",
-        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/bg_mountains.xml"
-    },
-    {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/mipmap-hdpi_ic_launcher.png.flat",
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/mipmap-hdpi/ic_launcher.png"
-    },
-    {
-        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_bg_abstract.xml.flat",
-        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/bg_abstract.xml"
     },
     {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_delete.xml.flat",
@@ -104,12 +104,16 @@
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/category_badge_background.xml"
     },
     {
-        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_bg_nebula.xml.flat",
-        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/bg_nebula.xml"
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/anim_layout_grid_in.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/anim/layout_grid_in.xml"
     },
     {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable-xxxhdpi_ic_evolve_logo.png.flat",
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable-xxxhdpi/ic_evolve_logo.png"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/layout_activity_bundled_apps.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/activity_bundled_apps.xml"
     },
     {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/layout_item_app.xml.flat",
@@ -118,10 +122,6 @@
     {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_ic_bluetooth.xml.flat",
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/ic_bluetooth.xml"
-    },
-    {
-        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_bg_circuit.xml.flat",
-        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/bg_circuit.xml"
     },
     {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_digital_clock_bg.xml.flat",
@@ -154,10 +154,6 @@
     {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/mipmap-xhdpi_ic_launcher.png.flat",
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/mipmap-xhdpi/ic_launcher.png"
-    },
-    {
-        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_bg_grid.xml.flat",
-        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable/bg_grid.xml"
     },
     {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/layout_item_playtime_stat.xml.flat",
@@ -202,6 +198,10 @@
     {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable-mdpi_ic_vr_headset.png.flat",
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/drawable-mdpi/ic_vr_headset.png"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/anim_fade_slide_out.xml.flat",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/anim/fade_slide_out.xml"
     },
     {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-merged_res-34:/drawable_search_background.xml.flat",

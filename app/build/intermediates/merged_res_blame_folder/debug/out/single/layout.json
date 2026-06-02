@@ -16,12 +16,20 @@
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/activity_playtime_stats.xml"
     },
     {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/item_bundled_app.xml",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/item_bundled_app.xml"
+    },
+    {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/item_playtime_stat.xml",
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/item_playtime_stat.xml"
     },
     {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/panel_quick_settings.xml",
         "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/panel_quick_settings.xml"
+    },
+    {
+        "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/activity_bundled_apps.xml",
+        "source": "com.jarjarblinkz.EvolveLauncher.app-main-36:/layout/activity_bundled_apps.xml"
     },
     {
         "merged": "com.jarjarblinkz.EvolveLauncher.app-mergeDebugResources-33:/layout/item_playtime_stats.xml",

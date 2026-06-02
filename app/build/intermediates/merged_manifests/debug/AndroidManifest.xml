@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jarjarblinkz.EvolveLauncher"
     android:versionCode="1"
-    android:versionName="2.0.0" >
+    android:versionName="2.1.1" >
 
     <uses-sdk
-        android:minSdkVersion="21"
+        android:minSdkVersion="24"
         android:targetSdkVersion="34" />
 
     <!-- Internet permission for loading GitHub icons -->
@@ -50,7 +50,6 @@
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
 
     <!-- USED FOR SETTINGS BACKUP -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- NEW: For backup to /sdcard/ (Android 11+) -->
@@ -61,12 +60,21 @@
     <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
+    <!-- Shizuku - for shell-level command execution -->
+    <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
+
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
 
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+        <!-- Required for native Settings access on Android 11+ (Quest 3/Pro) -->
+        <package android:name="com.android.settings" />
+        <!-- Required for Shizuku integration -->
+        <package android:name="moe.shizuku.privileged.api" />
+
+        <provider android:authorities="moe.shizuku.privileged.api" />
     </queries>
 
     <permission
@@ -79,14 +87,13 @@
         android:allowBackup="true"
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         android:debuggable="true"
-        android:extractNativeLibs="true"
+        android:extractNativeLibs="false"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:testOnly="true"
         android:theme="@style/Theme.Evolve_Launcher"
         android:usesCleartextTraffic="true" >
 
@@ -125,6 +132,28 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Dialog"
             android:windowSoftInputMode="stateHidden|adjustResize" />
+
+        <!-- Bundled Apps Installer Activity -->
+        <activity
+            android:name="com.jarjarblinkz.EvolveLauncher.BundledAppsActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
+        <!-- Settings Action Test Activity -->
+        <activity
+            android:name="com.jarjarblinkz.EvolveLauncher.SettingsActionTestActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Dialog" />
+
+        <!-- Native Settings Launcher - Transparent activity that launches Settings -->
+        <activity
+            android:name="com.jarjarblinkz.EvolveLauncher.NativeSettingsLauncher"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name="com.jarjarblinkz.EvolveLauncher.DeviceInfoActivity"
             android:exported="false"
@@ -170,13 +199,27 @@
         <!-- FileProvider for APK installation -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.jarjarblinkz.EvolveLauncher.provider"
+            android:authorities="com.jarjarblinkz.EvolveLauncher.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true" >
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <!-- Shizuku Provider - REQUIRED for Shizuku to connect to this app -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="com.jarjarblinkz.EvolveLauncher.shizuku"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+        <meta-data
+            android:name="moe.shizuku.client.V3_SUPPORT"
+            android:value="true" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="com.jarjarblinkz.EvolveLauncher.androidx-startup"

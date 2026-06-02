@@ -30,6 +30,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.tabs.TabLayout;
 
+import com.jarjarblinkz.EvolveLauncher.theme.Theme;
+import com.jarjarblinkz.EvolveLauncher.theme.ThemeApplier;
+import com.jarjarblinkz.EvolveLauncher.theme.ThemeManager;
+import com.jarjarblinkz.EvolveLauncher.theme.ThemedDialog;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -148,7 +153,7 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
         });
 
         btnResetStats.setOnClickListener(v -> {
-            new AlertDialog.Builder(PlaytimeStatsActivity.this)
+            ThemedDialog.showThemed(new AlertDialog.Builder(PlaytimeStatsActivity.this)
                     .setTitle("Clear All Statistics")
                     .setMessage("Are you sure you want to clear ALL playtime statistics?\n\nThis will reset all counts to zero and cannot be undone.")
                     .setPositiveButton("CLEAR ALL", (d, w) -> {
@@ -171,7 +176,7 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
                         Toast.makeText(PlaytimeStatsActivity.this, "All statistics cleared", Toast.LENGTH_LONG).show();
                     })
                     .setNegativeButton("Cancel", null)
-                    .show();
+                    .create());
         });
 
         btnGrantPermission.setOnClickListener(v -> {
@@ -183,11 +188,11 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Toast.makeText(PlaytimeStatsActivity.this, "Please grant permission manually via ADB", Toast.LENGTH_LONG).show();
                 // Show ADB command
-                new AlertDialog.Builder(PlaytimeStatsActivity.this)
+                ThemedDialog.showThemed(new AlertDialog.Builder(PlaytimeStatsActivity.this)
                         .setTitle("ADB Command")
                         .setMessage("Run this command:\n\nadb shell pm grant " + getPackageName() + " android.permission.PACKAGE_USAGE_STATS")
                         .setPositiveButton("OK", null)
-                        .show();
+                        .create());
             }
         });
 
@@ -199,6 +204,21 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
 
         // Initial data load
         refreshData();
+
+        // Apply theme to entire activity
+        View rootView = findViewById(android.R.id.content);
+        ThemeApplier.applyThemeToHierarchy(rootView);
+
+        // Theme the TabLayout
+        themeTabLayout();
+    }
+
+    private void themeTabLayout() {
+        if (tabTimeRange == null) return;
+        Theme theme = ThemeManager.getInstance(this).getCurrentTheme();
+        tabTimeRange.setBackgroundColor(theme.bgSecondary);
+        tabTimeRange.setSelectedTabIndicatorColor(theme.accentPrimary);
+        tabTimeRange.setTabTextColors(theme.textMuted, theme.accentPrimary);
     }
 
     private void checkPermissionOnce() {
@@ -238,7 +258,7 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
     private void showAdbCommandDialog() {
         String adbCommand = "adb shell pm grant " + getPackageName() + " android.permission.PACKAGE_USAGE_STATS";
 
-        new AlertDialog.Builder(PlaytimeStatsActivity.this)
+        ThemedDialog.showThemed(new AlertDialog.Builder(PlaytimeStatsActivity.this)
                 .setTitle("Usage Stats Permission Required")
                 .setMessage("To track playtime on Meta Quest, you need to grant this permission via ADB:\n\n" +
                         adbCommand + "\n\n" +
@@ -249,7 +269,7 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
                         "5. After running, restart this app\n\n" +
                         "Note: The Settings app method is NOT available on Meta Quest.")
                 .setPositiveButton("OK", null)
-                .show();
+                .create());
     }
 
     private void startPeriodicUpdates() {
@@ -353,6 +373,13 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
         }
         refreshData();
         startPeriodicUpdates();
+
+        // Re-apply theme on resume
+        View rootView = findViewById(android.R.id.content);
+        if (rootView != null) {
+            ThemeApplier.applyThemeToHierarchy(rootView);
+        }
+        themeTabLayout();
     }
 
     @Override
@@ -426,6 +453,20 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             PlaytimeTracker.PlaytimeEntry entry = entries.get(position);
+
+            // Apply theme to this card
+            Theme theme = ThemeManager.getInstance(PlaytimeStatsActivity.this).getCurrentTheme();
+            if (holder.cardView != null) {
+                holder.cardView.setCardBackgroundColor(theme.bgSecondary);
+                holder.cardView.setStrokeColor(theme.borderPrimary);
+            }
+            if (holder.txtAppName != null) holder.txtAppName.setTextColor(theme.textPrimary);
+            if (holder.txtPlaytime != null) holder.txtPlaytime.setTextColor(theme.accentPrimary);
+            if (holder.txtPercentage != null) holder.txtPercentage.setTextColor(theme.textSecondary);
+            if (holder.txtBuildVersion != null) holder.txtBuildVersion.setTextColor(theme.textMuted);
+            if (holder.txtType != null) holder.txtType.setTextColor(theme.textMuted);
+            if (holder.txtInstallDate != null) holder.txtInstallDate.setTextColor(theme.textMuted);
+            if (holder.txtUpdateDate != null) holder.txtUpdateDate.setTextColor(theme.textMuted);
 
             // App name
             String appName = entry.getAppName();
@@ -570,7 +611,7 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
                 "  (" + entry.getFormattedPlaytime() + ")\n\n" +
                 "Install Source: " + (info.storeApp ? "Oculus Store" : (info.sideloaded ? "Sideloaded" : "System"));
 
-        new AlertDialog.Builder(PlaytimeStatsActivity.this)
+        ThemedDialog.showThemed(new AlertDialog.Builder(PlaytimeStatsActivity.this)
                 .setTitle("App Details")
                 .setMessage(details)
                 .setPositiveButton("App Info", (d, w) -> {
@@ -583,6 +624,6 @@ public class PlaytimeStatsActivity extends AppCompatActivity {
                     }
                 })
                 .setNegativeButton("Close", null)
-                .show();
+                .create());
     }
 }

@@ -36,31 +36,37 @@ public final class ActivitySettingsBinding implements ViewBinding {
   public final Button btnBackup;
 
   @NonNull
-  public final AppCompatButton btnBgBuiltin;
+  public final Button btnBundledApps;
 
   @NonNull
-  public final AppCompatButton btnBgCustom;
+  public final Button btnCheckUpdates;
 
   @NonNull
-  public final AppCompatButton btnBgDefault;
+  public final Button btnDeviceInfo;
 
   @NonNull
-  public final AppCompatButton btnCheckUpdates;
+  public final Button btnGameStats;
 
   @NonNull
-  public final AppCompatButton btnDeviceInfo;
+  public final Button btnManageCategories;
 
   @NonNull
-  public final AppCompatButton btnGameStats;
+  public final Button btnNativeSettings;
 
   @NonNull
-  public final AppCompatButton btnManageCategories;
+  public final Button btnResetUI;
+
+  @NonNull
+  public final Button btnRestartUI;
 
   @NonNull
   public final Button btnRestore;
 
   @NonNull
-  public final AppCompatButton btnUsageAccess;
+  public final Button btnThemes;
+
+  @NonNull
+  public final Button btnUsageAccess;
 
   @NonNull
   public final SeekBar seekBgOpacity;
@@ -91,12 +97,11 @@ public final class ActivitySettingsBinding implements ViewBinding {
 
   private ActivitySettingsBinding(@NonNull LinearLayout rootView,
       @NonNull TextView autoRestartStatus, @NonNull SwitchCompat autoRestartSwitch,
-      @NonNull AppCompatButton btnBack, @NonNull Button btnBackup,
-      @NonNull AppCompatButton btnBgBuiltin, @NonNull AppCompatButton btnBgCustom,
-      @NonNull AppCompatButton btnBgDefault, @NonNull AppCompatButton btnCheckUpdates,
-      @NonNull AppCompatButton btnDeviceInfo, @NonNull AppCompatButton btnGameStats,
-      @NonNull AppCompatButton btnManageCategories, @NonNull Button btnRestore,
-      @NonNull AppCompatButton btnUsageAccess, @NonNull SeekBar seekBgOpacity,
+      @NonNull AppCompatButton btnBack, @NonNull Button btnBackup, @NonNull Button btnBundledApps,
+      @NonNull Button btnCheckUpdates, @NonNull Button btnDeviceInfo, @NonNull Button btnGameStats,
+      @NonNull Button btnManageCategories, @NonNull Button btnNativeSettings,
+      @NonNull Button btnResetUI, @NonNull Button btnRestartUI, @NonNull Button btnRestore,
+      @NonNull Button btnThemes, @NonNull Button btnUsageAccess, @NonNull SeekBar seekBgOpacity,
       @NonNull SeekBar seekIconSize, @NonNull SwitchCompat switchAutoStart,
       @NonNull SwitchCompat switchAutoUpdate, @NonNull SwitchCompat switchCategories,
       @NonNull SwitchCompat switchEditMode, @NonNull TextView txtBgOpacity,
@@ -106,14 +111,16 @@ public final class ActivitySettingsBinding implements ViewBinding {
     this.autoRestartSwitch = autoRestartSwitch;
     this.btnBack = btnBack;
     this.btnBackup = btnBackup;
-    this.btnBgBuiltin = btnBgBuiltin;
-    this.btnBgCustom = btnBgCustom;
-    this.btnBgDefault = btnBgDefault;
+    this.btnBundledApps = btnBundledApps;
     this.btnCheckUpdates = btnCheckUpdates;
     this.btnDeviceInfo = btnDeviceInfo;
     this.btnGameStats = btnGameStats;
     this.btnManageCategories = btnManageCategories;
+    this.btnNativeSettings = btnNativeSettings;
+    this.btnResetUI = btnResetUI;
+    this.btnRestartUI = btnRestartUI;
     this.btnRestore = btnRestore;
+    this.btnThemes = btnThemes;
     this.btnUsageAccess = btnUsageAccess;
     this.seekBgOpacity = seekBgOpacity;
     this.seekIconSize = seekIconSize;
@@ -177,45 +184,51 @@ public final class ActivitySettingsBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.btnBgBuiltin;
-      AppCompatButton btnBgBuiltin = ViewBindings.findChildViewById(rootView, id);
-      if (btnBgBuiltin == null) {
-        break missingId;
-      }
-
-      id = R.id.btnBgCustom;
-      AppCompatButton btnBgCustom = ViewBindings.findChildViewById(rootView, id);
-      if (btnBgCustom == null) {
-        break missingId;
-      }
-
-      id = R.id.btnBgDefault;
-      AppCompatButton btnBgDefault = ViewBindings.findChildViewById(rootView, id);
-      if (btnBgDefault == null) {
+      id = R.id.btnBundledApps;
+      Button btnBundledApps = ViewBindings.findChildViewById(rootView, id);
+      if (btnBundledApps == null) {
         break missingId;
       }
 
       id = R.id.btnCheckUpdates;
-      AppCompatButton btnCheckUpdates = ViewBindings.findChildViewById(rootView, id);
+      Button btnCheckUpdates = ViewBindings.findChildViewById(rootView, id);
       if (btnCheckUpdates == null) {
         break missingId;
       }
 
       id = R.id.btnDeviceInfo;
-      AppCompatButton btnDeviceInfo = ViewBindings.findChildViewById(rootView, id);
+      Button btnDeviceInfo = ViewBindings.findChildViewById(rootView, id);
       if (btnDeviceInfo == null) {
         break missingId;
       }
 
       id = R.id.btnGameStats;
-      AppCompatButton btnGameStats = ViewBindings.findChildViewById(rootView, id);
+      Button btnGameStats = ViewBindings.findChildViewById(rootView, id);
       if (btnGameStats == null) {
         break missingId;
       }
 
       id = R.id.btnManageCategories;
-      AppCompatButton btnManageCategories = ViewBindings.findChildViewById(rootView, id);
+      Button btnManageCategories = ViewBindings.findChildViewById(rootView, id);
       if (btnManageCategories == null) {
+        break missingId;
+      }
+
+      id = R.id.btnNativeSettings;
+      Button btnNativeSettings = ViewBindings.findChildViewById(rootView, id);
+      if (btnNativeSettings == null) {
+        break missingId;
+      }
+
+      id = R.id.btnResetUI;
+      Button btnResetUI = ViewBindings.findChildViewById(rootView, id);
+      if (btnResetUI == null) {
+        break missingId;
+      }
+
+      id = R.id.btnRestartUI;
+      Button btnRestartUI = ViewBindings.findChildViewById(rootView, id);
+      if (btnRestartUI == null) {
         break missingId;
       }
 
@@ -225,8 +238,14 @@ public final class ActivitySettingsBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btnThemes;
+      Button btnThemes = ViewBindings.findChildViewById(rootView, id);
+      if (btnThemes == null) {
+        break missingId;
+      }
+
       id = R.id.btnUsageAccess;
-      AppCompatButton btnUsageAccess = ViewBindings.findChildViewById(rootView, id);
+      Button btnUsageAccess = ViewBindings.findChildViewById(rootView, id);
       if (btnUsageAccess == null) {
         break missingId;
       }
@@ -286,10 +305,11 @@ public final class ActivitySettingsBinding implements ViewBinding {
       }
 
       return new ActivitySettingsBinding((LinearLayout) rootView, autoRestartStatus,
-          autoRestartSwitch, btnBack, btnBackup, btnBgBuiltin, btnBgCustom, btnBgDefault,
-          btnCheckUpdates, btnDeviceInfo, btnGameStats, btnManageCategories, btnRestore,
-          btnUsageAccess, seekBgOpacity, seekIconSize, switchAutoStart, switchAutoUpdate,
-          switchCategories, switchEditMode, txtBgOpacity, txtCurrentVersion, txtIconSize);
+          autoRestartSwitch, btnBack, btnBackup, btnBundledApps, btnCheckUpdates, btnDeviceInfo,
+          btnGameStats, btnManageCategories, btnNativeSettings, btnResetUI, btnRestartUI,
+          btnRestore, btnThemes, btnUsageAccess, seekBgOpacity, seekIconSize, switchAutoStart,
+          switchAutoUpdate, switchCategories, switchEditMode, txtBgOpacity, txtCurrentVersion,
+          txtIconSize);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

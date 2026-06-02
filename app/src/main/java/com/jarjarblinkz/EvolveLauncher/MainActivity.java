@@ -54,6 +54,9 @@ import com.google.android.material.card.MaterialCardView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.jarjarblinkz.EvolveLauncher.theme.ThemeApplier;
+import com.jarjarblinkz.EvolveLauncher.theme.ThemeManager;
+import com.jarjarblinkz.EvolveLauncher.theme.ThemedDialog;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.text.SimpleDateFormat;
@@ -426,6 +429,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Start VR Shell Monitor service for auto-restart functionality
         startVRShellMonitor();
+
+        // Apply current theme to entire view hierarchy
+        View rootView = findViewById(android.R.id.content);
+        ThemeApplier.applyThemeToHierarchy(rootView);
     }
 
     /**
@@ -693,11 +700,11 @@ public class MainActivity extends AppCompatActivity {
                         "\nSpeed: " + wifiInfo.getLinkSpeed() + " Mbps" +
                         "\nFrequency: " + wifiInfo.getFrequency() + " MHz";
 
-                new AlertDialog.Builder(this)
+                ThemedDialog.showThemed(new AlertDialog.Builder(this)
                         .setTitle("WiFi Details")
                         .setMessage(details)
                         .setPositiveButton("OK", null)
-                        .show();
+                        .create());
             } else {
                 Toast.makeText(this, "WiFi is disabled", Toast.LENGTH_SHORT).show();
             }
@@ -840,11 +847,11 @@ public class MainActivity extends AppCompatActivity {
                         "All Time: " + PlaytimeTracker.formatPlaytime(app.playtimeAllTime) + "\n" +
                         (app.isCurrentlyRunning ? "\n▶️ Currently Running" : "");
 
-        new AlertDialog.Builder(this)
+        ThemedDialog.showThemed(new AlertDialog.Builder(this)
                 .setTitle("Playtime Stats")
                 .setMessage(playtimeInfo)
                 .setPositiveButton("OK", null)
-                .show();
+                .create());
     }
 
     /**
@@ -854,7 +861,7 @@ public class MainActivity extends AppCompatActivity {
         if (playtimeTracker == null) return;
 
         String[] timeRanges = {"Today", "This Week", "This Month", "All Time"};
-        new AlertDialog.Builder(this)
+        ThemedDialog.showThemed(new AlertDialog.Builder(this)
                 .setTitle("Most Played Games")
                 .setItems(timeRanges, (d, which) -> {
                     PlaytimeTracker.TimeRange range;
@@ -874,7 +881,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     showLeaderboardForRange(range);
                 })
-                .show();
+                .create());
     }
 
     /**
@@ -936,11 +943,11 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-        new AlertDialog.Builder(this)
+        ThemedDialog.showThemed(new AlertDialog.Builder(this)
                 .setTitle("Leaderboard - " + rangeText)
                 .setMessage(message.toString())
                 .setPositiveButton("OK", null)
-                .show();
+                .create());
     }
 
     /**
@@ -1004,9 +1011,7 @@ public class MainActivity extends AppCompatActivity {
                 View mainLayout = findViewById(R.id.mainLayout);
                 if (mainLayout == null) return;
 
-                String bgType = prefs.getString("background_type", "default");
                 int opacity = prefs.getInt("background_opacity", 100);
-                String customPath = prefs.getString("custom_background_path", "");
 
                 // Convert opacity (0-100) to alpha (0-255)
                 int alpha = (int) ((opacity / 100f) * 255);
@@ -1014,50 +1019,56 @@ public class MainActivity extends AppCompatActivity {
                 // Always keep the layout itself fully opaque
                 mainLayout.setAlpha(1.0f);
 
-                if (bgType.startsWith("builtin_")) {
-                    String bgName = bgType.replace("builtin_", "");
-                    int resId = getResources().getIdentifier("bg_" + bgName, "drawable", getPackageName());
-                    if (resId != 0) {
-                        Drawable drawable = getResources().getDrawable(resId).mutate();
-                        drawable.setAlpha(alpha);
-                        mainLayout.setBackground(drawable);
+                // Get current theme
+                com.jarjarblinkz.EvolveLauncher.theme.Theme currentTheme =
+                        com.jarjarblinkz.EvolveLauncher.theme.ThemeManager.getInstance(this).getCurrentTheme();
+
+                // ALPHA = 0 means fully transparent - hide everything
+                if (alpha == 0) {
+                    mainLayout.setBackgroundColor(Color.TRANSPARENT);
+                } else if (currentTheme != null && currentTheme.backgroundType ==
+                        com.jarjarblinkz.EvolveLauncher.theme.Theme.BackgroundType.IMAGE) {
+                    // Determine if it's a built-in asset or custom URI
+                    Object themeAsset;
+                    String imagePath = currentTheme.backgroundImagePath;
+                    if (imagePath.startsWith("content://") || imagePath.startsWith("file://")) {
+                        // Custom user-picked image
+                        themeAsset = Uri.parse(imagePath);
+                    } else {
+                        // Built-in asset
+                        themeAsset = "file:///android_asset/theme_bgs/" + imagePath;
                     }
-                } else if (bgType.equals("custom") && !customPath.isEmpty()) {
+
                     try {
-                        Uri uri = Uri.parse(customPath);
                         Glide.with(this)
-                                .load(uri)
-                                .into(new CustomTarget<Drawable>() {
+                                .load(themeAsset)
+                                .centerCrop()
+                                .into(new CustomTarget<Drawable>(mainLayout.getWidth() > 0 ? mainLayout.getWidth() : 1920,
+                                        mainLayout.getHeight() > 0 ? mainLayout.getHeight() : 1080) {
                                     @Override
                                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
                                         Drawable mutableDrawable = resource.mutate();
                                         mutableDrawable.setAlpha(alpha);
                                         mainLayout.setBackground(mutableDrawable);
                                     }
-
                                     @Override
-                                    public void onLoadCleared(@Nullable Drawable placeholder) {
-                                        // Do nothing
-                                    }
+                                    public void onLoadCleared(@Nullable Drawable placeholder) {}
                                 });
                     } catch (Exception e) {
-                        // Use transparent background when custom image fails
-                        if (alpha == 0) {
-                            mainLayout.setBackgroundColor(Color.TRANSPARENT);
-                        } else {
-                            String hexColor = String.format("#%02X0A0A0A", alpha);
-                            mainLayout.setBackgroundColor(Color.parseColor(hexColor));
-                        }
+                        e.printStackTrace();
+                        mainLayout.setBackgroundColor(currentTheme.bgPrimary);
                     }
+                } else if (currentTheme != null) {
+                    // Theme has solid background
+                    int themeColor = currentTheme.bgPrimary;
+                    int r = Color.red(themeColor);
+                    int g = Color.green(themeColor);
+                    int b = Color.blue(themeColor);
+                    mainLayout.setBackgroundColor(Color.argb(alpha, r, g, b));
                 } else {
-                    // Default background
-                    if (alpha == 0) {
-                        // Fully transparent - show through to whatever is behind the app
-                        mainLayout.setBackgroundColor(Color.TRANSPARENT);
-                    } else {
-                        String hexColor = String.format("#%02X0A0A0A", alpha);
-                        mainLayout.setBackgroundColor(Color.parseColor(hexColor));
-                    }
+                    // Fallback (shouldn't happen)
+                    String hexColor = String.format("#%02X0A0A0A", alpha);
+                    mainLayout.setBackgroundColor(Color.parseColor(hexColor));
                 }
 
             } catch (Exception e) {
@@ -1940,7 +1951,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         builder.setNegativeButton("Cancel", null);
-        builder.show();
+        ThemedDialog.showThemed(builder.create());
     }
 
     private void moveMultipleAppsToCategory(String targetCategory, Set<String> appsToMove) {
@@ -2110,6 +2121,12 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(ViewHolder holder, int position) {
             AppInfo app = apps.get(position);
 
+            // Apply current theme to this card (handles recycled views)
+            com.jarjarblinkz.EvolveLauncher.theme.Theme theme =
+                    com.jarjarblinkz.EvolveLauncher.theme.ThemeManager.getInstance(MainActivity.this).getCurrentTheme();
+            holder.cardView.setCardBackgroundColor(theme.bgSecondary);
+            holder.appName.setTextColor(theme.textPrimary);
+
             // Simple app name without version
             String displayLabel = app.label != null ? app.label : app.packageName;
             holder.appName.setText(displayLabel);
@@ -2139,9 +2156,10 @@ public class MainActivity extends AppCompatActivity {
 
             if (isEditMode && selectedApps.contains(app.packageName)) {
                 holder.cardView.setStrokeWidth(4);
-                holder.cardView.setStrokeColor(Color.parseColor("#6B8EFF"));
+                holder.cardView.setStrokeColor(theme.accentPrimary);
             } else {
-                holder.cardView.setStrokeWidth(0);
+                holder.cardView.setStrokeWidth(1);
+                holder.cardView.setStrokeColor(theme.borderPrimary);
             }
 
             if (isEditMode) {
@@ -2296,7 +2314,7 @@ public class MainActivity extends AppCompatActivity {
                 showAssignCategoryDialog(app);
             } else if (selectedOption.equals("App Info")) {
                 // Show detailed app info with install/update dates
-                new AlertDialog.Builder(this)
+                ThemedDialog.showThemed(new AlertDialog.Builder(this)
                         .setTitle("App Details")
                         .setMessage(appInfo)
                         .setPositiveButton("Settings", (d, w) -> {
@@ -2309,12 +2327,12 @@ public class MainActivity extends AppCompatActivity {
                             }
                         })
                         .setNegativeButton("Close", null)
-                        .show();
+                        .create());
             } else if (selectedOption.equals("Uninstall")) {
                 uninstallApp(app);
             }
         });
-        builder.show();
+        ThemedDialog.showThemed(builder.create());
     }
 
     private void showEditOptions(AppInfo app) {
@@ -2375,7 +2393,7 @@ public class MainActivity extends AppCompatActivity {
                 showAppInfo(app);
             }
         });
-        builder.show();
+        ThemedDialog.showThemed(builder.create());
     }
 
     private void showAssignCategoryDialog(AppInfo app) {
@@ -2416,8 +2434,8 @@ public class MainActivity extends AppCompatActivity {
                         .setPositiveButton("Move", (d, w) -> {
                             moveAppToCategory(app, finalOldCategory, finalCategory);
                         })
-                        .setNegativeButton("Cancel", null)
-                        .show();
+                        .setNegativeButton("Cancel", null);
+                ThemedDialog.showThemed(confirmBuilder.create());
             } else {
                 AlertDialog.Builder confirmBuilder = new AlertDialog.Builder(this);
                 confirmBuilder.setTitle("Add to Category")
@@ -2425,13 +2443,13 @@ public class MainActivity extends AppCompatActivity {
                         .setPositiveButton("Add", (d, w) -> {
                             addAppToCategory(app, finalCategory);
                         })
-                        .setNegativeButton("Cancel", null)
-                        .show();
+                        .setNegativeButton("Cancel", null);
+                ThemedDialog.showThemed(confirmBuilder.create());
             }
         });
 
         builder.setNegativeButton("Cancel", null);
-        builder.show();
+        ThemedDialog.showThemed(builder.create());
     }
 
     private void moveAppToCategory(AppInfo app, String oldCategory, String newCategory) {
@@ -2603,6 +2621,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        // Re-apply theme to view hierarchy in case user changed it in Settings
+        View themeRootView = findViewById(android.R.id.content);
+        if (themeRootView != null) {
+            ThemeApplier.applyThemeToHierarchy(themeRootView);
+        }
+
+        // Update the layout background (this respects user's background settings + theme image)
+        updateBackground();
 
         // Restore last selected category
         String savedCategory = prefs.getString(KEY_LAST_CATEGORY, "All Apps");

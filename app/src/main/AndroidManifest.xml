@@ -41,7 +41,6 @@
         tools:ignore="ProtectedPermissions" />
 
     <!-- USED FOR SETTINGS BACKUP -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- NEW: For backup to /sdcard/ (Android 11+) -->
@@ -52,11 +51,19 @@
     <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
+    <!-- Shizuku - for shell-level command execution -->
+    <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
+
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+        <!-- Required for native Settings access on Android 11+ (Quest 3/Pro) -->
+        <package android:name="com.android.settings" />
+        <!-- Required for Shizuku integration -->
+        <package android:name="moe.shizuku.privileged.api" />
+        <provider android:authorities="moe.shizuku.privileged.api" />
     </queries>
 
     <application
@@ -104,6 +111,28 @@
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
+        <!-- Bundled Apps Installer Activity -->
+        <activity
+            android:name=".BundledAppsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
+        <!-- Settings Action Test Activity -->
+        <activity
+            android:name=".SettingsActionTestActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:screenOrientation="landscape" />
+
+        <!-- Native Settings Launcher - Transparent activity that launches Settings -->
+        <activity
+            android:name=".NativeSettingsLauncher"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:screenOrientation="landscape" />
+
         <activity
             android:name=".DeviceInfoActivity"
             android:theme="@style/Theme.Evolve_Launcher"
@@ -147,13 +176,22 @@
         <!-- FileProvider for APK installation -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.jarjarblinkz.EvolveLauncher.provider"
+            android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <!-- Shizuku Provider - REQUIRED for Shizuku to connect to this app -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
     </application>
 
