@@ -3117,6 +3117,7 @@ id appName
 id appPackage
 id appVersion
 id appsGrid
+id appsList
 id arc
 id asConfigured
 id async
@@ -3136,6 +3137,7 @@ id blocking
 id bottom
 id bounce
 id btnAction
+id btnAppManager
 id btnBack
 id btnBackup
 id btnBundledApps
@@ -3144,6 +3146,7 @@ id btnClosePanel
 id btnDeviceInfo
 id btnGameStats
 id btnGrantPermission
+id btnManage
 id btnManageCategories
 id btnNativeSettings
 id btnRefresh
@@ -3152,6 +3155,8 @@ id btnResetUI
 id btnRestartUI
 id btnRestore
 id btnSettings
+id btnShizukuAction
+id btnSort
 id btnThemes
 id btnUsageAccess
 id btnViewToggle
@@ -3411,6 +3416,7 @@ id pooling_container_listener_holder_tag
 id position
 id postLayout
 id pressed
+id progressLoading
 id progress_circular
 id progress_horizontal
 id quickSettingsPanel
@@ -3456,6 +3462,7 @@ id seekVolume
 id select_dialog_listview
 id selected
 id selection_type
+id shizukuBanner
 id shortcut
 id showCustom
 id showHome
@@ -3545,6 +3552,7 @@ id triangle
 id txtAndroidVersion
 id txtApiLevel
 id txtAppName
+id txtAppSize
 id txtAppVersion
 id txtAvailableRAM
 id txtBattery
@@ -3557,14 +3565,17 @@ id txtBatteryVoltage
 id txtBgOpacity
 id txtBuildNumber
 id txtBuildVersion
+id txtCacheSize
 id txtCpuCores
 id txtCurrentPlaytime
 id txtCurrentVersion
 id txtCurrentlyPlaying
+id txtDataSize
 id txtDensity
 id txtDeviceIP
 id txtDeviceModel
 id txtGameCount
+id txtHeaderStats
 id txtIP
 id txtIconSize
 id txtInstallDate
@@ -3586,10 +3597,14 @@ id txtRAMTotal
 id txtRAMUsed
 id txtRank
 id txtResolution
+id txtShizukuStatus
 id txtSignalStrength
+id txtSortMode
 id txtTime
+id txtTotalLabel
 id txtTotalPlaytime
 id txtTotalRAM
+id txtTotalValue
 id txtType
 id txtUpdateDate
 id txtVolumeValue
@@ -3728,6 +3743,7 @@ layout abc_search_dropdown_item_icons_2line
 layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
+layout activity_app_manager
 layout activity_bundled_apps
 layout activity_device_info
 layout activity_main
@@ -3753,6 +3769,7 @@ layout ime_base_split_test_activity
 layout ime_secondary_split_test_activity
 layout item_app
 layout item_bundled_app
+layout item_managed_app
 layout item_playtime_card
 layout item_playtime_stat
 layout item_playtime_stats

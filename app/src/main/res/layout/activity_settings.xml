@@ -388,11 +388,11 @@
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="12dp" />
 
-                <!-- Native Settings - opens Bundled Apps to install it -->
+                <!-- Native Settings - opens Quest's Android Settings directly (no APK needed) -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Native Settings"
+                    android:text="Native Android Settings"
                     android:textColor="#E0E0E0"
                     android:textSize="12sp"
                     android:layout_marginBottom="4dp" />
@@ -403,7 +403,7 @@
                     android:layout_height="38dp"
                     android:layout_marginBottom="12dp"
                     android:backgroundTint="#4CAF50"
-                    android:text="Install"
+                    android:text="Open"
                     android:textColor="#FFFFFF"
                     android:textSize="11sp"
                     android:textAllCaps="false"
@@ -810,8 +810,30 @@
                     android:id="@+id/btnBundledApps"
                     android:layout_width="match_parent"
                     android:layout_height="38dp"
+                    android:layout_marginBottom="12dp"
                     android:backgroundTint="#9C27B0"
                     android:text="Browse Apps"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textAllCaps="false"
+                    android:minHeight="0dp"
+                    android:padding="0dp" />
+
+                <!-- Storage Manager -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Storage Manager"
+                    android:textColor="#E0E0E0"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="4dp" />
+
+                <Button
+                    android:id="@+id/btnAppManager"
+                    android:layout_width="match_parent"
+                    android:layout_height="38dp"
+                    android:backgroundTint="#673AB7"
+                    android:text="Manage Storage"
                     android:textColor="#FFFFFF"
                     android:textSize="11sp"
                     android:textAllCaps="false"

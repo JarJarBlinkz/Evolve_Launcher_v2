@@ -50,11 +50,13 @@ id appName
 id appPackage
 id appVersion
 id appsGrid
+id appsList
 id autoRestartStatus
 id autoRestartSwitch
 id batteryContainer
 id batteryIcon
 id btnAction
+id btnAppManager
 id btnBack
 id btnBackup
 id btnBundledApps
@@ -63,6 +65,7 @@ id btnClosePanel
 id btnDeviceInfo
 id btnGameStats
 id btnGrantPermission
+id btnManage
 id btnManageCategories
 id btnNativeSettings
 id btnRefresh
@@ -71,6 +74,8 @@ id btnResetUI
 id btnRestartUI
 id btnRestore
 id btnSettings
+id btnShizukuAction
+id btnSort
 id btnThemes
 id btnUsageAccess
 id btnViewToggle
@@ -94,6 +99,7 @@ id percentageBar
 id permissionCard
 id playtimeList
 id playtimeText
+id progressLoading
 id quickSettingsPanel
 id ramProgress
 id rightControls
@@ -103,6 +109,7 @@ id searchStatus
 id seekBgOpacity
 id seekIconSize
 id seekVolume
+id shizukuBanner
 id summaryStatsContainer
 id switchAutoStart
 id switchAutoUpdate
@@ -113,6 +120,7 @@ id titleContainer
 id txtAndroidVersion
 id txtApiLevel
 id txtAppName
+id txtAppSize
 id txtAppVersion
 id txtAvailableRAM
 id txtBattery
@@ -125,14 +133,17 @@ id txtBatteryVoltage
 id txtBgOpacity
 id txtBuildNumber
 id txtBuildVersion
+id txtCacheSize
 id txtCpuCores
 id txtCurrentPlaytime
 id txtCurrentVersion
 id txtCurrentlyPlaying
+id txtDataSize
 id txtDensity
 id txtDeviceIP
 id txtDeviceModel
 id txtGameCount
+id txtHeaderStats
 id txtIP
 id txtIconSize
 id txtInstallDate
@@ -154,10 +165,14 @@ id txtRAMTotal
 id txtRAMUsed
 id txtRank
 id txtResolution
+id txtShizukuStatus
 id txtSignalStrength
+id txtSortMode
 id txtTime
+id txtTotalLabel
 id txtTotalPlaytime
 id txtTotalRAM
+id txtTotalValue
 id txtType
 id txtUpdateDate
 id txtVolumeValue
@@ -165,6 +180,7 @@ id txtWifiSSID
 id txtWifiSignal
 id wifiContainer
 id wifiIcon
+layout activity_app_manager
 layout activity_bundled_apps
 layout activity_device_info
 layout activity_main
@@ -172,6 +188,7 @@ layout activity_playtime_stats
 layout activity_settings
 layout item_app
 layout item_bundled_app
+layout item_managed_app
 layout item_playtime_card
 layout item_playtime_stat
 layout item_playtime_stats

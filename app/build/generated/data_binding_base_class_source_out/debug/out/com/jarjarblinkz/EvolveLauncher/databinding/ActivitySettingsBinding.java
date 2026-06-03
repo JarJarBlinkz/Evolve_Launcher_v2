@@ -30,6 +30,9 @@ public final class ActivitySettingsBinding implements ViewBinding {
   public final SwitchCompat autoRestartSwitch;
 
   @NonNull
+  public final Button btnAppManager;
+
+  @NonNull
   public final AppCompatButton btnBack;
 
   @NonNull
@@ -97,8 +100,9 @@ public final class ActivitySettingsBinding implements ViewBinding {
 
   private ActivitySettingsBinding(@NonNull LinearLayout rootView,
       @NonNull TextView autoRestartStatus, @NonNull SwitchCompat autoRestartSwitch,
-      @NonNull AppCompatButton btnBack, @NonNull Button btnBackup, @NonNull Button btnBundledApps,
-      @NonNull Button btnCheckUpdates, @NonNull Button btnDeviceInfo, @NonNull Button btnGameStats,
+      @NonNull Button btnAppManager, @NonNull AppCompatButton btnBack, @NonNull Button btnBackup,
+      @NonNull Button btnBundledApps, @NonNull Button btnCheckUpdates,
+      @NonNull Button btnDeviceInfo, @NonNull Button btnGameStats,
       @NonNull Button btnManageCategories, @NonNull Button btnNativeSettings,
       @NonNull Button btnResetUI, @NonNull Button btnRestartUI, @NonNull Button btnRestore,
       @NonNull Button btnThemes, @NonNull Button btnUsageAccess, @NonNull SeekBar seekBgOpacity,
@@ -109,6 +113,7 @@ public final class ActivitySettingsBinding implements ViewBinding {
     this.rootView = rootView;
     this.autoRestartStatus = autoRestartStatus;
     this.autoRestartSwitch = autoRestartSwitch;
+    this.btnAppManager = btnAppManager;
     this.btnBack = btnBack;
     this.btnBackup = btnBackup;
     this.btnBundledApps = btnBundledApps;
@@ -169,6 +174,12 @@ public final class ActivitySettingsBinding implements ViewBinding {
       id = R.id.autoRestartSwitch;
       SwitchCompat autoRestartSwitch = ViewBindings.findChildViewById(rootView, id);
       if (autoRestartSwitch == null) {
+        break missingId;
+      }
+
+      id = R.id.btnAppManager;
+      Button btnAppManager = ViewBindings.findChildViewById(rootView, id);
+      if (btnAppManager == null) {
         break missingId;
       }
 
@@ -305,11 +316,11 @@ public final class ActivitySettingsBinding implements ViewBinding {
       }
 
       return new ActivitySettingsBinding((LinearLayout) rootView, autoRestartStatus,
-          autoRestartSwitch, btnBack, btnBackup, btnBundledApps, btnCheckUpdates, btnDeviceInfo,
-          btnGameStats, btnManageCategories, btnNativeSettings, btnResetUI, btnRestartUI,
-          btnRestore, btnThemes, btnUsageAccess, seekBgOpacity, seekIconSize, switchAutoStart,
-          switchAutoUpdate, switchCategories, switchEditMode, txtBgOpacity, txtCurrentVersion,
-          txtIconSize);
+          autoRestartSwitch, btnAppManager, btnBack, btnBackup, btnBundledApps, btnCheckUpdates,
+          btnDeviceInfo, btnGameStats, btnManageCategories, btnNativeSettings, btnResetUI,
+          btnRestartUI, btnRestore, btnThemes, btnUsageAccess, seekBgOpacity, seekIconSize,
+          switchAutoStart, switchAutoUpdate, switchCategories, switchEditMode, txtBgOpacity,
+          txtCurrentVersion, txtIconSize);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

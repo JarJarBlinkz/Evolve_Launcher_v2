@@ -84,7 +84,9 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:screenOrientation="landscape"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
+            android:resizeableActivity="true"
+            android:supportsPictureInPicture="false"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|density|uiMode">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -96,6 +98,9 @@
             <!-- VR-specific metadata -->
             <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
             <meta-data android:name="com.oculus.forced3d" android:value="true" />
+
+            <!-- Quest panel positioning - center the window in Horizon Home -->
+            <layout android:gravity="center" />
         </activity>
 
         <activity
@@ -119,18 +124,19 @@
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
+        <!-- App Manager - List sideloaded apps with clear data/cache buttons -->
+        <activity
+            android:name=".AppManagerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
         <!-- Settings Action Test Activity -->
         <activity
             android:name=".SettingsActionTestActivity"
             android:exported="false"
             android:theme="@style/Theme.AppCompat.Dialog"
-            android:screenOrientation="landscape" />
-
-        <!-- Native Settings Launcher - Transparent activity that launches Settings -->
-        <activity
-            android:name=".NativeSettingsLauncher"
-            android:exported="false"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:screenOrientation="landscape" />
 
         <activity

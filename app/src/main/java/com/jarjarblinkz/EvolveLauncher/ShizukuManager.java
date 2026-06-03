@@ -263,9 +263,10 @@ public class ShizukuManager {
      */
     public String getSetupInstructions() {
         return "QUEST SETUP - WIRELESS ADB:\n\n" +
-                "1. Install 'XR Native Android Settings' app\n" +
-                "   (gives access to hidden Android settings)\n\n" +
-                "2. Open XR Native Android Settings\n" +
+                "1. Open Evolve Settings > SYSTEM\n" +
+                "   • Tap 'Open' next to Native Settings\n" +
+                "   • Android Settings will open\n\n" +
+                "2. In Android Settings:\n" +
                 "   • Navigate to 'About phone'\n" +
                 "   • Tap 'Build number' 7 times\n" +
                 "   • Developer Mode enabled!\n\n" +

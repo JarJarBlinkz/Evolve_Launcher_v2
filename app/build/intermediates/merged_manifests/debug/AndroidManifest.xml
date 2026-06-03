@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jarjarblinkz.EvolveLauncher"
-    android:versionCode="1"
-    android:versionName="2.1.1" >
+    android:versionCode="2"
+    android:versionName="2.2.0" >
 
     <uses-sdk
         android:minSdkVersion="24"
@@ -94,16 +94,19 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:testOnly="true"
         android:theme="@style/Theme.Evolve_Launcher"
         android:usesCleartextTraffic="true" >
 
         <!-- Main VR Launcher Activity -->
         <activity
             android:name="com.jarjarblinkz.EvolveLauncher.MainActivity"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|density|uiMode"
             android:exported="true"
             android:launchMode="singleTask"
-            android:screenOrientation="landscape" >
+            android:resizeableActivity="true"
+            android:screenOrientation="landscape"
+            android:supportsPictureInPicture="false" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -119,6 +122,9 @@
             <meta-data
                 android:name="com.oculus.forced3d"
                 android:value="true" />
+
+            <!-- Quest panel positioning - center the window in Horizon Home -->
+            <layout android:gravity="center" />
         </activity>
         <activity
             android:name="com.jarjarblinkz.EvolveLauncher.PlaytimeStatsActivity"
@@ -141,19 +147,20 @@
             android:theme="@style/Theme.AppCompat.Dialog"
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
+        <!-- App Manager - List sideloaded apps with clear data/cache buttons -->
+        <activity
+            android:name="com.jarjarblinkz.EvolveLauncher.AppManagerActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
         <!-- Settings Action Test Activity -->
         <activity
             android:name="com.jarjarblinkz.EvolveLauncher.SettingsActionTestActivity"
             android:exported="false"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Dialog" />
-
-        <!-- Native Settings Launcher - Transparent activity that launches Settings -->
-        <activity
-            android:name="com.jarjarblinkz.EvolveLauncher.NativeSettingsLauncher"
-            android:exported="false"
-            android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name="com.jarjarblinkz.EvolveLauncher.DeviceInfoActivity"
             android:exported="false"

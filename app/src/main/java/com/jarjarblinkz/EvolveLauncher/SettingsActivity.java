@@ -211,6 +211,15 @@ public class SettingsActivity extends AppCompatActivity {
             });
         }
 
+        // APP MANAGER BUTTON
+        Button btnAppManager = findViewById(R.id.btnAppManager);
+        if (btnAppManager != null) {
+            btnAppManager.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AppManagerActivity.class);
+                startActivity(intent);
+            });
+        }
+
         // THEMES BUTTON
         Button btnThemes = findViewById(R.id.btnThemes);
         if (btnThemes != null) {
@@ -242,40 +251,122 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     /**
-     * Update Native Settings button - green "Open" if installed, red "Install" if not
+     * Native Settings button - launches Quest's Android Settings directly
+     * Uses the gotosettings approach (https://github.com/arpruss/gotosettings)
+     * No external APK needed - just uses standard Android intents
      */
-    private static final String NATIVE_SETTINGS_PACKAGE = "com.anagan.xrnativeandroidsettings";
+    private static final String SETTINGS_PACKAGE = "com.android.settings";
 
     private void updateNativeSettingsButton(Button btn) {
         // Mark button to be ignored by theme system - we manage colors manually
         btn.setTag("theme_ignore");
 
-        boolean isInstalled = isPackageInstalled(NATIVE_SETTINGS_PACKAGE);
+        // Always show "Open" - Settings is built into Android, always available
+        btn.setText("Open");
+        btn.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                android.graphics.Color.parseColor("#4CAF50")));
+        btn.setTextColor(android.graphics.Color.WHITE);
+        btn.setOnClickListener(v -> goToSettings());
+    }
 
-        if (isInstalled) {
-            // Green - Open button (launch the app)
-            btn.setText("Open");
-            btn.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                    android.graphics.Color.parseColor("#4CAF50")));
-            btn.setTextColor(android.graphics.Color.WHITE);
-            btn.setOnClickListener(v -> {
-                Intent launchIntent = getPackageManager().getLaunchIntentForPackage(NATIVE_SETTINGS_PACKAGE);
-                if (launchIntent != null) {
-                    startActivity(launchIntent);
-                } else {
-                    Toast.makeText(this, "Cannot launch Native Settings", Toast.LENGTH_SHORT).show();
-                }
+    /**
+     * Launch Quest's native Android Settings.
+     * Shows setup instructions dialog. Settings only opens from this dialog,
+     * and the dialog STAYS OPEN so the user can refer to it while configuring.
+     */
+    private void goToSettings() {
+        // Build the dialog
+        final androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Quest Developer Setup")
+                .setMessage(
+                        "Tap 'Open Settings' below - this dialog will stay open so you can refer to these steps:\n\n" +
+                                "1️⃣ ENABLE DEVELOPER OPTIONS:\n" +
+                                "   • Go to: About Headset\n" +
+                                "   • Tap 'Build Number' 7 times\n" +
+                                "   • Developer mode enabled!\n\n" +
+                                "2️⃣ ENABLE WIRELESS DEBUGGING:\n" +
+                                "   • Back out, go to: System > Developer Options\n" +
+                                "   • Turn ON 'Wireless Debugging'\n" +
+                                "   • Tap LEFT side of the text\n" +
+                                "   • Select 'Pair device with pairing code'\n\n" +
+                                "3️⃣ CONNECT SHIZUKU:\n" +
+                                "   • Note the IP, port, and pairing code\n" +
+                                "   • Open the Shizuku app\n" +
+                                "   • Enter the pairing info to connect\n\n" +
+                                "4️⃣ AUTHORIZE APPS IN SHIZUKU:\n" +
+                                "   • Tap 'Authorized Applications'\n" +
+                                "   • Toggle ON: Evolve Launcher\n" +
+                                "   • Toggle ON: ZArchiver (if using file manager)\n\n" +
+                                "✅ Your launcher will then have full system access!")
+                // Listeners null - we override AFTER show so dialog doesn't auto-dismiss
+                .setPositiveButton("Open Settings", null)
+                .setNegativeButton("Close", null)
+                .setCancelable(true)
+                .create();
+
+        // Show with theme applied (this fires its own OnShowListener for theming)
+        ThemedDialog.showThemed(dialog);
+
+        // NOW set our button click overrides (after the dialog is shown and themed)
+        // This must happen AFTER showThemed because that sets its own OnShowListener
+        Button openBtn = dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE);
+        if (openBtn != null) {
+            openBtn.setOnClickListener(v -> {
+                openSettingsDirectly();
+                Toast.makeText(this, "Dialog stays open - tap Close when done", Toast.LENGTH_SHORT).show();
+                // NOTE: NOT calling dialog.dismiss() - keeps dialog visible for reference
             });
-        } else {
-            // Red - Install button (opens bundled apps)
-            btn.setText("Install");
-            btn.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                    android.graphics.Color.parseColor("#F44336")));
-            btn.setTextColor(android.graphics.Color.WHITE);
-            btn.setOnClickListener(v -> {
-                Intent intent = new Intent(this, BundledAppsActivity.class);
-                startActivity(intent);
-            });
+        }
+
+        Button closeBtn = dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE);
+        if (closeBtn != null) {
+            closeBtn.setOnClickListener(v -> dialog.dismiss());
+        }
+    }
+
+    /**
+     * Actually open Settings - tries Shizuku first, falls back to intent.
+     *
+     * Tries 3 methods in order of preference:
+     * 1. Shizuku 'am start' - DIRECT, no extra screens (best UX)
+     * 2. Standard launch intent with TASK_ON_HOME flag (gotosettings approach)
+     * 3. Application details fallback
+     */
+    private void openSettingsDirectly() {
+        // Method 1: Try Shizuku for direct launch (best UX - no extra clicks)
+        if (shizukuManager != null && shizukuManager.isReady()) {
+            try {
+                // DeepLinkHomepageActivity opens Settings directly without App Info screen
+                shizukuManager.executeShellCommand(
+                        "am start -n com.android.settings/.homepage.DeepLinkHomepageActivity"
+                );
+                return;
+            } catch (Exception e) {
+                android.util.Log.w("SettingsActivity", "Shizuku launch failed, trying intent", e);
+            }
+        }
+
+        // Method 2: Standard launch intent (gotosettings approach - may show App Info on v81+)
+        PackageManager pm = getPackageManager();
+        try {
+            Intent i = pm.getLaunchIntentForPackage(SETTINGS_PACKAGE);
+            if (i != null) {
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
+                startActivity(i);
+                return;
+            }
+            throw new Exception("No launch intent");
+        } catch (Exception e) {
+            // Method 3: Application details fallback
+            try {
+                Intent i = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        android.net.Uri.parse("package:" + SETTINGS_PACKAGE));
+                i.setPackage(SETTINGS_PACKAGE);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
+                startActivity(i);
+            } catch (Exception e2) {
+                Toast.makeText(this, "Cannot open Android Settings on this device", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -1146,333 +1237,12 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     /**
-     * Launch native Settings via helper app
-     * Shows dialog over SettingsActivity if helper not installed
+     * Launch Quest's native Android Settings directly using the gotosettings approach.
+     * No helper APK needed - just uses standard Android intents.
+     * Reference: https://github.com/arpruss/gotosettings
      */
     private void launchNativeSettings() {
-        try {
-            Log.d("SettingsActivity", "Checking for XRNativeAndroidSettings helper app...");
-
-            // Try to launch XRNativeAndroidSettings app
-            PackageManager pm = getPackageManager();
-            Intent intent = pm.getLaunchIntentForPackage("com.anagan.xrnativeandroidsettings");
-
-            if (intent != null) {
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                Log.i("SettingsActivity", "✅ Launched XRNativeAndroidSettings helper app");
-            } else {
-                Log.w("SettingsActivity", "Helper app not installed - showing dialog");
-                showInstallHelperDialog();
-            }
-
-        } catch (Exception e) {
-            Log.e("SettingsActivity", "Failed to launch helper app", e);
-            showInstallHelperDialog();
-        }
-    }
-
-    /**
-     * Show dialog with installation instructions
-     * This dialog appears OVER SettingsActivity so user can see it
-     */
-    private void showInstallHelperDialog() {
-        try {
-            Log.d("SettingsActivity", "Creating install helper dialog...");
-
-            androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
-            builder.setTitle("Install Settings Helper App");
-            builder.setMessage("XRNativeAndroidSettings is required to access native Settings.\n\n" +
-                    "This free app bypasses Meta's restrictions.\n\n" +
-                    "Steps:\n" +
-                    "1. Click 'Download' below\n" +
-                    "2. Download the APK in browser\n" +
-                    "3. Come back here\n" +
-                    "4. Click 'Install from Downloads'");
-            builder.setCancelable(true);
-
-            // Add buttons - they auto-dismiss by default
-            builder.setPositiveButton("Download from itch.io", null);
-            builder.setNegativeButton("Install from Downloads", null);
-            builder.setNeutralButton("Cancel", null);
-
-            final androidx.appcompat.app.AlertDialog dialog = builder.create();
-
-            // Override button behavior when dialog is shown
-            dialog.setOnShowListener(new android.content.DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(android.content.DialogInterface dialogInterface) {
-                    Log.d("SettingsActivity", "Dialog shown, overriding button behavior");
-
-                    android.widget.Button downloadButton = dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE);
-                    android.widget.Button installButton = dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE);
-                    android.widget.Button cancelButton = dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEUTRAL);
-
-                    Log.d("SettingsActivity", "Download button: " + (downloadButton != null));
-                    Log.d("SettingsActivity", "Install button: " + (installButton != null));
-                    Log.d("SettingsActivity", "Cancel button: " + (cancelButton != null));
-
-                    if (downloadButton != null) {
-                        downloadButton.setOnClickListener(new android.view.View.OnClickListener() {
-                            @Override
-                            public void onClick(android.view.View v) {
-                                Log.d("SettingsActivity", "Download button clicked - NOT dismissing dialog");
-                                try {
-                                    Intent browserIntent = new Intent(Intent.ACTION_VIEW,
-                                            android.net.Uri.parse("https://anagan79.itch.io/xr-native-android-settings"));
-                                    browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(browserIntent);
-                                    Toast.makeText(SettingsActivity.this,
-                                            "Dialog will stay open. After download, click 'Install from Downloads'",
-                                            Toast.LENGTH_LONG).show();
-                                    // DO NOT call dialog.dismiss() - dialog stays open!
-                                } catch (Exception e) {
-                                    Log.e("SettingsActivity", "Failed to open browser", e);
-                                    Toast.makeText(SettingsActivity.this, "Unable to open browser", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-                    }
-
-                    if (installButton != null) {
-                        installButton.setOnClickListener(new android.view.View.OnClickListener() {
-                            @Override
-                            public void onClick(android.view.View v) {
-                                Log.d("SettingsActivity", "Install button clicked - searching for APK");
-                                installHelperFromDownloads();
-                                // DO NOT call dialog.dismiss() - dialog stays open so they can retry
-                            }
-                        });
-                    }
-
-                    if (cancelButton != null) {
-                        cancelButton.setOnClickListener(new android.view.View.OnClickListener() {
-                            @Override
-                            public void onClick(android.view.View v) {
-                                Log.d("SettingsActivity", "Cancel clicked - dismissing dialog");
-                                dialog.dismiss();
-                            }
-                        });
-                    }
-                }
-            });
-
-            Log.d("SettingsActivity", "Showing dialog...");
-            ThemedDialog.showThemed(dialog);
-            Log.d("SettingsActivity", "Dialog.show() called");
-
-        } catch (Exception e) {
-            Log.e("SettingsActivity", "Failed to show dialog: " + e.getMessage(), e);
-            Toast.makeText(this,
-                    "Download from: https://anagan79.itch.io/xr-native-android-settings",
-                    Toast.LENGTH_LONG).show();
-        }
-    }
-
-    /**
-     * Install helper app from Downloads folder
-     * Uses Android's PackageInstaller API
-     */
-    private void installHelperFromDownloads() {
-        try {
-            Log.d("SettingsActivity", "========== SEARCHING FOR APK ==========");
-
-            // First check if we have storage permissions
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                        != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-
-                    Log.w("SettingsActivity", "No READ_EXTERNAL_STORAGE permission - opening Settings...");
-
-                    ThemedDialog.showThemed(new androidx.appcompat.app.AlertDialog.Builder(this)
-                            .setTitle("Storage Permission Needed")
-                            .setMessage("Evolve needs storage permission to access downloaded files.\n\n" +
-                                    "Steps:\n" +
-                                    "1. Click 'Open Settings' below\n" +
-                                    "2. Find 'Permissions' or 'App permissions'\n" +
-                                    "3. Click 'Storage' or 'Files and media'\n" +
-                                    "4. Toggle it ON\n" +
-                                    "5. Come back to Evolve\n" +
-                                    "6. Click 'Install from Downloads' again")
-                            .setPositiveButton("Open Settings", (d, w) -> {
-                                try {
-                                    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                    android.net.Uri uri = android.net.Uri.fromParts("package", getPackageName(), null);
-                                    intent.setData(uri);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(intent);
-                                    Toast.makeText(this, "Grant Storage permission, then return to Evolve", Toast.LENGTH_LONG).show();
-                                } catch (Exception e) {
-                                    Log.e("SettingsActivity", "Failed to open settings", e);
-                                    Toast.makeText(this, "Unable to open Settings", Toast.LENGTH_SHORT).show();
-                                }
-                            })
-                            .setNegativeButton("Cancel", null)
-                            .create());
-                    return;
-                }
-            }
-
-            // Directories to search
-            java.io.File[] searchDirs = {
-                    android.os.Environment.getExternalStoragePublicDirectory(
-                            android.os.Environment.DIRECTORY_DOWNLOADS),
-                    new java.io.File("/sdcard/Download"),
-                    new java.io.File("/sdcard/Downloads"),
-                    new java.io.File("/sdcard/Oculus/Downloads"),
-                    new java.io.File("/storage/emulated/0/Download"),
-                    new java.io.File("/storage/emulated/0/Downloads")
-            };
-
-            // List ALL files in each directory for debugging
-            for (java.io.File dir : searchDirs) {
-                if (dir.exists() && dir.isDirectory()) {
-                    Log.d("SettingsActivity", "📁 Directory: " + dir.getAbsolutePath());
-                    java.io.File[] files = dir.listFiles();
-                    if (files != null && files.length > 0) {
-                        for (java.io.File f : files) {
-                            Log.d("SettingsActivity", "  - " + f.getName() + " (" + f.length() + " bytes)");
-                        }
-                    } else {
-                        Log.d("SettingsActivity", "  (empty)");
-                    }
-                } else {
-                    Log.d("SettingsActivity", "❌ Not found: " + dir.getAbsolutePath());
-                }
-            }
-
-            // Search for the APK - version agnostic
-            Log.d("SettingsActivity", "========== SEARCHING FOR ANY .APK FILES ==========");
-
-            java.io.File foundApk = null;
-            StringBuilder searchLog = new StringBuilder();
-
-            // Search each directory for ANY XRNativeAndroidSettings APK (version agnostic)
-            for (java.io.File dir : searchDirs) {
-                if (dir.exists() && dir.isDirectory()) {
-                    java.io.File[] apkFiles = dir.listFiles(new java.io.FilenameFilter() {
-                        @Override
-                        public boolean accept(java.io.File dir, String name) {
-                            String lowerName = name.toLowerCase();
-                            return (lowerName.startsWith("xrnativeandroidsettings") ||
-                                    lowerName.startsWith("xr-native-android-settings")) &&
-                                    lowerName.endsWith(".apk");
-                        }
-                    });
-
-                    if (apkFiles != null && apkFiles.length > 0) {
-                        foundApk = apkFiles[0];  // Take the first match
-                        Log.i("SettingsActivity", "✅ FOUND APK: " + foundApk.getAbsolutePath());
-                        break;
-                    }
-                }
-            }
-
-            // Also search for ANY .apk file in Downloads as fallback
-            java.util.List<java.io.File> anyApks = new java.util.ArrayList<>();
-            if (foundApk == null) {
-                for (java.io.File dir : searchDirs) {
-                    if (dir.exists() && dir.isDirectory()) {
-                        java.io.File[] files = dir.listFiles(new java.io.FilenameFilter() {
-                            @Override
-                            public boolean accept(java.io.File dir, String name) {
-                                return name.toLowerCase().endsWith(".apk");
-                            }
-                        });
-                        if (files != null) {
-                            for (java.io.File f : files) {
-                                anyApks.add(f);
-                                Log.d("SettingsActivity", "Found .apk: " + f.getAbsolutePath());
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (foundApk != null && foundApk.exists()) {
-                Log.i("SettingsActivity", "Installing APK from: " + foundApk.getAbsolutePath());
-                installApk(foundApk);
-
-            } else if (!anyApks.isEmpty()) {
-                // Show user the APK files we found
-                StringBuilder apkList = new StringBuilder("Found these APK files:\n\n");
-                for (java.io.File apk : anyApks) {
-                    apkList.append("• ").append(apk.getName()).append("\n");
-                }
-                apkList.append("\nNone match expected pattern.\n\n")
-                        .append("Expected filename must start with:\n")
-                        .append("• XRNativeAndroidSettings\n")
-                        .append("OR\n")
-                        .append("• xr-native-android-settings\n\n")
-                        .append("Examples:\n")
-                        .append("• XRNativeAndroidSettings_1.0.3.apk\n")
-                        .append("• xr-native-android-settings.apk");
-
-                Log.w("SettingsActivity", apkList.toString());
-
-                ThemedDialog.showThemed(new androidx.appcompat.app.AlertDialog.Builder(this)
-                        .setTitle("Wrong APK filename?")
-                        .setMessage(apkList.toString())
-                        .setPositiveButton("OK", null)
-                        .create());
-
-            } else {
-                // No APK found - suggest alternatives
-                Log.w("SettingsActivity", "No APK files found in Downloads");
-
-                String errorMessage = "APK not found in Downloads!\n\n" +
-                        "This might be due to:\n" +
-                        "• File permissions (Android security)\n" +
-                        "• APK not downloaded yet\n" +
-                        "• Different download location\n\n" +
-                        "Solutions:\n" +
-                        "1. Install via ADB:\n" +
-                        "   adb shell pm install /sdcard/Download/XRNativeAndroidSettings*.apk\n\n" +
-                        "2. Use Quest's Files app to install\n\n" +
-                        "3. Grant storage permission and try again";
-
-                ThemedDialog.showThemed(new androidx.appcompat.app.AlertDialog.Builder(this)
-                        .setTitle("APK Not Found")
-                        .setMessage(errorMessage)
-                        .setPositiveButton("OK", null)
-                        .create());
-            }
-
-        } catch (Exception e) {
-            Log.e("SettingsActivity", "Failed to install from downloads", e);
-            Toast.makeText(this, "Installation error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
-
-    /**
-     * Install the APK file
-     */
-    private void installApk(java.io.File apkFile) {
-        try {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            android.net.Uri apkUri;
-
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                // Android 7.0+ requires FileProvider
-                apkUri = androidx.core.content.FileProvider.getUriForFile(
-                        this,
-                        getApplicationContext().getPackageName() + ".fileprovider",
-                        apkFile);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            } else {
-                apkUri = android.net.Uri.fromFile(apkFile);
-            }
-
-            intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-
-            Toast.makeText(this, "Opening installer for: " + apkFile.getName(), Toast.LENGTH_LONG).show();
-
-        } catch (Exception e) {
-            Log.e("SettingsActivity", "Failed to install APK", e);
-            Toast.makeText(this, "Install failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+        goToSettings();
     }
 
     // ===== SHIZUKU INTEGRATION =====
