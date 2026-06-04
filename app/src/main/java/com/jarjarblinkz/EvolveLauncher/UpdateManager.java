@@ -524,7 +524,12 @@ public class UpdateManager {
         };
 
         IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-        context.registerReceiver(downloadReceiver, filter);
+        // Android 14+ (API 34) requires RECEIVER_EXPORTED for system broadcasts
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(downloadReceiver, filter, Context.RECEIVER_EXPORTED);
+        } else {
+            context.registerReceiver(downloadReceiver, filter);
+        }
     }
 
     /**
@@ -544,10 +549,12 @@ public class UpdateManager {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 // Use FileProvider for Android 7+
+                // Authority must match AndroidManifest.xml FileProvider declaration
                 Uri apkUri = FileProvider.getUriForFile(context,
-                        context.getPackageName() + ".provider", apkFile);
+                        context.getPackageName() + ".fileprovider", apkFile);
                 intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             } else {
                 intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
             }

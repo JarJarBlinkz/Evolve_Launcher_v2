@@ -2,7 +2,7 @@
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 3    package="com.jarjarblinkz.EvolveLauncher"
 4    android:versionCode="2"
-5    android:versionName="2.2.0" >
+5    android:versionName="2.1.0" >
 6
 7    <uses-sdk
 8        android:minSdkVersion="24"
