@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jarjarblinkz.EvolveLauncher"
     android:versionCode="2"
-    android:versionName="2.1.0" >
+    android:versionName="2.2.0" >
 
     <uses-sdk
         android:minSdkVersion="24"
@@ -94,7 +94,6 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:testOnly="true"
         android:theme="@style/Theme.Evolve_Launcher"
         android:usesCleartextTraffic="true" >
 
