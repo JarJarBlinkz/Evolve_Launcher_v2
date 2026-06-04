@@ -87,6 +87,10 @@ public class AppManagerActivity extends AppCompatActivity implements ShizukuMana
     private TextView txtSortMode;
     private ProgressBar progressLoading;
 
+    // Grid layout for dynamic column count
+    private RecyclerView recyclerView;
+    private GridLayoutManager gridLayoutManager;
+
     // Shizuku status banner
     private LinearLayout shizukuBanner;
     private TextView txtShizukuStatus;
@@ -114,7 +118,31 @@ public class AppManagerActivity extends AppCompatActivity implements ShizukuMana
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Hide the activity title bar that shows "VR Launcher"
+        try {
+            supportRequestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        } catch (Exception e) {
+            // Fall back to hiding action bar
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().hide();
+            }
+        }
+
         setContentView(R.layout.activity_app_manager);
+
+        // Make this dialog activity much larger - nearly full screen
+        try {
+            android.view.Window window = getWindow();
+            if (window != null) {
+                android.view.WindowManager.LayoutParams params = window.getAttributes();
+                params.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+                params.height = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+                window.setAttributes(params);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         txtHeaderStats = findViewById(R.id.txtHeaderStats);
         txtSortMode = findViewById(R.id.txtSortMode);
@@ -137,9 +165,27 @@ public class AppManagerActivity extends AppCompatActivity implements ShizukuMana
             btnSort.setOnClickListener(v -> showSortDialog());
         }
 
-        // RecyclerView - 2 columns for richer cards
-        RecyclerView recyclerView = findViewById(R.id.appsList);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        // RecyclerView with adaptive column count - 4 minimum, more as window widens
+        recyclerView = findViewById(R.id.appsList);
+        gridLayoutManager = new GridLayoutManager(this, calculateColumnCount(0));
+        recyclerView.setLayoutManager(gridLayoutManager);
+
+        // Watch for window resize - adjust columns dynamically
+        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
+                new android.view.ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        if (recyclerView == null || gridLayoutManager == null) return;
+                        int width = recyclerView.getWidth();
+                        int newColumns = calculateColumnCount(width);
+                        if (gridLayoutManager.getSpanCount() != newColumns) {
+                            gridLayoutManager.setSpanCount(newColumns);
+                            if (adapter != null) {
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+                    }
+                });
 
         adapter = new AppManagerAdapter(sideloadedApps);
         recyclerView.setAdapter(adapter);
@@ -253,6 +299,23 @@ public class AppManagerActivity extends AppCompatActivity implements ShizukuMana
         }
 
         Toast.makeText(this, "Find Evolve in Shizuku and toggle authorization ON", Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Calculate column count based on current window width.
+     * Aims for ~280dp per card minimum to keep them readable.
+     * Returns 4 minimum, more as window widens.
+     */
+    private int calculateColumnCount(int widthPixels) {
+        if (widthPixels <= 0) {
+            // Not yet measured - use display metrics as initial guess
+            widthPixels = getResources().getDisplayMetrics().widthPixels;
+        }
+        float density = getResources().getDisplayMetrics().density;
+        float dpWidth = widthPixels / density;
+        // Aim for ~280dp per card
+        int columns = (int) (dpWidth / 280);
+        return Math.max(4, columns); // minimum 4 columns
     }
 
     /**

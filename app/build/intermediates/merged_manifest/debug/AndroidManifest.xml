@@ -150,6 +150,7 @@
         <!-- App Manager - List sideloaded apps with clear data/cache buttons -->
         <activity
             android:name="com.jarjarblinkz.EvolveLauncher.AppManagerActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:exported="false"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Dialog"

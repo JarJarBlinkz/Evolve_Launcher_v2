@@ -1,7 +1,6 @@
 package com.jarjarblinkz.EvolveLauncher.theme;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -24,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
@@ -110,7 +110,8 @@ public class ThemeSelectorDialog {
                 .setNegativeButton("Close", null)
                 .create();
 
-        dialog.show();
+        ThemedDialog.showThemed(dialog);
+        currentDialog = dialog;
     }
 
     /**
@@ -270,7 +271,7 @@ public class ThemeSelectorDialog {
             deleteBtn.setMinHeight(0);
             deleteBtn.setMinimumHeight(0);
             deleteBtn.setOnClickListener(v -> {
-                new AlertDialog.Builder(context)
+                ThemedDialog.showThemed(new AlertDialog.Builder(context)
                         .setTitle("Delete Theme?")
                         .setMessage("Delete '" + theme.name + "'?")
                         .setPositiveButton("Delete", (d, w) -> {
@@ -279,7 +280,7 @@ public class ThemeSelectorDialog {
                             if (listener != null) listener.onThemeApplied(tm.getCurrentTheme());
                         })
                         .setNegativeButton("Cancel", null)
-                        .show();
+                        .create());
             });
             LinearLayout.LayoutParams delParams = new LinearLayout.LayoutParams(
                     dp(context, 32), dp(context, 28));
@@ -303,7 +304,7 @@ public class ThemeSelectorDialog {
             options = new String[]{"Apply", "Edit", "Delete"};
         }
 
-        new AlertDialog.Builder(context)
+        ThemedDialog.showThemed(new AlertDialog.Builder(context)
                 .setTitle(theme.name)
                 .setItems(options, (d, which) -> {
                     if (which == 0) {
@@ -314,7 +315,7 @@ public class ThemeSelectorDialog {
                         Theme editTheme = theme.isBuiltIn ? theme.copyWithName(theme.name + " Copy") : theme;
                         showCustomThemeEditor(context, editTheme, tm, listener, theme.isBuiltIn);
                     } else if (which == 2 && !theme.isBuiltIn) {
-                        new AlertDialog.Builder(context)
+                        ThemedDialog.showThemed(new AlertDialog.Builder(context)
                                 .setTitle("Delete Theme?")
                                 .setMessage("Delete '" + theme.name + "'?")
                                 .setPositiveButton("Delete", (d2, w) -> {
@@ -323,11 +324,11 @@ public class ThemeSelectorDialog {
                                     if (listener != null) listener.onThemeApplied(tm.getCurrentTheme());
                                 })
                                 .setNegativeButton("Cancel", null)
-                                .show();
+                                .create());
                     }
                 })
                 .setNegativeButton("Cancel", null)
-                .show();
+                .create());
     }
 
     /**
@@ -483,7 +484,7 @@ public class ThemeSelectorDialog {
                 .create();
 
         currentDialog = dialog;
-        dialog.show();
+        ThemedDialog.showThemed(dialog);
     }
 
     private static void loadImageIntoPreview(Context context, Theme theme, ImageView imageView) {
@@ -748,7 +749,7 @@ public class ThemeSelectorDialog {
             layout.addView(bar);
         }
 
-        new AlertDialog.Builder(context)
+        ThemedDialog.showThemed(new AlertDialog.Builder(context)
                 .setTitle("Pick Color")
                 .setView(scroll)
                 .setPositiveButton("OK", (d, w) -> {
@@ -756,7 +757,7 @@ public class ThemeSelectorDialog {
                     listener.onColorSelected(newColor);
                 })
                 .setNegativeButton("Cancel", null)
-                .show();
+                .create());
     }
 
     interface OnColorSelected { void onColorSelected(int color); }

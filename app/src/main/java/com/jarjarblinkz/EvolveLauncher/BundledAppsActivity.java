@@ -33,6 +33,16 @@ public class BundledAppsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Hide the activity title bar that shows "VR Launcher"
+        try {
+            supportRequestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        } catch (Exception e) {
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().hide();
+            }
+        }
+
         setContentView(R.layout.activity_bundled_apps);
 
         bundledAppsManager = new BundledAppsManager(this);

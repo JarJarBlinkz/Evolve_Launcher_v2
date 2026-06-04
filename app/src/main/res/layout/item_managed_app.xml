@@ -14,7 +14,7 @@
         android:orientation="vertical"
         android:padding="10dp">
 
-        <!-- Header: Icon + Name + Version -->
+        <!-- Top row: Icon + Name + Version -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -23,15 +23,15 @@
 
             <ImageView
                 android:id="@+id/appIcon"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:contentDescription="App icon" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="8dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -42,20 +42,22 @@
                     android:maxLines="1"
                     android:text="App Name"
                     android:textColor="#FFFFFF"
-                    android:textSize="13sp"
+                    android:textSize="12sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/appVersion"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="v1.0"
                     android:textColor="#6B8EFF"
                     android:textSize="10sp" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Package Name -->
+        <!-- Package name -->
         <TextView
             android:id="@+id/appPackage"
             android:layout_width="match_parent"
@@ -75,12 +77,11 @@
             android:layout_marginBottom="8dp"
             android:background="#333333" />
 
-        <!-- Size Info -->
+        <!-- Size info -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -88,7 +89,6 @@
                 android:text="App"
                 android:textColor="#AAAAAA"
                 android:textSize="10sp" />
-
             <TextView
                 android:id="@+id/txtAppSize"
                 android:layout_width="wrap_content"
@@ -104,7 +104,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
             android:orientation="horizontal">
-
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -112,7 +111,6 @@
                 android:text="Data"
                 android:textColor="#AAAAAA"
                 android:textSize="10sp" />
-
             <TextView
                 android:id="@+id/txtDataSize"
                 android:layout_width="wrap_content"
@@ -128,7 +126,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
             android:orientation="horizontal">
-
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -136,7 +133,6 @@
                 android:text="Cache"
                 android:textColor="#AAAAAA"
                 android:textSize="10sp" />
-
             <TextView
                 android:id="@+id/txtCacheSize"
                 android:layout_width="wrap_content"
@@ -147,7 +143,7 @@
                 android:fontFamily="sans-serif-medium" />
         </LinearLayout>
 
-        <!-- Total -->
+        <!-- Total - highlighted -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -159,7 +155,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-
             <TextView
                 android:id="@+id/txtTotalLabel"
                 android:layout_width="0dp"
@@ -169,7 +164,6 @@
                 android:textColor="#FFFFFF"
                 android:textSize="11sp"
                 android:fontFamily="sans-serif-medium" />
-
             <TextView
                 android:id="@+id/txtTotalValue"
                 android:layout_width="wrap_content"
@@ -180,25 +174,19 @@
                 android:fontFamily="sans-serif-medium" />
         </LinearLayout>
 
-        <!-- Action Button -->
-        <LinearLayout
+        <!-- Manage button -->
+        <Button
+            android:id="@+id/btnManage"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="34dp"
             android:layout_marginTop="10dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btnManage"
-                android:layout_width="match_parent"
-                android:layout_height="36dp"
-                android:backgroundTint="#673AB7"
-                android:text="Manage in Settings"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp"
-                android:textAllCaps="false"
-                android:minHeight="0dp"
-                android:padding="0dp" />
-        </LinearLayout>
+            android:backgroundTint="#673AB7"
+            android:text="Manage"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            android:textAllCaps="false"
+            android:minHeight="0dp"
+            android:padding="0dp" />
 
     </LinearLayout>
 

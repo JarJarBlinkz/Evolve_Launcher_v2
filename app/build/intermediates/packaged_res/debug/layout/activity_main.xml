@@ -24,27 +24,27 @@
             app:strokeWidth="1dp"
             app:strokeColor="#333333">
 
-            <RelativeLayout
+            <!-- RESPONSIVE LAYOUT: Title (left) | Clock (flex middle) | Controls (right) -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:padding="8dp">
 
-                <!-- VR Icon and Title -->
+                <!-- VR Icon and Title - LEFT -->
                 <LinearLayout
                     android:id="@+id/titleContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true">
+                    android:gravity="center_vertical">
 
                     <ImageView
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:layout_marginEnd="8dp"
                         android:src="@drawable/ic_evolve_logo"/>
-                    <!--android:tint="#6B8EFF" />-->
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -68,15 +68,28 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Right Side Controls (Settings, Battery, Search) -->
+                <!-- Current Time - CENTERED with FLEX SPACE (weight=1) - never overlaps -->
+                <TextView
+                    android:id="@+id/txtTime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingHorizontal="8dp"
+                    android:text="00:00:00"
+                    android:textColor="#32CD32"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <!-- Right Side Controls (Search, IP, WiFi, Battery, Settings) -->
                 <LinearLayout
                     android:id="@+id/rightControls"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true">
+                    android:gravity="center_vertical">
 
                     <!-- Compact Search Bar -->
                     <LinearLayout
@@ -88,7 +101,7 @@
                         android:background="#2D2D2D"
                         android:paddingHorizontal="6dp"
                         android:paddingVertical="2dp"
-                        android:minWidth="100dp"
+                        android:minWidth="80dp"
                         android:layout_marginEnd="8dp">
 
                         <ImageView
@@ -100,9 +113,8 @@
 
                         <EditText
                             android:id="@+id/searchEditText"
-                            android:layout_width="150dp"
+                            android:layout_width="120dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:background="@android:color/transparent"
                             android:hint="Search..."
                             android:imeOptions="actionSearch"
@@ -122,26 +134,25 @@
                             android:visibility="gone" />
                     </LinearLayout>
 
-                    <!-- IP and WiFi - Now on the same line, next to settings -->
+                    <!-- IP and WiFi - on same line, next to settings -->
                     <LinearLayout
                         android:id="@+id/ipWifiContainer"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginStart="8dp">
+                        android:gravity="center_vertical">
 
-                        <!-- IP Address (REFERENCE) -->
+                        <!-- IP Address -->
                         <TextView
                             android:id="@+id/txtIP"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="IP 0.0.0.0"
                             android:textColor="#32CD32"
-                            android:textSize="14sp"
+                            android:textSize="12sp"
                             android:maxLines="1"
                             android:ellipsize="end"
-                            android:layout_marginEnd="16dp" />
+                            android:layout_marginEnd="12dp" />
 
                         <!-- WiFi Signal Indicator -->
                         <LinearLayout
@@ -149,12 +160,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:gravity="center_vertical">
+                            android:gravity="center_vertical"
+                            android:layout_marginEnd="12dp">
 
                             <ImageView
                                 android:id="@+id/wifiIcon"
-                                android:layout_width="22sp"
-                                android:layout_height="22sp"
+                                android:layout_width="18sp"
+                                android:layout_height="18sp"
                                 android:layout_marginEnd="4dp"
                                 android:src="@drawable/ic_wifi_full" />
 
@@ -164,8 +176,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Full"
                                 android:textColor="#6B8EFF"
-                                android:textSize="14sp"
-                                android:layout_marginEnd="16dp" />
+                                android:textSize="12sp" />
                         </LinearLayout>
 
                         <!-- Battery Indicator -->
@@ -175,7 +186,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginEnd="16dp">
+                            android:layout_marginEnd="12dp">
 
                             <ImageView
                                 android:id="@+id/batteryIcon"
@@ -191,7 +202,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="100%"
                                 android:textColor="#6B8EFF"
-                                android:textSize="14sp" />
+                                android:textSize="12sp" />
                         </LinearLayout>
 
                         <!-- Settings Button -->
@@ -205,19 +216,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Current Time - Centered between left and right -->
-                <TextView
-                    android:id="@+id/txtTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:maxLines="1"
-                    android:text="00:00:00"
-                    android:textColor="#32CD32"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-            </RelativeLayout>
+            </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
 

@@ -27,6 +27,9 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
+import com.jarjarblinkz.EvolveLauncher.theme.ThemeApplier;
+import com.jarjarblinkz.EvolveLauncher.theme.ThemeManager;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -71,6 +74,23 @@ public class DeviceInfoActivity extends AppCompatActivity {
         initViews();
         setupClickListeners();
         loadAllDeviceInfo();
+
+        // Apply current theme to all views
+        applyCurrentTheme();
+    }
+
+    /**
+     * Apply the current theme to all views in this activity
+     */
+    private void applyCurrentTheme() {
+        try {
+            View rootView = findViewById(android.R.id.content);
+            if (rootView != null) {
+                ThemeApplier.applyThemeToHierarchy(rootView);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void initViews() {
@@ -412,5 +432,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         super.onResume();
         // Refresh data when returning to the activity
         loadAllDeviceInfo();
+        // Re-apply theme in case it changed
+        applyCurrentTheme();
     }
 }
