@@ -133,6 +133,14 @@
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
+        <!-- Favorites - Pinned favorite apps with drag-to-reorder -->
+        <activity
+            android:name=".FavoritesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize" />
+
         <!-- Settings Action Test Activity -->
         <activity
             android:name=".SettingsActionTestActivity"

@@ -392,7 +392,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Native Android Settings"
+                    android:text="Native Settings"
                     android:textColor="#E0E0E0"
                     android:textSize="12sp"
                     android:layout_marginBottom="4dp" />

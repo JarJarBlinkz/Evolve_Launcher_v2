@@ -82,6 +82,9 @@ public class MainActivity extends AppCompatActivity {
     private PackageManager packageManager;
     private EditText searchEditText;
 
+    // Floating favorites button - stored as field so we can update its color on theme change
+    private android.widget.ImageButton floatingFavoritesButton;
+
     private ExecutorService executorService = Executors.newFixedThreadPool(4);
     private Map<String, Drawable> iconCache = new HashMap<>();
     private static final String GITHUB_ICON_BASE_URL = "https://raw.githubusercontent.com/JarJarBlinkz/LauncherIcons/main/oculus_landscape/";
@@ -316,9 +319,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Filter apps based on the restored category BEFORE creating adapter
         filteredList.clear();
+        FavoritesManager favManagerInit = FavoritesManager.getInstance(this);
         if (currentCategory.equals("All Apps")) {
-            // Show only uncategorized apps in All Apps view
+            // Show only uncategorized apps in All Apps view (and exclude favorites)
             for (AppInfo app : appList) {
+                if (favManagerInit.isFavorite(app.packageName)) continue;  // Skip favorites
                 boolean isInAnyCategory = false;
                 for (Set<String> categoryApps : categories.values()) {
                     if (categoryApps.contains(app.packageName)) {
@@ -331,10 +336,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         } else {
-            // Show apps from the saved category
+            // Show apps from the saved category (excluding favorites)
             Set<String> pkgs = categories.get(currentCategory);
             if (pkgs != null) {
                 for (AppInfo app : appList) {
+                    if (favManagerInit.isFavorite(app.packageName)) continue;  // Skip favorites
                     if (pkgs.contains(app.packageName)) {
                         filteredList.add(app);
                     }
@@ -397,6 +403,9 @@ public class MainActivity extends AppCompatActivity {
             showQuickSettings();
             return true;
         });
+
+        // FLOATING FAVORITES BUTTON - bottom-right corner
+        addFloatingFavoritesButton();
 
         // Close Quick Settings button
         btnClosePanel.setOnClickListener(v -> hideQuickSettings());
@@ -512,6 +521,79 @@ public class MainActivity extends AppCompatActivity {
                     volumeSeek.setProgress(Math.min(100, current + 10));
                 }
             });
+        }
+    }
+
+    /**
+     * Add a floating star button in the bottom-right corner that opens Favorites screen.
+     * Created programmatically so we don't need to modify activity_main.xml.
+     */
+    private void addFloatingFavoritesButton() {
+        try {
+            // Create the floating button
+            floatingFavoritesButton = new android.widget.ImageButton(this);
+            floatingFavoritesButton.setImageResource(android.R.drawable.btn_star_big_on);
+            floatingFavoritesButton.setColorFilter(0xFFFFFFFF);
+            floatingFavoritesButton.setContentDescription("Open Favorites");
+            floatingFavoritesButton.setScaleType(android.widget.ImageView.ScaleType.CENTER_INSIDE);
+
+            // Apply theme-based background
+            refreshFloatingFavoritesColor();
+
+            // Elevation for shadow effect
+            floatingFavoritesButton.setElevation(8 * getResources().getDisplayMetrics().density);
+
+            // Position: bottom-right corner with margin
+            android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
+                    (int) (48 * getResources().getDisplayMetrics().density),
+                    (int) (48 * getResources().getDisplayMetrics().density)
+            );
+            params.gravity = android.view.Gravity.BOTTOM | android.view.Gravity.END;
+            int margin = (int) (16 * getResources().getDisplayMetrics().density);
+            params.setMargins(margin, margin, margin, margin);
+
+            // Click → open Favorites
+            floatingFavoritesButton.setOnClickListener(v -> {
+                android.content.Intent intent = new android.content.Intent(this, FavoritesActivity.class);
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            });
+
+            // Long-press → show favorites count
+            floatingFavoritesButton.setOnLongClickListener(v -> {
+                int count = FavoritesManager.getInstance(this).getFavoritesCount();
+                android.widget.Toast.makeText(this,
+                        "⭐ " + count + " favorite" + (count == 1 ? "" : "s"),
+                        android.widget.Toast.LENGTH_SHORT).show();
+                return true;
+            });
+
+            // Add it to the activity's content area as an overlay
+            addContentView(floatingFavoritesButton, params);
+
+            android.util.Log.i("MainActivity", "Floating favorites button added");
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Failed to add floating favorites button", e);
+        }
+    }
+
+    /**
+     * Refresh the floating favorites button's background color to match the current theme.
+     * Call this whenever the theme changes.
+     */
+    private void refreshFloatingFavoritesColor() {
+        if (floatingFavoritesButton == null) return;
+        try {
+            com.jarjarblinkz.EvolveLauncher.theme.Theme theme =
+                    com.jarjarblinkz.EvolveLauncher.theme.ThemeManager.getInstance(this).getCurrentTheme();
+
+            android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+            bg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+            bg.setColor(theme.accentPrimary);
+            bg.setStroke(2, 0x80FFFFFF);
+            floatingFavoritesButton.setBackground(bg);
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Failed to refresh favorites button color", e);
         }
     }
 
@@ -1456,10 +1538,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void filterApps(String query) {
         List<AppInfo> newFilteredList = new ArrayList<>();
+        FavoritesManager favManagerFilter = FavoritesManager.getInstance(this);
 
         if (query.isEmpty()) {
             if (currentCategory.equals("All Apps")) {
                 for (AppInfo app : appList) {
+                    if (favManagerFilter.isFavorite(app.packageName)) continue;  // Skip favorites
                     boolean isInAnyCategory = false;
                     for (Set<String> categoryApps : categories.values()) {
                         if (categoryApps.contains(app.packageName)) {
@@ -1475,8 +1559,8 @@ public class MainActivity extends AppCompatActivity {
                 Set<String> pkgs = categories.get(currentCategory);
                 if (pkgs != null) {
                     for (AppInfo app : appList) {
+                        if (favManagerFilter.isFavorite(app.packageName)) continue;  // Skip favorites
                         if (pkgs.contains(app.packageName)) {
-                            // Make sure the app's category property is set correctly
                             app.category = currentCategory;
                             newFilteredList.add(app);
                         }
@@ -1487,6 +1571,8 @@ public class MainActivity extends AppCompatActivity {
             updateSearchStatus("", false);
 
         } else {
+            // When searching, show ALL matching apps including favorites
+            // (so user can find what to unfavorite or favorite)
             String lowerCaseQuery = query.toLowerCase();
 
             for (AppInfo app : appList) {
@@ -2127,8 +2213,10 @@ public class MainActivity extends AppCompatActivity {
             holder.cardView.setCardBackgroundColor(theme.bgSecondary);
             holder.appName.setTextColor(theme.textPrimary);
 
-            // Simple app name without version
-            String displayLabel = app.label != null ? app.label : app.packageName;
+            // Apply custom label if user renamed this app
+            CustomLabelManager labelManager = CustomLabelManager.getInstance(MainActivity.this);
+            String displayLabel = labelManager.getDisplayLabel(app.packageName,
+                    app.label != null ? app.label : app.packageName);
             holder.appName.setText(displayLabel);
             holder.appVersion.setVisibility(View.GONE); // Hide the version badge completely
 
@@ -2168,14 +2256,40 @@ public class MainActivity extends AppCompatActivity {
                     showEditOptions(app);
                     return true;
                 });
-                holder.dragHandle.setVisibility(View.GONE);
             } else {
                 holder.cardView.setOnClickListener(v -> launchApp(app));
                 holder.cardView.setOnLongClickListener(v -> {
                     showVROptions(app);
                     return true;
                 });
-                holder.dragHandle.setVisibility(View.GONE);
+            }
+
+            // FAVORITE STAR - tap to toggle favorite state
+            if (holder.btnStarFavorite != null) {
+                FavoritesManager favManager = FavoritesManager.getInstance(MainActivity.this);
+                boolean isFav = favManager.isFavorite(app.packageName);
+
+                holder.btnStarFavorite.setImageResource(
+                        isFav ? android.R.drawable.btn_star_big_on : android.R.drawable.btn_star_big_off
+                );
+                holder.btnStarFavorite.setColorFilter(
+                        isFav ? 0xFFFFD700 : 0xFF888888
+                );
+
+                holder.btnStarFavorite.setOnClickListener(v -> {
+                    boolean nowFav = favManager.toggleFavorite(app.packageName);
+                    holder.btnStarFavorite.setImageResource(
+                            nowFav ? android.R.drawable.btn_star_big_on : android.R.drawable.btn_star_big_off
+                    );
+                    holder.btnStarFavorite.setColorFilter(nowFav ? 0xFFFFD700 : 0xFF888888);
+                    Toast.makeText(MainActivity.this,
+                            nowFav ? "⭐ Added to favorites" : "Removed from favorites",
+                            Toast.LENGTH_SHORT).show();
+
+                    // Refresh main grid - favorited apps should disappear from current view
+                    String currentQuery = searchEditText != null ? searchEditText.getText().toString() : "";
+                    filterApps(currentQuery);
+                });
             }
         }
 
@@ -2235,18 +2349,18 @@ public class MainActivity extends AppCompatActivity {
             MaterialCardView cardView;
             ImageView appIcon;
             TextView appName;
-            ImageView dragHandle;
             TextView categoryBadge;
-            TextView appVersion; // Added this
+            TextView appVersion;
+            ImageView btnStarFavorite;
 
             public ViewHolder(View itemView) {
                 super(itemView);
                 cardView = itemView.findViewById(R.id.cardApp);
                 appIcon = itemView.findViewById(R.id.appIcon);
                 appName = itemView.findViewById(R.id.appName);
-                dragHandle = itemView.findViewById(R.id.dragHandle);
                 categoryBadge = itemView.findViewById(R.id.categoryBadge);
-                appVersion = itemView.findViewById(R.id.appVersion); // Added this
+                appVersion = itemView.findViewById(R.id.appVersion);
+                btnStarFavorite = itemView.findViewById(R.id.btnStarFavorite);
             }
         }
     }
@@ -2286,6 +2400,7 @@ public class MainActivity extends AppCompatActivity {
         List<String> optionsList = new ArrayList<>();
         optionsList.add("Launch");
         optionsList.add("📊 Playtime Stats");
+        optionsList.add("✏️ Rename");
 
         if (isInCategory) {
             optionsList.add("Remove from " + currentAppCategory);
@@ -2308,6 +2423,8 @@ public class MainActivity extends AppCompatActivity {
                 launchApp(app);
             } else if (selectedOption.equals("📊 Playtime Stats")) {
                 showPlaytimeDetails(app);
+            } else if (selectedOption.equals("✏️ Rename")) {
+                showRenameDialog(app);
             } else if (selectedOption.startsWith("Remove from ")) {
                 removeFromCategory(app, finalCategory);
             } else if (selectedOption.equals("Add to Category")) {
@@ -2332,6 +2449,72 @@ public class MainActivity extends AppCompatActivity {
                 uninstallApp(app);
             }
         });
+        ThemedDialog.showThemed(builder.create());
+    }
+
+    /**
+     * Show a dialog to rename an app's display label.
+     * Empty input resets to original name.
+     */
+    private void showRenameDialog(AppInfo app) {
+        CustomLabelManager labelManager = CustomLabelManager.getInstance(this);
+        String currentDisplayLabel = labelManager.getDisplayLabel(app.packageName, app.label);
+        boolean hasCustom = labelManager.hasCustomLabel(app.packageName);
+
+        // Build the input view
+        android.widget.LinearLayout container = new android.widget.LinearLayout(this);
+        container.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+        container.setPadding(padding, padding, padding, padding);
+
+        android.widget.TextView instructions = new android.widget.TextView(this);
+        instructions.setText(hasCustom
+                ? "Current name: " + currentDisplayLabel + "\nOriginal: " + app.label + "\n\nEnter new name (leave blank to reset):"
+                : "Original: " + app.label + "\n\nEnter new name:");
+        instructions.setTextSize(12);
+        instructions.setPadding(0, 0, 0, padding);
+        container.addView(instructions);
+
+        final android.widget.EditText input = new android.widget.EditText(this);
+        input.setHint(app.label);
+        input.setText(hasCustom ? currentDisplayLabel : "");
+        input.setSelectAllOnFocus(true);
+        input.setSingleLine(true);
+        container.addView(input);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle("✏️ Rename App")
+                .setView(container)
+                .setPositiveButton("Save", (d, w) -> {
+                    String newName = input.getText().toString().trim();
+                    labelManager.setCustomLabel(app.packageName, newName);
+
+                    String message;
+                    if (newName.isEmpty()) {
+                        message = "Reset to original: " + app.label;
+                    } else {
+                        message = "Renamed to: " + newName;
+                    }
+                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+
+                    // Refresh the adapter to show new label
+                    if (appAdapter != null) {
+                        appAdapter.notifyDataSetChanged();
+                    }
+                })
+                .setNegativeButton("Cancel", null);
+
+        // Add Reset button if there's a custom label
+        if (hasCustom) {
+            builder.setNeutralButton("Reset to Original", (d, w) -> {
+                labelManager.setCustomLabel(app.packageName, null);
+                Toast.makeText(this, "Reset to: " + app.label, Toast.LENGTH_SHORT).show();
+                if (appAdapter != null) {
+                    appAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+
         ThemedDialog.showThemed(builder.create());
     }
 
@@ -2364,6 +2547,7 @@ public class MainActivity extends AppCompatActivity {
             optionsList.add("Add to Category");
         }
 
+        optionsList.add("✏️ Rename");
         optionsList.add("Hide App");
         optionsList.add("Unhide All Apps");
         optionsList.add("App Info");
@@ -2385,6 +2569,8 @@ public class MainActivity extends AppCompatActivity {
                 removeFromCategory(app, finalCategory);
             } else if (selectedOption.equals("Add to Category")) {
                 showAssignCategoryDialog(app);
+            } else if (selectedOption.equals("✏️ Rename")) {
+                showRenameDialog(app);
             } else if (selectedOption.equals("Hide App")) {
                 hideApp(app);
             } else if (selectedOption.equals("Unhide All Apps")) {
@@ -2627,6 +2813,9 @@ public class MainActivity extends AppCompatActivity {
         if (themeRootView != null) {
             ThemeApplier.applyThemeToHierarchy(themeRootView);
         }
+
+        // Update floating favorites button color to match current theme
+        refreshFloatingFavoritesColor();
 
         // Update the layout background (this respects user's background settings + theme image)
         updateBackground();
