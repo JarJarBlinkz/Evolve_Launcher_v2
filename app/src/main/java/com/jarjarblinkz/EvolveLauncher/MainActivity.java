@@ -363,6 +363,9 @@ public class MainActivity extends AppCompatActivity {
         instance = this;
 
         appsGrid = findViewById(R.id.appsGrid);
+        // Hide grid until entry animation kicks off, so user doesn't see
+        // a static frame of the final layout before cards fly in.
+        appsGrid.setAlpha(0f);
 
         // Find the search container first
         LinearLayout searchContainer = findViewById(R.id.searchContainer);
@@ -491,6 +494,10 @@ public class MainActivity extends AppCompatActivity {
         // FIXED: Call setupRecyclerView() so the layout manager and
         // dynamic resize listener are properly initialized
         setupRecyclerView();
+
+        // VR POLISH: schedule the directional entry animation to play once
+        // the grid has finished laying out its visible cards.
+        scheduleEntryAnimation();
 
         // Build category bar and highlight the saved category
         buildCategoryBar();
@@ -630,7 +637,7 @@ public class MainActivity extends AppCompatActivity {
     private void startVRShellMonitor() {
         try {
             // Check if auto-restart is enabled in settings
-            SharedPreferences prefs = getSharedPreferences("EvolvePrefs", MODE_PRIVATE);
+            SharedPreferences prefs = getSharedPreferences("VRLPrefs", MODE_PRIVATE);
             boolean autoRestartEnabled = prefs.getBoolean("auto_restart_enabled", true); // Default: enabled
 
             if (!autoRestartEnabled) {
@@ -1422,6 +1429,473 @@ public class MainActivity extends AppCompatActivity {
 
     private GridSpacingItemDecoration gridSpacingDecoration;
 
+    /**
+     * Tracks whether we've already played the entry animation this session.
+     */
+    private boolean entryAnimationPlayed = false;
+
+    /**
+     * VR POLISH: animates ALL currently visible cards flying in from 8 different
+     * directions. Runs ONCE per session, triggered by a layout listener after
+     * the grid has fully laid out its children.
+     *
+     * Using a batch approach (all-at-once after layout) instead of per-bind
+     * animation avoids race conditions where some cards animate and others
+     * don't, depending on when their onBindViewHolder fires relative to the
+     * RecyclerView's layout pass.
+     */
+    private void playEntryAnimation() {
+        if (entryAnimationPlayed || appsGrid == null) return;
+        if (appsGrid.getChildCount() == 0) return;  // no children yet, wait
+        entryAnimationPlayed = true;
+
+        float density = getResources().getDisplayMetrics().density;
+        float distance = 300f * density;
+
+        // STEP 1: While the grid is still alpha=0 (invisible), set each child
+        // to its off-screen starting state. This way when we reveal the grid,
+        // the children are already invisible (alpha 0) and off-position - no
+        // static-layout flash.
+        for (int i = 0; i < appsGrid.getChildCount(); i++) {
+            View card = appsGrid.getChildAt(i);
+            if (card == null) continue;
+
+            int direction = i % 8;
+            float startX = 0f, startY = 0f;
+            switch (direction) {
+                case 0: startY = -distance; break;
+                case 1: startX = distance;  startY = -distance; break;
+                case 2: startX = distance;  break;
+                case 3: startX = distance;  startY = distance;  break;
+                case 4: startY = distance;  break;
+                case 5: startX = -distance; startY = distance;  break;
+                case 6: startX = -distance; break;
+                case 7: startX = -distance; startY = -distance; break;
+            }
+
+            float startRotation = (direction % 2 == 0) ? -8f : 8f;
+
+            card.setTranslationX(startX);
+            card.setTranslationY(startY);
+            card.setAlpha(0f);
+            card.setScaleX(0.5f);
+            card.setScaleY(0.5f);
+            card.setRotation(startRotation);
+        }
+
+        // STEP 2: Reveal the grid container - children still invisible because
+        // their individual alpha is 0
+        appsGrid.setAlpha(1f);
+
+        // STEP 3: Animate each child flying in
+        for (int i = 0; i < appsGrid.getChildCount(); i++) {
+            View card = appsGrid.getChildAt(i);
+            if (card == null) continue;
+
+            long delay = i * 45L;
+
+            card.animate()
+                    .translationX(0f)
+                    .translationY(0f)
+                    .alpha(1f)
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .rotation(0f)
+                    .setDuration(650)
+                    .setStartDelay(delay)
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f))
+                    .start();
+        }
+    }
+
+    /**
+     * Sets up a polling check that fires the entry animation once children
+     * have been laid out. The initial delay (300ms) lets any other initial
+     * setup logic (column recalculation, deferred notifyDataSetChanged, etc.)
+     * complete and stabilize before we animate, so the animation isn't
+     * destroyed by a subsequent rebinding.
+     */
+    private void scheduleEntryAnimation() {
+        if (appsGrid == null) return;
+        // Initial delay lets the layout settle (column calc, initial bindings)
+        appsGrid.postDelayed(() -> tryPlayEntryAnimation(0), 300);
+    }
+
+    private void tryPlayEntryAnimation(int attempt) {
+        if (entryAnimationPlayed || appsGrid == null) return;
+        if (attempt > 20) {
+            // Safety: never hide the grid forever - reveal it even if animation fails
+            appsGrid.setAlpha(1f);
+            entryAnimationPlayed = true;
+            return;
+        }
+
+        if (appsGrid.getChildCount() > 0) {
+            playEntryAnimation();
+        } else {
+            // No children yet - try again in 100ms
+            appsGrid.postDelayed(() -> tryPlayEntryAnimation(attempt + 1), 100);
+        }
+    }
+
+    /**
+     * VR POLISH: Adds hover, focus, and press animations to a card.
+     * On Quest, the controller pointer triggers hover events on Android views,
+     * making this effectively a "looking-at-it / pointing-at-it" highlight.
+     *
+     *   - HOVER / FOCUS:  card pops forward dramatically (scale 1.15×, +40dp lift)
+     *                     with an overshoot bounce when pointer enters
+     *   - PRESS:          card briefly compresses, then POPS even further on release
+     *                     (scale 1.22×, +56dp lift) before settling back to hover
+     */
+    /**
+     * Smoothly transitions between categories: existing cards fly out to
+     * 8 different directions, then the new category's cards fly in from
+     * 8 different directions. Same drama as the initial entry animation.
+     */
+    private void switchToCategoryAnimated(String newCategory) {
+        if (newCategory == null) return;
+        if (newCategory.equals(currentCategory)) return;  // no change, skip animation
+
+        Log.i("MainActivity", "switchToCategoryAnimated: " + currentCategory + " → " + newCategory);
+
+        animateGridTransition(() -> {
+            currentCategory = newCategory;
+            saveCurrentCategory();
+            updateCategoryButtonStates(newCategory);
+            // Clear search text here (during the hidden phase) so the
+            // TextWatcher doesn't fire filterApps while the exit animation
+            // is running and kill it.
+            if (searchEditText != null) {
+                searchEditText.setText("");
+            }
+            filterApps("");
+        });
+    }
+
+    /**
+     * Animate current cards out (fly to 8 directions), then run the data swap,
+     * then animate new cards in. Total transition ~700ms.
+     */
+    private void animateGridTransition(Runnable dataSwap) {
+        if (appsGrid == null) {
+            Log.i("MainActivity", "animateGridTransition: appsGrid is null");
+            dataSwap.run();
+            return;
+        }
+        int childCount = appsGrid.getChildCount();
+        Log.i("MainActivity", "animateGridTransition: animating " + childCount + " cards out");
+
+        if (childCount == 0) {
+            dataSwap.run();
+            return;
+        }
+
+        float density = getResources().getDisplayMetrics().density;
+        float distance = 200f * density;
+
+        // STEP 1: animate current cards OUT
+        for (int i = 0; i < appsGrid.getChildCount(); i++) {
+            View card = appsGrid.getChildAt(i);
+            if (card == null) continue;
+
+            // Exit direction cycles through 8 angles, same pattern as entry
+            int direction = i % 8;
+            float endX = 0f, endY = 0f;
+            switch (direction) {
+                case 0: endY = -distance; break;
+                case 1: endX = distance;  endY = -distance; break;
+                case 2: endX = distance;  break;
+                case 3: endX = distance;  endY = distance;  break;
+                case 4: endY = distance;  break;
+                case 5: endX = -distance; endY = distance;  break;
+                case 6: endX = -distance; break;
+                case 7: endX = -distance; endY = -distance; break;
+            }
+
+            card.animate().cancel();
+            card.animate()
+                    .translationX(endX)
+                    .translationY(endY)
+                    .alpha(0f)
+                    .scaleX(0.5f)
+                    .scaleY(0.5f)
+                    .rotation((direction % 2 == 0) ? 8f : -8f)
+                    .setDuration(280)
+                    .setStartDelay(i * 12L)  // light stagger on exit
+                    .setInterpolator(new android.view.animation.AccelerateInterpolator())
+                    .start();
+        }
+
+        // STEP 2: after exit animation, swap data and animate new cards in
+        appsGrid.postDelayed(() -> {
+            // Reset the one-shot flag so entry animation can play again
+            entryAnimationPlayed = false;
+            // Hide grid briefly during data swap to prevent a flash of the
+            // new items at their final position
+            appsGrid.setAlpha(0f);
+            // Perform the actual category/filter change
+            dataSwap.run();
+            // CRITICAL: notifyDataSetChanged inside dataSwap triggers a layout
+            // pass that re-binds all children. We MUST wait for that layout
+            // pass to complete before starting the entry animation, otherwise
+            // the rebind will reset the translation/alpha/scale we just set
+            // and the cards will appear at their final position instead of
+            // flying in. This was specifically breaking on categories with
+            // many items where layout takes longer.
+            appsGrid.postDelayed(() -> tryPlayEntryAnimation(0), 80);
+        }, 320);
+    }
+
+    private boolean categoryBarEntryAnimated = false;
+    private final java.util.HashSet<String> animatedCategoryNames = new java.util.HashSet<>();
+
+    /**
+     * VR POLISH: hover/focus/press animations for category buttons.
+     * Same drama as the app cards but slightly less dramatic since buttons
+     * are smaller. Uses scale + translation only (no translationZ since
+     * default Button widgets don't have card-like shadows).
+     */
+    private void applyButtonInteractionEffects(View btn) {
+        if (btn == null) return;
+
+        // Log button setup once so we can verify the latest build is installed
+        String btnTag = (btn instanceof Button) ? ((Button) btn).getText().toString() : "button";
+        Log.i("MainActivity", "Applying interaction effects to: " + btnTag);
+
+        final float hoverScale = 1.10f;
+        final float pressScale = 0.94f;
+        final float popScale = 1.16f;
+
+        btn.setFocusable(true);
+        btn.setClickable(true);
+
+        btn.setOnHoverListener((v, event) -> {
+            switch (event.getAction()) {
+                case android.view.MotionEvent.ACTION_HOVER_ENTER:
+                    v.animate().cancel();
+                    v.animate().scaleX(hoverScale).scaleY(hoverScale)
+                            .setDuration(180)
+                            .setInterpolator(new android.view.animation.OvershootInterpolator(1.8f))
+                            .start();
+                    break;
+                case android.view.MotionEvent.ACTION_HOVER_EXIT:
+                    v.animate().cancel();
+                    v.animate().scaleX(1f).scaleY(1f)
+                            .setDuration(180)
+                            .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                            .start();
+                    break;
+            }
+            return false;
+        });
+
+        btn.setOnFocusChangeListener((v, hasFocus) -> {
+            v.animate().cancel();
+            if (hasFocus) {
+                v.animate().scaleX(hoverScale).scaleY(hoverScale)
+                        .setDuration(180)
+                        .setInterpolator(new android.view.animation.OvershootInterpolator(1.8f))
+                        .start();
+            } else {
+                v.animate().scaleX(1f).scaleY(1f).setDuration(180).start();
+            }
+        });
+
+        btn.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case android.view.MotionEvent.ACTION_DOWN:
+                    v.animate().cancel();
+                    v.animate().scaleX(pressScale).scaleY(pressScale)
+                            .setDuration(70)
+                            .setInterpolator(new android.view.animation.AccelerateInterpolator())
+                            .start();
+                    break;
+                case android.view.MotionEvent.ACTION_UP:
+                    Log.i("MainActivity", "Button ACTION_UP fired");
+                    v.animate().cancel();
+                    v.animate().scaleX(popScale).scaleY(popScale)
+                            .setDuration(180)
+                            .setInterpolator(new android.view.animation.OvershootInterpolator(2.5f))
+                            .withEndAction(() -> {
+                                float endScale = v.isHovered() || v.isFocused() ? hoverScale : 1f;
+                                v.animate().scaleX(endScale).scaleY(endScale)
+                                        .setDuration(200)
+                                        .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                                        .start();
+                            })
+                            .start();
+                    break;
+                case android.view.MotionEvent.ACTION_CANCEL:
+                    v.animate().cancel();
+                    float endScale = v.isHovered() || v.isFocused() ? hoverScale : 1f;
+                    v.animate().scaleX(endScale).scaleY(endScale).setDuration(180).start();
+                    break;
+            }
+            return false;
+        });
+    }
+
+    /**
+     * Animates a single category button popping in from below.
+     * Used for both the initial entry animation and for buttons added later
+     * (e.g., when a new category is created in Settings).
+     */
+    private void animateCategoryButtonEntry(View btn, int indexInBar) {
+        if (btn == null) return;
+        float density = getResources().getDisplayMetrics().density;
+
+        btn.setTranslationY(80f * density);   // start below
+        btn.setAlpha(0f);
+        btn.setScaleX(0.6f);
+        btn.setScaleY(0.6f);
+        btn.setRotation((indexInBar % 2 == 0) ? -6f : 6f);
+
+        btn.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .rotation(0f)
+                .setStartDelay(indexInBar * 60L)
+                .setDuration(500)
+                .setInterpolator(new android.view.animation.OvershootInterpolator(1.3f))
+                .start();
+    }
+
+    /**
+     * Initial entry animation for the entire category bar.
+     * Only fires once per session (subsequent rebuilds don't re-animate).
+     */
+    private void animateCategoryBarEntry() {
+        if (categoryBarEntryAnimated || categoryBar == null) return;
+        if (categoryBar.getChildCount() == 0) return;
+        categoryBarEntryAnimated = true;
+
+        for (int i = 0; i < categoryBar.getChildCount(); i++) {
+            View btn = categoryBar.getChildAt(i);
+            animateCategoryButtonEntry(btn, i);
+            // Track this button's label so it doesn't re-animate on later rebuilds
+            if (btn instanceof Button) {
+                animatedCategoryNames.add(((Button) btn).getText().toString());
+            }
+        }
+    }
+
+    private void applyCardInteractionEffects(View card) {
+        if (card == null) return;
+
+        final float density = getResources().getDisplayMetrics().density;
+        final float hoverLiftPx = 40f * density;      // hover pop forward
+        final float popLiftPx = 56f * density;        // click pop even further
+        final float hoverScale = 1.15f;               // hover scale - dramatic
+        final float pressScale = 0.97f;               // brief compress on press
+        final float popScale = 1.22f;                 // click pop - even bigger
+
+        card.setFocusable(true);
+        card.setClickable(true);
+
+        // Pointer hover - dramatic pop forward with overshoot bounce
+        card.setOnHoverListener((v, event) -> {
+            switch (event.getAction()) {
+                case android.view.MotionEvent.ACTION_HOVER_ENTER:
+                    v.animate().cancel();
+                    v.animate()
+                            .scaleX(hoverScale)
+                            .scaleY(hoverScale)
+                            .translationZ(hoverLiftPx)
+                            .setDuration(220)
+                            .setInterpolator(new android.view.animation.OvershootInterpolator(1.8f))
+                            .start();
+                    break;
+                case android.view.MotionEvent.ACTION_HOVER_EXIT:
+                    v.animate().cancel();
+                    v.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .translationZ(0f)
+                            .setDuration(200)
+                            .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                            .start();
+                    break;
+            }
+            return false;  // let click events through
+        });
+
+        // Keyboard / dpad focus mirrors hover with same drama
+        card.setOnFocusChangeListener((v, hasFocus) -> {
+            v.animate().cancel();
+            if (hasFocus) {
+                v.animate()
+                        .scaleX(hoverScale)
+                        .scaleY(hoverScale)
+                        .translationZ(hoverLiftPx)
+                        .setDuration(220)
+                        .setInterpolator(new android.view.animation.OvershootInterpolator(1.8f))
+                        .start();
+            } else {
+                v.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .translationZ(0f)
+                        .setDuration(200)
+                        .start();
+            }
+        });
+
+        // Press feedback: brief compress + dramatic POP-OUT on release.
+        // This makes the card visibly jump toward the user when clicked.
+        card.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case android.view.MotionEvent.ACTION_DOWN:
+                    v.animate().cancel();
+                    v.animate()
+                            .scaleX(pressScale)
+                            .scaleY(pressScale)
+                            .setDuration(70)
+                            .setInterpolator(new android.view.animation.AccelerateInterpolator())
+                            .start();
+                    break;
+                case android.view.MotionEvent.ACTION_UP:
+                    v.animate().cancel();
+                    // POP-OUT: card jumps forward dramatically with overshoot,
+                    // then settles to hover state (or rest if no longer hovered)
+                    v.animate()
+                            .scaleX(popScale)
+                            .scaleY(popScale)
+                            .translationZ(popLiftPx)
+                            .setDuration(220)
+                            .setInterpolator(new android.view.animation.OvershootInterpolator(2.5f))
+                            .withEndAction(() -> {
+                                // After the pop, ease back to hover/rest state
+                                float endScale = v.isHovered() || v.isFocused() ? hoverScale : 1f;
+                                float endLift = v.isHovered() || v.isFocused() ? hoverLiftPx : 0f;
+                                v.animate()
+                                        .scaleX(endScale)
+                                        .scaleY(endScale)
+                                        .translationZ(endLift)
+                                        .setDuration(260)
+                                        .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                                        .start();
+                            })
+                            .start();
+                    break;
+                case android.view.MotionEvent.ACTION_CANCEL:
+                    v.animate().cancel();
+                    float endScale = v.isHovered() || v.isFocused() ? hoverScale : 1f;
+                    float endLift = v.isHovered() || v.isFocused() ? hoverLiftPx : 0f;
+                    v.animate()
+                            .scaleX(endScale)
+                            .scaleY(endScale)
+                            .translationZ(endLift)
+                            .setDuration(180)
+                            .start();
+                    break;
+            }
+            return false;  // let click events through
+        });
+    }
+
     private void setupRecyclerView() {
         int columns = calculateOptimalColumns();
 
@@ -1438,6 +1912,9 @@ public class MainActivity extends AppCompatActivity {
         appsGrid.setDrawingCacheEnabled(true);
         appsGrid.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_AUTO);
         appsGrid.setItemAnimator(null);
+
+        // Entry animation is now handled programmatically per-card in
+        // animateCardEntryIfNeeded() so each card can come from a different direction.
 
         float density = getResources().getDisplayMetrics().density;
         int spacingInPixels = (int) (2 * density);
@@ -2087,14 +2564,8 @@ public class MainActivity extends AppCompatActivity {
 
                         Toast.makeText(this, "Removed " + removedCount + " app(s) from categories", Toast.LENGTH_SHORT).show();
                     } else {
-                        currentCategory = "All Apps";
-                        saveCurrentCategory();
-                        updateCategoryButtonStates("All Apps");
-                        filterApps("");
-
-                        if (searchEditText != null) {
-                            searchEditText.setText("");
-                        }
+                        Log.i("MainActivity", "All Apps button clicked");
+                        switchToCategoryAnimated("All Apps");
                     }
                 } catch (Exception e) {
                     Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -2128,13 +2599,32 @@ public class MainActivity extends AppCompatActivity {
         allAppsBtn.setBackgroundColor(currentCategory.equals("All Apps") ?
                 Color.parseColor("#6B8EFF") : Color.parseColor("#2D2D2D"));
 
+        // VR polish: hover/press effects
+        applyButtonInteractionEffects(allAppsBtn);
+
         categoryBar.addView(allAppsBtn);
 
         for (String category : categories.keySet()) {
-            addCategoryButton(category, () -> {
-                currentCategory = category;
-                filterApps(searchEditText.getText().toString());
-            });
+            addCategoryButton(category, () -> switchToCategoryAnimated(category));
+        }
+
+        // Schedule the initial entry animation (only runs once per session).
+        // For subsequent buildCategoryBar calls (e.g. after a category is
+        // added in Settings), animate only the NEW buttons.
+        if (!categoryBarEntryAnimated) {
+            categoryBar.postDelayed(this::animateCategoryBarEntry, 300);
+        } else {
+            // Animate any category buttons we haven't seen before
+            for (int i = 0; i < categoryBar.getChildCount(); i++) {
+                View btn = categoryBar.getChildAt(i);
+                if (btn instanceof Button) {
+                    String label = ((Button) btn).getText().toString();
+                    if (!animatedCategoryNames.contains(label)) {
+                        animatedCategoryNames.add(label);
+                        animateCategoryButtonEntry(btn, i);
+                    }
+                }
+            }
         }
     }
 
@@ -2179,17 +2669,11 @@ public class MainActivity extends AppCompatActivity {
 
                         Toast.makeText(this, "Moved " + movedCount + " app(s) to " + name, Toast.LENGTH_SHORT).show();
                     } else {
-                        currentCategory = name;
-                        saveCurrentCategory();
-                        action.run();
-                        updateCategoryButtonStates(name);
+                        Log.i("MainActivity", "Category button clicked: " + name);
+                        // Delegate everything to the action runnable
+                        // (which calls switchToCategoryAnimated)
                         updateSearchStatus("", false);
-
-                        if (searchEditText != null) {
-                            searchEditText.setText("");
-                        }
-
-                        filterApps("");
+                        action.run();
                     }
                 } catch (Exception e) {
                     Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -2225,6 +2709,9 @@ public class MainActivity extends AppCompatActivity {
         } else {
             btn.setBackgroundColor(Color.parseColor("#2D2D2D"));
         }
+
+        // VR polish: hover/press effects on every category button
+        applyButtonInteractionEffects(btn);
 
         categoryBar.addView(btn);
     }
@@ -2483,7 +2970,10 @@ public class MainActivity extends AppCompatActivity {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_app, parent, false);
 
-            return new ViewHolder(view);
+            ViewHolder holder = new ViewHolder(view);
+            // Apply hover/focus/press animations to the card for VR polish
+            applyCardInteractionEffects(holder.cardView);
+            return holder;
         }
 
         @Override
@@ -2540,7 +3030,10 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 });
             } else {
-                holder.cardView.setOnClickListener(v -> launchApp(app));
+                // Delay the launch so the pop-out animation is visible first.
+                // Without this, the activity transition starts immediately and
+                // cuts off the pop animation before the user sees it.
+                holder.cardView.setOnClickListener(v -> v.postDelayed(() -> launchApp(app), 240));
                 holder.cardView.setOnLongClickListener(v -> {
                     showVROptions(app);
                     return true;

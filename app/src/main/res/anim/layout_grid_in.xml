@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<gridLayoutAnimation xmlns:android="http://schemas.android.com/apk/res/android"
-    android:delay="15%"
-    android:rowDelay="15%"
-    android:directionPriority="row"
-    android:animation="@anim/item_scale_in" />
