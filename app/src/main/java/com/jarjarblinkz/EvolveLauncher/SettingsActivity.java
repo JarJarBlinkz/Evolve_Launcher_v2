@@ -19,6 +19,7 @@ import android.view.Window;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,6 +56,22 @@ public class SettingsActivity extends AppCompatActivity {
     private SharedPreferences prefs;
     private SharedPreferences categoryPrefs;
 
+    // Icon scale values from old launcher (82, 99, 125, 165, 236 dp)
+    // These map to seekbar positions 0-100
+    private static final int[] ICON_SCALES_DP = {82, 99, 125, 165, 236};
+    private static final int DEFAULT_SCALE_INDEX = 2;  // 125dp
+    private static final int ICON_SIZE_MIN_DP = 82;
+    private static final int ICON_SIZE_MAX_DP = 236;
+
+    // Broadcast action for theme changes
+    private static final String ACTION_THEME_CHANGED = "com.jarjarblinkz.EvolveLauncher.THEME_CHANGED";
+    // Broadcast action for category changes (create/rename/delete/modify)
+    private static final String ACTION_CATEGORIES_CHANGED = "com.jarjarblinkz.EvolveLauncher.CATEGORIES_CHANGED";
+
+    // Meta standard window size (1024x640 dp)
+    private static final int META_STANDARD_WIDTH_DP = 1024;
+    private static final int META_STANDARD_HEIGHT_DP = 640;
+
     // Shizuku manager for shell-level commands
     private ShizukuManager shizukuManager;
 
@@ -63,6 +80,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private static final String KEY_EDIT_MODE = "edit_mode";
     private static final String KEY_ICON_SIZE = "icon_size";
+    private static final String KEY_ICON_SIZE_SCALE = "icon_size_scale";  // Store scale index (0-4)
     private static final String KEY_SHOW_CATEGORIES = "show_categories";
     private static final String KEY_BG_OPACITY = "background_opacity";
     private static final String KEY_AUTO_START = "auto_start";
@@ -71,18 +89,23 @@ public class SettingsActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_OPEN_BACKUP = 201;
     private static final int REQUEST_CODE_USAGE_ACCESS = 202;
 
+    /**
+     * Tracks whether we're temporarily losing focus because we launched
+     * a sub-activity (file picker, device info, etc.). When true, we
+     * don't auto-close on focus loss because the user will return.
+     */
+    private boolean expectingFocusReturn = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_settings);
 
-        Window window = getWindow();
-        android.view.WindowManager.LayoutParams lp = window.getAttributes();
-        lp.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.90);
-        lp.height = (int) (getResources().getDisplayMetrics().heightPixels * 1.00);
-        window.setAttributes(lp);
+        // Set to Meta's standard window size (same as MainActivity)
+        setMetaStandardWindowSize();
+
+        setContentView(R.layout.activity_settings);
 
         prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         categoryPrefs = getSharedPreferences(CATEGORY_PREFS, MODE_PRIVATE);
@@ -92,6 +115,7 @@ public class SettingsActivity extends AppCompatActivity {
         SwitchCompat switchCategories = findViewById(R.id.switchCategories);
         SeekBar seekIconSize = findViewById(R.id.seekIconSize);
         TextView txtIconSize = findViewById(R.id.txtIconSize);
+        TextView txtIconSizeRange = findViewById(R.id.txtIconSizeRange);
         SeekBar seekBgOpacity = findViewById(R.id.seekBgOpacity);
         TextView txtBgOpacity = findViewById(R.id.txtBgOpacity);
         AppCompatButton btnManageCategories = findViewById(R.id.btnManageCategories);
@@ -113,9 +137,56 @@ public class SettingsActivity extends AppCompatActivity {
         switchCategories.setChecked(prefs.getBoolean(KEY_SHOW_CATEGORIES, true));
         switchAutoStart.setChecked(prefs.getBoolean(KEY_AUTO_START, true));
 
-        int iconSize = prefs.getInt(KEY_ICON_SIZE, 110);
-        seekIconSize.setProgress(convertIconSizeToSeekPosition(iconSize));
-        txtIconSize.setText(iconSize + "dp");
+        // Setup Icon Size SeekBar - maps to old launcher scale values (82-236 dp)
+        if (seekIconSize != null && txtIconSize != null) {
+            // Get current scale index (0-4) and convert to seekbar progress (0-100)
+            int currentScaleIndex = prefs.getInt(KEY_ICON_SIZE_SCALE, DEFAULT_SCALE_INDEX);
+            int seekProgress = convertScaleIndexToSeekProgress(currentScaleIndex);
+
+            seekIconSize.setProgress(seekProgress);
+            int currentIconSizeDp = ICON_SCALES_DP[currentScaleIndex];
+            txtIconSize.setText(currentIconSizeDp + "dp");
+
+            // Show range text
+            if (txtIconSizeRange != null) {
+                txtIconSizeRange.setText(ICON_SIZE_MIN_DP + "dp - " + ICON_SIZE_MAX_DP + "dp");
+            }
+
+            seekIconSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    // Convert progress (0-100) to actual dp using the old launcher scale mapping
+                    int iconSizeDp = convertSeekProgressToIconSizeDp(progress);
+                    txtIconSize.setText(iconSizeDp + "dp");
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    int progress = seekBar.getProgress();
+                    int iconSizeDp = convertSeekProgressToIconSizeDp(progress);
+                    int scaleIndex = convertIconSizeDpToScaleIndex(iconSizeDp);
+
+                    // Save both the scale index and the actual size
+                    prefs.edit()
+                            .putInt(KEY_ICON_SIZE_SCALE, scaleIndex)
+                            .putInt(KEY_ICON_SIZE, iconSizeDp)
+                            .apply();
+
+                    // Apply to MainActivity and FavoritesActivity
+                    if (MainActivity.instance != null) {
+                        MainActivity.instance.updateIconSizes();
+                    }
+                    if (FavoritesActivity.instance != null) {
+                        FavoritesActivity.instance.updateIconSizes();
+                    }
+
+                    Toast.makeText(SettingsActivity.this, "Icon size: " + iconSizeDp + "dp", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 
         int opacity = prefs.getInt(KEY_BG_OPACITY, 100);
         seekBgOpacity.setProgress(opacity);
@@ -140,18 +211,6 @@ public class SettingsActivity extends AppCompatActivity {
                         MainActivity.instance.refreshDisplay();
                     });
                 }, 200);
-            }
-        });
-
-        seekIconSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            public void onProgressChanged(SeekBar sb, int p, boolean f) {
-                txtIconSize.setText(convertSeekPositionToIconSize(p) + "dp");
-            }
-            public void onStartTrackingTouch(SeekBar sb) {}
-            public void onStopTrackingTouch(SeekBar sb) {
-                int size = convertSeekPositionToIconSize(sb.getProgress());
-                prefs.edit().putInt(KEY_ICON_SIZE, size).apply();
-                if (MainActivity.instance != null) MainActivity.instance.updateIconSizes();
             }
         });
 
@@ -206,8 +265,8 @@ public class SettingsActivity extends AppCompatActivity {
         Button btnBundledApps = findViewById(R.id.btnBundledApps);
         if (btnBundledApps != null) {
             btnBundledApps.setOnClickListener(v -> {
-                Intent intent = new Intent(this, BundledAppsActivity.class);
-                startActivity(intent);
+                Intent bundledIntent = new Intent(this, BundledAppsActivity.class);
+                startActivity(bundledIntent);
             });
         }
 
@@ -215,18 +274,24 @@ public class SettingsActivity extends AppCompatActivity {
         Button btnAppManager = findViewById(R.id.btnAppManager);
         if (btnAppManager != null) {
             btnAppManager.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AppManagerActivity.class);
-                startActivity(intent);
+                Intent appManagerIntent = new Intent(this, AppManagerActivity.class);
+                startActivity(appManagerIntent);
             });
         }
 
-        // THEMES BUTTON
+        // THEMES BUTTON - with real-time sync to MainActivity
         Button btnThemes = findViewById(R.id.btnThemes);
         if (btnThemes != null) {
             btnThemes.setOnClickListener(v -> {
-                com.jarjarblinkz.EvolveLauncher.theme.ThemeSelectorDialog.show(this, theme -> {
+                ThemeSelectorDialog.show(this, theme -> {
+                    // Apply to SettingsActivity immediately
+                    View rootView = findViewById(android.R.id.content);
+                    ThemeApplier.applyThemeToHierarchy(rootView);
+
+                    // DIRECT CALL - forces MainActivity to refresh instantly
+                    MainActivity.refreshTheme();
+
                     Toast.makeText(this, "Applied: " + theme.name, Toast.LENGTH_SHORT).show();
-                    recreate(); // Refresh activity to apply theme
                 });
             });
         }
@@ -248,6 +313,131 @@ public class SettingsActivity extends AppCompatActivity {
         if (btnNativeSettings != null) {
             updateNativeSettingsButton(btnNativeSettings);
         }
+    }
+
+    /**
+     * Set window size to match the launching activity (MainActivity).
+     * MainActivity passes its current window dimensions via Intent extras
+     * (window_width, window_height) so the Settings panel renders at the
+     * same size as the main launcher, even when the launcher has been
+     * resized in Horizon Home.
+     *
+     * Falls back to Meta's standard size (1024x640 dp) if extras aren't
+     * provided (e.g., direct launch via adb).
+     */
+    private void setMetaStandardWindowSize() {
+        Window window = getWindow();
+        float density = getResources().getDisplayMetrics().density;
+
+        // Try to read window dimensions passed from MainActivity
+        int widthPx = getIntent().getIntExtra("window_width", 0);
+        int heightPx = getIntent().getIntExtra("window_height", 0);
+
+        Log.d("SettingsActivity", "Intent extras: " + widthPx + "x" + heightPx + "px");
+
+        // Sanity check - if dimensions are too small (e.g., 0 or phone-size),
+        // fall back to Meta standard. This catches cases where the launcher
+        // hadn't fully laid out at click time.
+        int minAcceptablePx = (int) (700 * density);  // ~700dp minimum
+        if (widthPx < minAcceptablePx || heightPx < minAcceptablePx) {
+            widthPx = (int) (META_STANDARD_WIDTH_DP * density);
+            heightPx = (int) (META_STANDARD_HEIGHT_DP * density);
+            Log.d("SettingsActivity", "Using fallback Meta standard: " + widthPx + "x" + heightPx + "px");
+        } else {
+            Log.d("SettingsActivity", "Using MainActivity dimensions: " + widthPx + "x" + heightPx + "px");
+        }
+
+        // Apply via both setAttributes AND setLayout for maximum effect.
+        // setAttributes alone can be overridden by the dialog theme's window
+        // constraints; setLayout forces the size unconditionally.
+        android.view.WindowManager.LayoutParams params = window.getAttributes();
+        params.width = widthPx;
+        params.height = heightPx;
+        params.gravity = android.view.Gravity.CENTER;
+        window.setAttributes(params);
+        window.setLayout(widthPx, heightPx);
+
+        // Set minimum size so user can't shrink it below comfortable usability
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            int minWidthPx = (int) (800 * density);
+            int minHeightPx = (int) (500 * density);
+            window.getDecorView().setMinimumWidth(minWidthPx);
+            window.getDecorView().setMinimumHeight(minHeightPx);
+        }
+
+        Log.d("SettingsActivity", "Final window size: " + widthPx + "x" + heightPx + "px");
+    }
+
+    /**
+     * Send broadcast to MainActivity to update theme in real-time
+     */
+    private void sendThemeChangedBroadcast() {
+        Intent intent = new Intent(ACTION_THEME_CHANGED);
+        sendBroadcast(intent);
+        Log.d("SettingsActivity", "Theme change broadcast sent");
+    }
+
+    /**
+     * Tell MainActivity that categories have changed (create/rename/delete/modify).
+     * MainActivity will rebuild the category bar and refresh the app cards
+     * so removed categories disappear immediately without needing a refresh.
+     */
+    private void sendCategoriesChangedBroadcast() {
+        Intent intent = new Intent(ACTION_CATEGORIES_CHANGED);
+        // Explicit package - required on Android 13+ for receivers in separate tasks
+        intent.setPackage(getPackageName());
+        sendBroadcast(intent);
+        Log.d("SettingsActivity", "Categories change broadcast sent to " + getPackageName());
+    }
+
+    /**
+     * Convert seekbar progress (0-100) to icon size in dp using the old launcher scale mapping
+     * This maps to the 5 discrete values: 82, 99, 125, 165, 236
+     */
+    private int convertSeekProgressToIconSizeDp(int progress) {
+        // Map progress ranges to the 5 discrete values
+        if (progress <= 20) {
+            return ICON_SCALES_DP[0]; // 82dp
+        } else if (progress <= 40) {
+            return ICON_SCALES_DP[1]; // 99dp
+        } else if (progress <= 60) {
+            return ICON_SCALES_DP[2]; // 125dp
+        } else if (progress <= 80) {
+            return ICON_SCALES_DP[3]; // 165dp
+        } else {
+            return ICON_SCALES_DP[4]; // 236dp
+        }
+    }
+
+    /**
+     * Convert scale index (0-4) to seekbar progress (0-100)
+     */
+    private int convertScaleIndexToSeekProgress(int scaleIndex) {
+        switch (scaleIndex) {
+            case 0: return 10;  // 82dp
+            case 1: return 30;  // 99dp
+            case 2: return 50;  // 125dp (default)
+            case 3: return 70;  // 165dp
+            case 4: return 90;  // 236dp
+            default: return 50;
+        }
+    }
+
+    /**
+     * Convert icon size dp to the closest scale index (0-4)
+     */
+    private int convertIconSizeDpToScaleIndex(int iconSizeDp) {
+        int closestIndex = DEFAULT_SCALE_INDEX;
+        int smallestDiff = Math.abs(iconSizeDp - ICON_SCALES_DP[DEFAULT_SCALE_INDEX]);
+
+        for (int i = 0; i < ICON_SCALES_DP.length; i++) {
+            int diff = Math.abs(iconSizeDp - ICON_SCALES_DP[i]);
+            if (diff < smallestDiff) {
+                smallestDiff = diff;
+                closestIndex = i;
+            }
+        }
+        return closestIndex;
     }
 
     /**
@@ -466,29 +656,17 @@ public class SettingsActivity extends AppCompatActivity {
             for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
                 Object value = entry.getValue();
 
-                // DEBUG: Log the actual type
-                android.util.Log.d("SettingsActivity", "Key: " + entry.getKey() +
-                        ", Value: " + value +
-                        ", Type: " + (value != null ? value.getClass().getName() : "null"));
-
                 if (value instanceof Boolean) {
-                    android.util.Log.d("SettingsActivity", "  -> Saving as Boolean");
                     prefsData.put(entry.getKey(), (Boolean) value);
                 } else if (value instanceof Integer) {
-                    android.util.Log.d("SettingsActivity", "  -> Saving as Integer");
                     prefsData.put(entry.getKey(), (Integer) value);
                 } else if (value instanceof Long) {
-                    android.util.Log.d("SettingsActivity", "  -> Saving as Long");
                     prefsData.put(entry.getKey(), (Long) value);
                 } else if (value instanceof Float) {
-                    android.util.Log.d("SettingsActivity", "  -> Saving as Float");
                     prefsData.put(entry.getKey(), (Float) value);
                 } else if (value instanceof Set) {
-                    android.util.Log.d("SettingsActivity", "  -> Skipping Set");
-                    // Skip sets here, they go in categories
                     continue;
                 } else {
-                    android.util.Log.d("SettingsActivity", "  -> Saving as String");
                     prefsData.put(entry.getKey(), String.valueOf(value));
                 }
             }
@@ -504,7 +682,6 @@ public class SettingsActivity extends AppCompatActivity {
             }
             backup.put("categories", categoriesData);
 
-            // Quest VR doesn't support file picker reliably - save directly to /sdcard/
             String fileName = "vrlauncher_backup_" +
                     new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()) + ".json";
 
@@ -515,14 +692,10 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    // Fallback method: save to /sdcard/evolve_backups with permission check
     private void saveBackupDirectly(JSONObject backup, String fileName) {
         try {
-            // Check if we have permission to write to external storage
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                // Android 11+ requires MANAGE_EXTERNAL_STORAGE permission
                 if (!Environment.isExternalStorageManager()) {
-                    // Show dialog explaining why we need this permission
                     ThemedDialog.showThemed(new AlertDialog.Builder(this)
                             .setTitle("Storage Permission Needed")
                             .setMessage("To save backups to /sdcard/, we need storage access permission.\n\nWould you like to grant this permission now?")
@@ -544,53 +717,34 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             }
 
-            // Create /sdcard/evolve_backups directory
             File externalStorage = Environment.getExternalStorageDirectory();
             File backupDir = new File(externalStorage, "evolve_backups");
 
-            // Create directory if it doesn't exist
             if (!backupDir.exists()) {
                 boolean created = backupDir.mkdirs();
-                android.util.Log.i("SettingsActivity", "Creating backup directory: " + backupDir.getAbsolutePath() + ", created=" + created);
-
                 if (!created && !backupDir.exists()) {
                     throw new Exception("Failed to create backup directory. Please grant storage permission in Settings.");
                 }
             }
 
-            // Verify directory exists and is writable
-            if (!backupDir.exists()) {
-                throw new Exception("Backup directory doesn't exist: " + backupDir.getAbsolutePath());
-            }
-
-            if (!backupDir.canWrite()) {
+            if (!backupDir.exists() || !backupDir.canWrite()) {
                 throw new Exception("Backup directory not writable. Please grant storage permission in Settings.");
             }
 
             File backupFile = new File(backupDir, fileName);
-            android.util.Log.i("SettingsActivity", "Writing backup to: " + backupFile.getAbsolutePath());
-
             FileOutputStream fos = new FileOutputStream(backupFile);
             fos.write(backup.toString(2).getBytes());
             fos.flush();
             fos.close();
 
-            android.util.Log.i("SettingsActivity", "Backup saved successfully: " + backupFile.getAbsolutePath());
-
-            // Show success dialog instead of toast (more reliable on Quest)
-            android.util.Log.d("SettingsActivity", "Creating success dialog...");
             try {
                 AlertDialog dialog = new AlertDialog.Builder(this)
                         .setTitle("✅ Backup Successful")
                         .setMessage("Backup saved to:\n\n/sdcard/evolve_backups/" + fileName)
                         .setPositiveButton("OK", null)
                         .create();
-                android.util.Log.d("SettingsActivity", "Showing dialog...");
                 ThemedDialog.showThemed(dialog);
-                android.util.Log.d("SettingsActivity", "Dialog shown successfully");
             } catch (Exception dialogEx) {
-                android.util.Log.e("SettingsActivity", "Failed to show dialog: " + dialogEx.getMessage(), dialogEx);
-                // Fallback to toast if dialog fails
                 Toast.makeText(this, "Backup saved to:\n/sdcard/evolve_backups/" + fileName, Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
@@ -604,12 +758,10 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void restoreLayout() {
-        // Use Storage Access Framework to let user choose backup file
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/json");
 
-        // Optional: specify initial directory
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Uri initialUri = Uri.parse("content://com.android.externalstorage.documents/document/primary%3A");
             intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialUri);
@@ -618,35 +770,72 @@ public class SettingsActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_CODE_OPEN_BACKUP);
     }
 
-    // SINGLE onActivityResult method handling all cases
+    // ===== AUTO-CLOSE WHEN FOCUS RETURNS TO LAUNCHER =====
+
+    @Override
+    public void startActivity(Intent intent) {
+        // Mark that we're launching a sub-activity so the auto-close logic
+        // doesn't fire us while we're temporarily in the background.
+        expectingFocusReturn = true;
+        super.startActivity(intent);
+    }
+
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        expectingFocusReturn = true;
+        super.startActivityForResult(intent, requestCode);
+    }
+
+    /**
+     * Called when this activity gains or loses the "top resumed activity"
+     * status. This is the right signal for auto-closing: it fires when
+     * ANOTHER activity becomes top (user clicked launcher, or we launched
+     * a sub-activity), but NOT when dialogs open on top of us (because
+     * dialogs are part of our own window).
+     *
+     * Available since Android 10 (API 29). Quest 3 runs Android 14.
+     */
+    @Override
+    public void onTopResumedActivityChanged(boolean isTopResumedActivity) {
+        super.onTopResumedActivityChanged(isTopResumedActivity);
+
+        if (isTopResumedActivity) {
+            // We became the top activity (just opened, or a sub-activity returned).
+            expectingFocusReturn = false;
+            return;
+        }
+
+        if (isFinishing() || expectingFocusReturn) {
+            return;
+        }
+
+        // We lost top-resumed status and weren't expecting it. The user
+        // tapped on the main launcher panel - close ourselves.
+        Log.d("SettingsActivity", "Auto-closing - launcher gained focus");
+        finish();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        // Sub-activity returned - clear the flag so future focus loss closes us.
+        expectingFocusReturn = false;
 
-        // Handle theme background image picker
         if (com.jarjarblinkz.EvolveLauncher.theme.ThemeSelectorDialog.handleImageResult(requestCode, resultCode, data)) {
-            return; // Handled by theme dialog
+            return;
         }
 
-        // Handle usage access permission return
         if (requestCode == REQUEST_CODE_USAGE_ACCESS) {
-            // onResume will re-check and update the button automatically
             if (hasUsageStatsPermission()) {
                 Toast.makeText(this, "Usage Access granted! Playtime tracking is now active.", Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, "Usage Access not granted. Playtime stats won't be available.", Toast.LENGTH_LONG).show();
             }
-        }
-
-        // Handle backup creation
-        else if (requestCode == REQUEST_CODE_CREATE_BACKUP) {
+        } else if (requestCode == REQUEST_CODE_CREATE_BACKUP) {
             if (resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
                 saveBackupToUri(data.getData());
             }
-        }
-
-        // Handle backup restore
-        else if (requestCode == REQUEST_CODE_OPEN_BACKUP) {
+        } else if (requestCode == REQUEST_CODE_OPEN_BACKUP) {
             if (resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
                 restoreFromUri(data.getData());
             }
@@ -657,7 +846,6 @@ public class SettingsActivity extends AppCompatActivity {
         try {
             JSONObject backup = new JSONObject();
 
-            // Save VRLPrefs - preserve types
             JSONObject prefsData = new JSONObject();
             for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
                 Object value = entry.getValue();
@@ -670,7 +858,6 @@ public class SettingsActivity extends AppCompatActivity {
                 } else if (value instanceof Float) {
                     prefsData.put(entry.getKey(), (Float) value);
                 } else if (value instanceof Set) {
-                    // Skip sets here, they go in categories
                     continue;
                 } else {
                     prefsData.put(entry.getKey(), String.valueOf(value));
@@ -678,7 +865,6 @@ public class SettingsActivity extends AppCompatActivity {
             }
             backup.put("vrprefs", prefsData);
 
-            // Save categories (these are StringSets)
             JSONObject categoriesData = new JSONObject();
             for (Map.Entry<String, ?> entry : categoryPrefs.getAll().entrySet()) {
                 if (entry.getValue() instanceof Set) {
@@ -688,7 +874,6 @@ public class SettingsActivity extends AppCompatActivity {
             }
             backup.put("categories", categoriesData);
 
-            // Write to the selected URI
             getContentResolver().openOutputStream(uri).write(backup.toString(2).getBytes());
 
             Toast.makeText(this, "Backup saved successfully!", Toast.LENGTH_LONG).show();
@@ -700,20 +885,17 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void restoreFromUri(Uri uri) {
         try {
-            // Read from URI
             byte[] data = new byte[getContentResolver().openInputStream(uri).available()];
             getContentResolver().openInputStream(uri).read(data);
 
             String backupStr = new String(data);
             JSONObject backup = new JSONObject(backupStr);
 
-            // VALIDATE the backup has required sections
             if (!backup.has("vrprefs") || !backup.has("categories")) {
                 Toast.makeText(this, "Invalid backup file - missing required data", Toast.LENGTH_LONG).show();
                 return;
             }
 
-            // Clear and restore VRLPrefs with proper types
             SharedPreferences.Editor prefsEditor = prefs.edit();
             prefsEditor.clear();
 
@@ -730,7 +912,6 @@ public class SettingsActivity extends AppCompatActivity {
                 Object value = prefsData.get(key);
 
                 if (key != null && !key.isEmpty()) {
-                    // Restore with correct type
                     if (value instanceof Boolean) {
                         prefsEditor.putBoolean(key, (Boolean) value);
                     } else if (value instanceof Integer) {
@@ -751,7 +932,6 @@ public class SettingsActivity extends AppCompatActivity {
                 return;
             }
 
-            // Restore categories
             SharedPreferences.Editor catEditor = categoryPrefs.edit();
             catEditor.clear();
 
@@ -782,12 +962,10 @@ public class SettingsActivity extends AppCompatActivity {
                 return;
             }
 
-            // Show success message with restart option
             ThemedDialog.showThemed(new AlertDialog.Builder(this)
                     .setTitle("Restore Complete")
                     .setMessage("Settings restored successfully!\n\nRestart the launcher now to apply changes?")
                     .setPositiveButton("Restart Now", (d, w) -> {
-                        // Kill the app process completely
                         android.os.Process.killProcess(android.os.Process.myPid());
                     })
                     .setNegativeButton("Later", (d, w) -> {
@@ -800,7 +978,6 @@ public class SettingsActivity extends AppCompatActivity {
             e.printStackTrace();
             Toast.makeText(this, "Restore failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
 
-            // Option to clear corrupted preferences
             ThemedDialog.showThemed(new AlertDialog.Builder(this)
                     .setTitle("Restore Failed")
                     .setMessage("The backup file may be corrupted.\n\nWould you like to clear all settings and start fresh?")
@@ -816,16 +993,6 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     // ===== END BACKUP & RESTORE METHODS =====
-
-
-    private int convertSeekPositionToIconSize(int pos) {
-        return 80 + (pos * 60 / 100);
-    }
-
-    private int convertIconSizeToSeekPosition(int size) {
-        return (size - 80) * 100 / 60;
-    }
-
 
     private void showCreateCategoryDialog() {
         Set<String> existingCategories = new HashSet<>();
@@ -850,6 +1017,7 @@ public class SettingsActivity extends AppCompatActivity {
                             showCreateCategoryDialog();
                         } else {
                             categoryPrefs.edit().putStringSet("cat_" + name, new HashSet<>()).apply();
+                            sendCategoriesChangedBroadcast();
                             Toast.makeText(this, "Category '" + name + "' created", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -861,23 +1029,16 @@ public class SettingsActivity extends AppCompatActivity {
     private void showCategoryManager() {
         Map<String, ?> allEntries = categoryPrefs.getAll();
 
-        Log.d("SettingsActivity", "All entries in categoryPrefs: " + allEntries.toString());
-
         List<String> categoryNames = new ArrayList<>();
 
         for (String key : allEntries.keySet()) {
-            Log.d("SettingsActivity", "Checking key: " + key);
             if (key.startsWith("cat_")) {
                 String categoryName = key.substring(4);
-                Log.d("SettingsActivity", "Found category: " + categoryName);
                 categoryNames.add(categoryName);
             }
         }
 
         Collections.sort(categoryNames);
-
-        Log.d("SettingsActivity", "Total categories found: " + categoryNames.size());
-        Log.d("SettingsActivity", "Category names: " + categoryNames.toString());
 
         if (categoryNames.isEmpty()) {
             ThemedDialog.showThemed(new AlertDialog.Builder(this)
@@ -898,7 +1059,6 @@ public class SettingsActivity extends AppCompatActivity {
                 .setTitle("Category Manager (" + categoryNames.size() + " categories)")
                 .setItems(categoriesArray, (d, w) -> {
                     String selectedCategory = categoriesArray[w];
-                    Log.d("SettingsActivity", "Selected category: " + selectedCategory);
                     showCategoryOptions(selectedCategory);
                 })
                 .setPositiveButton("Create New", (d, w) -> showCreateCategoryDialog());
@@ -913,15 +1073,11 @@ public class SettingsActivity extends AppCompatActivity {
 
         AlertDialog dialog = builder.create();
         ThemedDialog.showThemed(dialog);
-
-        Log.d("SettingsActivity", "Dialog created with " + categoriesArray.length + " items");
     }
 
     private void showCategoryOptions(String categoryName) {
         Set<String> appsInCategory = categoryPrefs.getStringSet("cat_" + categoryName, new HashSet<>());
         int appCount = appsInCategory != null ? appsInCategory.size() : 0;
-
-        Log.d("SettingsActivity", "Category: " + categoryName + " has " + appCount + " apps");
 
         String[] options = {
                 "View Apps (" + appCount + " apps)",
@@ -1022,6 +1178,17 @@ public class SettingsActivity extends AppCompatActivity {
                 .remove("cat_" + oldName)
                 .apply();
 
+        // Update per-app category references in main prefs
+        if (apps != null && !apps.isEmpty()) {
+            SharedPreferences.Editor editor = prefs.edit();
+            for (String packageName : apps) {
+                editor.putString("cat_" + packageName, newName);
+            }
+            editor.apply();
+        }
+
+        sendCategoriesChangedBroadcast();
+
         Toast.makeText(this, "Category renamed to " + newName, Toast.LENGTH_SHORT).show();
         showCategoryManager();
     }
@@ -1046,9 +1213,23 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void deleteCategory(String categoryName) {
+        // CRITICAL: Also clear per-app category references in main prefs.
+        // Without this, restarting the launcher would re-apply the deleted
+        // category to the same apps (badge reappears on cards).
+        Set<String> appsInCategory = categoryPrefs.getStringSet("cat_" + categoryName, new HashSet<>());
+        if (appsInCategory != null && !appsInCategory.isEmpty()) {
+            SharedPreferences.Editor editor = prefs.edit();
+            for (String packageName : appsInCategory) {
+                editor.remove("cat_" + packageName);
+            }
+            editor.apply();
+        }
+
         categoryPrefs.edit()
                 .remove("cat_" + categoryName)
                 .apply();
+
+        sendCategoriesChangedBroadcast();
 
         Toast.makeText(this, "Category '" + categoryName + "' deleted", Toast.LENGTH_SHORT).show();
         showCategoryManager();
@@ -1078,7 +1259,22 @@ public class SettingsActivity extends AppCompatActivity {
                 .setTitle("Delete All Categories")
                 .setMessage(message)
                 .setPositiveButton("Delete All", (d, w) -> {
+                    // Clear per-app category references from main prefs first
+                    Set<String> allCategorizedPackages = new HashSet<>();
+                    for (Map.Entry<String, ?> entry : categoryPrefs.getAll().entrySet()) {
+                        if (entry.getKey().startsWith("cat_")) {
+                            Set<String> apps = categoryPrefs.getStringSet(entry.getKey(), null);
+                            if (apps != null) allCategorizedPackages.addAll(apps);
+                        }
+                    }
+                    SharedPreferences.Editor editor = prefs.edit();
+                    for (String packageName : allCategorizedPackages) {
+                        editor.remove("cat_" + packageName);
+                    }
+                    editor.apply();
+
                     categoryPrefs.edit().clear().apply();
+                    sendCategoriesChangedBroadcast();
                     Toast.makeText(this, "All categories deleted", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Cancel", null)
@@ -1087,12 +1283,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     // ===== AUTO-RESTART TOGGLE =====
 
-    /**
-     * Setup Auto-Restart toggle
-     * Allows users to enable/disable the VRShellMonitor service
-     */
     private void setupAutoRestartToggle() {
-        // Find the toggle switch
         SwitchCompat autoRestartSwitch = findViewById(R.id.autoRestartSwitch);
         TextView autoRestartStatus = findViewById(R.id.autoRestartStatus);
 
@@ -1101,24 +1292,17 @@ public class SettingsActivity extends AppCompatActivity {
             return;
         }
 
-        // Load current setting
         boolean isEnabled = prefs.getBoolean("auto_restart_enabled", true);
         autoRestartSwitch.setChecked(isEnabled);
         updateAutoRestartStatus(autoRestartStatus, isEnabled);
 
-        // Handle toggle changes
         autoRestartSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            // Save preference
             prefs.edit().putBoolean("auto_restart_enabled", isChecked).apply();
-
-            // Update status text
             updateAutoRestartStatus(autoRestartStatus, isChecked);
 
-            // Start or stop the service
             Intent serviceIntent = new Intent(this, VRShellMonitorService.class);
 
             if (isChecked) {
-                // Enable: Start the service
                 try {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         startForegroundService(serviceIntent);
@@ -1126,17 +1310,14 @@ public class SettingsActivity extends AppCompatActivity {
                         startService(serviceIntent);
                     }
                     Toast.makeText(this, "Auto-restart enabled", Toast.LENGTH_SHORT).show();
-                    Log.i("SettingsActivity", "Auto-restart enabled - service started");
                 } catch (Exception e) {
                     Log.e("SettingsActivity", "Failed to start service", e);
                     Toast.makeText(this, "Failed to enable auto-restart", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                // Disable: Stop the service
                 try {
                     stopService(serviceIntent);
                     Toast.makeText(this, "Auto-restart disabled", Toast.LENGTH_SHORT).show();
-                    Log.i("SettingsActivity", "Auto-restart disabled - service stopped");
                 } catch (Exception e) {
                     Log.e("SettingsActivity", "Failed to stop service", e);
                 }
@@ -1144,44 +1325,34 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Update auto-restart status text
-     */
     private void updateAutoRestartStatus(TextView statusText, boolean isEnabled) {
         if (statusText == null) return;
 
         if (isEnabled) {
             statusText.setText(R.string.auto_restart_enabled);
-            statusText.setTextColor(0xFF4CAF50); // Green
+            statusText.setTextColor(0xFF4CAF50);
         } else {
             statusText.setText(R.string.auto_restart_disabled);
-            statusText.setTextColor(0xFF9E9E9E); // Gray
+            statusText.setTextColor(0xFF9E9E9E);
         }
     }
 
     // ===== VERSION & UPDATES =====
 
-    /**
-     * Setup version display and update checker
-     */
     private void setupVersionAndUpdates() {
-        // Find UI elements
         TextView txtCurrentVersion = findViewById(R.id.txtCurrentVersion);
         AppCompatButton btnCheckUpdates = findViewById(R.id.btnCheckUpdates);
         SwitchCompat switchAutoUpdate = findViewById(R.id.switchAutoUpdate);
 
-        // Set current version from BuildConfig
         if (txtCurrentVersion != null) {
             try {
                 String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
                 txtCurrentVersion.setText(versionName);
             } catch (Exception e) {
-                Log.e("SettingsActivity", "Error getting version", e);
                 txtCurrentVersion.setText("Unknown");
             }
         }
 
-        // Setup auto-update toggle
         if (switchAutoUpdate != null) {
             boolean autoUpdateEnabled = prefs.getBoolean("auto_update_enabled", true);
             switchAutoUpdate.setChecked(autoUpdateEnabled);
@@ -1194,22 +1365,50 @@ public class SettingsActivity extends AppCompatActivity {
             });
         }
 
-        // Setup check for updates button
         if (btnCheckUpdates != null) {
             btnCheckUpdates.setOnClickListener(v -> {
                 Toast.makeText(this, "Checking for updates...", Toast.LENGTH_SHORT).show();
 
-                // Create UpdateManager and check for updates
                 UpdateManager updateManager = new UpdateManager(this);
 
                 updateManager.checkForUpdates(new UpdateManager.UpdateCallback() {
                     @Override
                     public void onUpdateAvailable(String version, String downloadUrl, String releaseNotes) {
-                        // Show update dialog
+                        android.widget.LinearLayout container = new android.widget.LinearLayout(SettingsActivity.this);
+                        container.setOrientation(android.widget.LinearLayout.VERTICAL);
+                        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+                        container.setPadding(padding, padding, padding, padding);
+
+                        android.widget.TextView versionInfo = new android.widget.TextView(SettingsActivity.this);
+                        versionInfo.setText("Version " + version + " is available!");
+                        versionInfo.setTextSize(13);
+                        versionInfo.setTypeface(null, android.graphics.Typeface.BOLD);
+                        versionInfo.setPadding(0, 0, 0, padding);
+                        container.addView(versionInfo);
+
+                        android.widget.TextView notesView = new android.widget.TextView(SettingsActivity.this);
+                        notesView.setTextSize(12);
+                        notesView.setLineSpacing(0, 1.2f);
+                        notesView.setTextIsSelectable(true);
+
+                        String html = UpdateManager.markdownToHtml(releaseNotes);
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                            notesView.setText(android.text.Html.fromHtml(html, android.text.Html.FROM_HTML_MODE_COMPACT));
+                        } else {
+                            notesView.setText(android.text.Html.fromHtml(html));
+                        }
+                        notesView.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+
+                        android.widget.ScrollView scroll = new android.widget.ScrollView(SettingsActivity.this);
+                        scroll.addView(notesView);
+                        int maxHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.6);
+                        scroll.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                                android.widget.LinearLayout.LayoutParams.MATCH_PARENT, maxHeight));
+                        container.addView(scroll);
+
                         ThemedDialog.showThemed(new AlertDialog.Builder(SettingsActivity.this)
                                 .setTitle("Update Available! 🎉")
-                                .setMessage("Version " + version + " is available!\n\n" +
-                                        "Release Notes:\n" + releaseNotes)
+                                .setView(container)
                                 .setPositiveButton("Download", (d, w) -> {
                                     updateManager.downloadAndInstall(downloadUrl);
                                 })
@@ -1229,27 +1428,18 @@ public class SettingsActivity extends AppCompatActivity {
                     @Override
                     public void onError(String error) {
                         Toast.makeText(SettingsActivity.this, error, Toast.LENGTH_LONG).show();
-                        Log.e("SettingsActivity", "Update check error: " + error);
                     }
                 });
             });
         }
     }
 
-    /**
-     * Launch Quest's native Android Settings directly using the gotosettings approach.
-     * No helper APK needed - just uses standard Android intents.
-     * Reference: https://github.com/arpruss/gotosettings
-     */
     private void launchNativeSettings() {
         goToSettings();
     }
 
     // ===== SHIZUKU INTEGRATION =====
 
-    /**
-     * Initialize Shizuku manager for shell-level commands
-     */
     private void initializeShizuku() {
         shizukuManager = new ShizukuManager(this);
 
@@ -1273,9 +1463,6 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Show Shizuku setup dialog - checks status and offers installation
-     */
     private void showShizukuSetupDialog() {
         ShizukuInstaller installer = new ShizukuInstaller(this);
         ShizukuInstaller.InstallStatus status = installer.getStatus();
@@ -1297,9 +1484,6 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Step 1: Offer to install Shizuku from bundled APK
-     */
     private void showInstallShizukuDialog(ShizukuInstaller installer) {
         ThemedDialog.showThemed(new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("📦 Install Shizuku")
@@ -1311,18 +1495,15 @@ public class SettingsActivity extends AppCompatActivity {
                 .setPositiveButton("Install", (dialog, which) -> {
                     boolean started = installer.installShizuku();
                     if (started) {
-                        Toast.makeText(this, "Follow the installer prompts...", Toast.LENGTH_LONG).show();
+                        Toast.makeText(SettingsActivity.this, "Follow the installer prompts...", Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(this, "❌ Failed to start installer", Toast.LENGTH_LONG).show();
+                        Toast.makeText(SettingsActivity.this, "❌ Failed to start installer", Toast.LENGTH_LONG).show();
                     }
                 })
                 .setNegativeButton("Not Now", null)
                 .create());
     }
 
-    /**
-     * Step 2: Shizuku installed but server not running - show setup instructions
-     */
     private void showStartShizukuDialog(ShizukuInstaller installer) {
         String instructions = shizukuManager != null ?
                 shizukuManager.getSetupInstructions() : "Configure Shizuku to enable features";
@@ -1334,16 +1515,13 @@ public class SettingsActivity extends AppCompatActivity {
                         instructions)
                 .setPositiveButton("Open Shizuku", (dialog, which) -> {
                     if (!installer.launchShizukuApp()) {
-                        Toast.makeText(this, "❌ Could not open Shizuku app", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SettingsActivity.this, "❌ Could not open Shizuku app", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("Close", null)
                 .create());
     }
 
-    /**
-     * Step 3: Shizuku running - grant permission
-     */
     private void showGrantPermissionDialog() {
         ThemedDialog.showThemed(new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("🔓 Grant Permission")
@@ -1359,9 +1537,6 @@ public class SettingsActivity extends AppCompatActivity {
                 .create());
     }
 
-    /**
-     * Fallback: Shizuku APK not bundled - show manual instructions
-     */
     private void showManualSetupDialog() {
         String status = shizukuManager != null ? shizukuManager.getStatusMessage() : "⚠️ Shizuku not initialized";
         String instructions = shizukuManager != null ? shizukuManager.getSetupInstructions() : "";
@@ -1380,9 +1555,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     // ===== QUEST UTILITIES =====
 
-    /**
-     * Clear VrShell data using Shizuku (resets to old UI)
-     */
     private void resetQuestUI() {
         if (shizukuManager == null || !shizukuManager.isReady()) {
             showShizukuSetupDialog();
@@ -1392,7 +1564,6 @@ public class SettingsActivity extends AppCompatActivity {
             return;
         }
 
-        // Confirm action
         ThemedDialog.showThemed(new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Clear VrShell Data?")
                 .setMessage("This will reset Quest UI to old style.\n\nAll VrShell settings will be reset.")
@@ -1404,9 +1575,6 @@ public class SettingsActivity extends AppCompatActivity {
                 .create());
     }
 
-    /**
-     * Force stop VrShell using Shizuku
-     */
     private void restartQuestUI() {
         if (shizukuManager == null || !shizukuManager.isReady()) {
             showShizukuSetupDialog();
@@ -1416,7 +1584,6 @@ public class SettingsActivity extends AppCompatActivity {
             return;
         }
 
-        // Confirm action
         ThemedDialog.showThemed(new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Force Stop VrShell?")
                 .setMessage("This will stop VrShell.\n\nPress Quest button to restart it.")

@@ -193,26 +193,30 @@ public class FavoritesActivity extends AppCompatActivity {
     }
 
     /**
-     * Calculate column count - IDENTICAL logic to MainActivity.calculateOptimalColumns()
-     * Uses screen dimensions, not recyclerView width
+     * Calculate column count - matches MainActivity logic exactly.
+     * Uses the FULL card footprint (icon + padding + margin) so cards never shrink.
      */
     private int calculateColumnCount(int widthPixels) {
-        android.util.DisplayMetrics displayMetrics = new android.util.DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int screenWidthPx = displayMetrics.widthPixels;
-        int screenHeightPx = displayMetrics.heightPixels;
+        int usableWidthPx;
+        if (recyclerView != null && recyclerView.getWidth() > 0) {
+            usableWidthPx = recyclerView.getWidth();
+        } else {
+            android.util.DisplayMetrics displayMetrics = new android.util.DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int screenWidthPx = displayMetrics.widthPixels;
+            int screenHeightPx = displayMetrics.heightPixels;
+            usableWidthPx = Math.min(screenWidthPx, screenHeightPx);
+        }
 
-        int usableWidthPx = Math.min(screenWidthPx, screenHeightPx);
         int iconSizeDp = prefs.getInt("icon_size", 110);
-        int marginDp = 8;
-
         float density = getResources().getDisplayMetrics().density;
+
+        // Same calculation as MainActivity - use FULL card footprint
         int iconWidthPx = (int) (iconSizeDp * density);
-        int marginPx = (int) (marginDp * density);
+        int cardExtraSpacePx = (int) (48 * density);  // padding + margin + decoration
+        int cellWidthPx = iconWidthPx + cardExtraSpacePx;
 
-        int availableWidth = usableWidthPx - (marginPx * 2);
-        int columns = availableWidth / (iconWidthPx + marginPx);
-
+        int columns = usableWidthPx / cellWidthPx;
         columns = Math.max(1, columns);
 
         if (iconSizeDp <= 90) {
@@ -221,12 +225,6 @@ public class FavoritesActivity extends AppCompatActivity {
             columns = Math.min(columns, 12);
         } else {
             columns = Math.min(columns, 10);
-        }
-
-        boolean isLandscape = screenWidthPx > screenHeightPx;
-        if (isLandscape && iconSizeDp <= 110) {
-            columns = (int) (columns * 1.3f);
-            columns = Math.min(columns, 15);
         }
 
         return columns;

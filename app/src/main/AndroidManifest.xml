@@ -99,8 +99,13 @@
             <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
             <meta-data android:name="com.oculus.forced3d" android:value="true" />
 
-            <!-- Quest panel positioning - center the window in Horizon Home -->
-            <layout android:gravity="center" />
+            <!-- Quest panel sizing - Meta's standard launcher panel size -->
+            <layout
+                android:defaultWidth="1024dp"
+                android:defaultHeight="640dp"
+                android:minWidth="800dp"
+                android:minHeight="500dp"
+                android:gravity="center" />
         </activity>
 
         <activity
@@ -108,13 +113,32 @@
             android:theme="@style/Theme.Evolve_Launcher"
             android:exported="false" />
 
-        <!-- Settings Activity - UPDATED FOR DIALOG STYLE -->
+
+        <!-- Settings Activity - SEPARATE WINDOW (Quest panel) -->
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.AppCompat.Dialog"
-            android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
+            android:taskAffinity=":settings"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
+            android:excludeFromRecents="true"
+            android:screenOrientation="unspecified"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|density|uiMode"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+
+            <!-- VR-specific metadata so Horizon treats it as a VR panel -->
+            <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
+            <meta-data android:name="com.oculus.forced3d" android:value="true" />
+
+            <!-- Quest panel sizing - matches Meta's standard launcher panel size -->
+            <layout
+                android:defaultWidth="1024dp"
+                android:defaultHeight="640dp"
+                android:minWidth="800dp"
+                android:minHeight="500dp"
+                android:gravity="center" />
+        </activity>
 
         <!-- Bundled Apps Installer Activity -->
         <activity
@@ -140,13 +164,6 @@
             android:theme="@style/Theme.AppCompat.Dialog"
             android:screenOrientation="landscape"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize" />
-
-        <!-- Settings Action Test Activity -->
-        <activity
-            android:name=".SettingsActionTestActivity"
-            android:exported="false"
-            android:theme="@style/Theme.AppCompat.Dialog"
-            android:screenOrientation="landscape" />
 
         <activity
             android:name=".DeviceInfoActivity"

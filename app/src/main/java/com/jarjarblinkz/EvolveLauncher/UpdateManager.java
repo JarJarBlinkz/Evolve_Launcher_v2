@@ -364,12 +364,43 @@ public class UpdateManager {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Update Available!");
 
-        String message = "A new version is available!\n\n" +
-                "Current Version: " + currentVersion + "\n" +
-                "New Version: " + newVersion + "\n\n" +
-                "Release Notes:\n" + releaseNotes;
+        // Build a custom view with scrollable, markdown-rendered release notes
+        android.widget.LinearLayout container = new android.widget.LinearLayout(context);
+        container.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int padding = (int) (16 * context.getResources().getDisplayMetrics().density);
+        container.setPadding(padding, padding, padding, padding);
 
-        builder.setMessage(message);
+        // Version info at top
+        android.widget.TextView versionInfo = new android.widget.TextView(context);
+        versionInfo.setText("Current: " + currentVersion + "  →  New: " + newVersion);
+        versionInfo.setTextSize(13);
+        versionInfo.setPadding(0, 0, 0, padding);
+        versionInfo.setTypeface(null, android.graphics.Typeface.BOLD);
+        container.addView(versionInfo);
+
+        // Release notes (markdown rendered to HTML)
+        android.widget.TextView notesView = new android.widget.TextView(context);
+        notesView.setTextSize(12);
+        notesView.setLineSpacing(0, 1.2f);
+        notesView.setTextIsSelectable(true);
+        String html = markdownToHtml(releaseNotes);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            notesView.setText(android.text.Html.fromHtml(html, android.text.Html.FROM_HTML_MODE_COMPACT));
+        } else {
+            notesView.setText(android.text.Html.fromHtml(html));
+        }
+        notesView.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+
+        // Wrap in scroll view since release notes can be long
+        android.widget.ScrollView scroll = new android.widget.ScrollView(context);
+        scroll.addView(notesView);
+        // Limit height to 60% of screen so dialog isn't huge
+        int maxHeight = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.6);
+        scroll.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT, maxHeight));
+        container.addView(scroll);
+
+        builder.setView(container);
         builder.setCancelable(true);
 
         builder.setPositiveButton("Download & Install", (dialog, which) -> {
@@ -389,11 +420,127 @@ public class UpdateManager {
         });
 
         builder.setNeutralButton("Skip This Version", (dialog, which) -> {
-            // You could save this version to skip it in the future
             dialog.dismiss();
         });
 
         builder.show();
+    }
+
+    /**
+     * Convert GitHub-flavored markdown to HTML for display in any dialog.
+     * Public static so SettingsActivity (and other classes) can use it too.
+     * Handles: headers, bold, italic, inline code, code blocks, lists, horizontal rules, line breaks.
+     */
+    public static String markdownToHtml(String markdown) {
+        if (markdown == null || markdown.isEmpty()) {
+            return "<i>No release notes available</i>";
+        }
+
+        StringBuilder html = new StringBuilder();
+        String[] lines = markdown.split("\n");
+        boolean inCodeBlock = false;
+        boolean inList = false;
+
+        for (String line : lines) {
+            // Code block fence
+            if (line.trim().startsWith("```")) {
+                if (inCodeBlock) {
+                    html.append("</pre>");
+                    inCodeBlock = false;
+                } else {
+                    if (inList) { html.append("</ul>"); inList = false; }
+                    html.append("<pre style=\"background:#222;padding:6px;\">");
+                    inCodeBlock = true;
+                }
+                continue;
+            }
+
+            if (inCodeBlock) {
+                html.append(escapeHtml(line)).append("<br>");
+                continue;
+            }
+
+            String trimmed = line.trim();
+
+            // Horizontal rule
+            if (trimmed.equals("---") || trimmed.equals("***") || trimmed.equals("___")) {
+                if (inList) { html.append("</ul>"); inList = false; }
+                html.append("<br><hr><br>");
+                continue;
+            }
+
+            // Headers (must be after trimming)
+            if (trimmed.startsWith("### ")) {
+                if (inList) { html.append("</ul>"); inList = false; }
+                html.append("<br><big><b>").append(inlineFormat(trimmed.substring(4))).append("</b></big><br>");
+                continue;
+            }
+            if (trimmed.startsWith("## ")) {
+                if (inList) { html.append("</ul>"); inList = false; }
+                html.append("<br><big><big><b>").append(inlineFormat(trimmed.substring(3))).append("</b></big></big><br>");
+                continue;
+            }
+            if (trimmed.startsWith("# ")) {
+                if (inList) { html.append("</ul>"); inList = false; }
+                html.append("<br><big><big><big><b>").append(inlineFormat(trimmed.substring(2))).append("</b></big></big></big><br>");
+                continue;
+            }
+
+            // List items
+            if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+                if (!inList) {
+                    html.append("<ul>");
+                    inList = true;
+                }
+                html.append("<li>").append(inlineFormat(trimmed.substring(2))).append("</li>");
+                continue;
+            }
+
+            // Empty line
+            if (trimmed.isEmpty()) {
+                if (inList) { html.append("</ul>"); inList = false; }
+                html.append("<br>");
+                continue;
+            }
+
+            // Regular paragraph
+            if (inList) { html.append("</ul>"); inList = false; }
+            html.append(inlineFormat(trimmed)).append("<br>");
+        }
+
+        if (inList) html.append("</ul>");
+        if (inCodeBlock) html.append("</pre>");
+
+        return html.toString();
+    }
+
+    /**
+     * Handle inline markdown formatting: **bold**, *italic*, `code`, [links](url)
+     */
+    private static String inlineFormat(String text) {
+        if (text == null) return "";
+        String result = text;
+
+        // Inline code first (before bold/italic to protect content)
+        result = result.replaceAll("`([^`]+)`", "<code style=\"background:#333;\">$1</code>");
+
+        // Bold: **text**
+        result = result.replaceAll("\\*\\*([^*]+)\\*\\*", "<b>$1</b>");
+
+        // Italic: *text* (only if not already consumed by bold)
+        result = result.replaceAll("(?<![*])\\*([^*]+)\\*(?![*])", "<i>$1</i>");
+
+        // Links: [text](url)
+        result = result.replaceAll("\\[([^\\]]+)\\]\\(([^)]+)\\)", "<a href=\"$2\">$1</a>");
+
+        return result;
+    }
+
+    private static String escapeHtml(String s) {
+        if (s == null) return "";
+        return s.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;");
     }
 
     /**

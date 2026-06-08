@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -133,6 +134,14 @@ public class ThemeApplier {
         if (view instanceof Button || view instanceof AppCompatButton) {
             Button btn = (Button) view;
             String tag = btn.getTag() != null ? btn.getTag().toString() : "";
+
+            // Skip status color preservation for category buttons (they are inside HorizontalScrollView)
+            if (btn.getParent() != null && btn.getParent().getParent() instanceof HorizontalScrollView) {
+                // This is a category button - always theme it with accent color
+                btn.setBackgroundTintList(ColorStateList.valueOf(theme.accentPrimary));
+                btn.setTextColor(Theme.getContrastColor(theme.accentPrimary));
+                return;
+            }
 
             int buttonBgColor;
 
@@ -362,11 +371,8 @@ public class ThemeApplier {
      * These should NEVER be themed - they need to remain consistent
      */
     private static boolean isStatusColor(int color) {
-        return color == Color.parseColor("#4CAF50") || // green - success/installed
-                color == Color.parseColor("#F44336") || // red - error/not installed
-                color == Color.parseColor("#D32F2F") || // dark red
-                color == Color.parseColor("#388E3C") || // dark green
-                color == Color.parseColor("#2E7D32"); // forest green
+        return color == Color.parseColor("#F44336") || // red - error/not installed
+                color == Color.parseColor("#D32F2F");   // dark red
     }
 
     private static boolean isWarningColor(int color) {

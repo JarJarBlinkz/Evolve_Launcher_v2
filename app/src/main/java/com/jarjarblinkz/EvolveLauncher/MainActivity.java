@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -89,6 +90,17 @@ public class MainActivity extends AppCompatActivity {
     private Map<String, Drawable> iconCache = new HashMap<>();
     private static final String GITHUB_ICON_BASE_URL = "https://raw.githubusercontent.com/JarJarBlinkz/LauncherIcons/main/oculus_landscape/";
 
+    // RESTORED: Icon scale values from old launcher (82, 99, 125, 165, 236 dp)
+    private static final int[] ICON_SCALES_DP = {82, 99, 125, 165, 236};
+    private static final int DEFAULT_SCALE_INDEX = 2;  // 125dp default
+
+    // Card overhead: margin (12dp each side = 24dp) + padding (8dp each side = 16dp) = 40dp total
+    private static final int CARD_HORIZONTAL_OVERHEAD_DP = 40;
+
+    // Broadcast action for theme changes
+    private static final String ACTION_THEME_CHANGED = "com.jarjarblinkz.EvolveLauncher.THEME_CHANGED";
+    private static final String ACTION_CATEGORIES_CHANGED = "com.jarjarblinkz.EvolveLauncher.CATEGORIES_CHANGED";
+
     private static final String[] SYSTEM_PACKAGES = {
             "com.android.settings",
             "com.android.systemui",
@@ -124,6 +136,35 @@ public class MainActivity extends AppCompatActivity {
 
     private static final boolean ENABLE_IMAGE_CACHING = true;
     public static MainActivity instance;
+
+    /**
+     * Force refresh theme on MainActivity from Settings
+     * Called directly from SettingsActivity when theme changes
+     */
+    public static void refreshTheme() {
+        if (instance != null) {
+            instance.runOnUiThread(() -> {
+                // Force complete refresh of all theme elements
+                View rootView = instance.findViewById(android.R.id.content);
+                ThemeApplier.applyThemeToHierarchy(rootView);
+                instance.updateBackground();
+                instance.refreshFloatingFavoritesColor();
+
+                // Refresh the app grid
+                if (instance.appAdapter != null) {
+                    instance.appAdapter.notifyDataSetChanged();
+                }
+
+                // Force layout redraw
+                if (instance.appsGrid != null) {
+                    instance.appsGrid.invalidate();
+                    instance.appsGrid.requestLayout();
+                }
+
+                Toast.makeText(instance, "Theme applied!", Toast.LENGTH_SHORT).show();
+            });
+        }
+    }
 
     private static final String PREFS_NAME = "VRLPrefs";
     private static final String KEY_PERMISSION_GRANTED = "usage_stats_permission_granted";
@@ -174,6 +215,81 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    // Theme change receiver for real-time updates from Settings
+    private BroadcastReceiver themeChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ACTION_THEME_CHANGED.equals(intent.getAction())) {
+                // Re-apply theme to MainActivity in real-time
+                runOnUiThread(() -> {
+                    View rootView = findViewById(android.R.id.content);
+                    ThemeApplier.applyThemeToHierarchy(rootView);
+                    updateBackground();
+                    refreshFloatingFavoritesColor();
+                    if (appAdapter != null) {
+                        appAdapter.notifyDataSetChanged();
+                    }
+                    Toast.makeText(MainActivity.this, "Theme updated", Toast.LENGTH_SHORT).show();
+                });
+            }
+        }
+    };
+
+    /**
+     * Receives broadcasts when categories are modified in Settings
+     * (create/rename/delete). Rebuilds the category bar and refreshes
+     * the app grid so removed categories vanish immediately - no manual
+     * refresh required.
+     */
+    private BroadcastReceiver categoryChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ACTION_CATEGORIES_CHANGED.equals(intent.getAction())) {
+                runOnUiThread(() -> {
+                    // 1. Reload the in-memory categories map from SharedPreferences
+                    loadCategories();
+
+                    // 2. CRITICAL: Recompute each app's .category field. The badge on
+                    //    each card is rendered from app.category which is cached on
+                    //    the AppInfo object - so we must update it manually here,
+                    //    otherwise deleted categories' badges persist.
+                    if (appList != null) {
+                        for (AppInfo app : appList) {
+                            String newCategory = "Uncategorized";
+                            for (Map.Entry<String, Set<String>> entry : categories.entrySet()) {
+                                if (entry.getValue().contains(app.packageName)) {
+                                    newCategory = entry.getKey();
+                                    break;
+                                }
+                            }
+                            app.category = newCategory;
+                        }
+                    }
+
+                    // 3. Rebuild the category bar at the bottom
+                    buildCategoryBar();
+
+                    // 4. If user was viewing a now-deleted category, switch to All Apps
+                    if (currentCategory != null && !"All Apps".equals(currentCategory)
+                            && !categories.containsKey(currentCategory)) {
+                        currentCategory = "All Apps";
+                        prefs.edit().putString("selected_category", "All Apps").apply();
+                        String query = searchEditText != null ? searchEditText.getText().toString() : "";
+                        filterApps(query);
+                    }
+                    updateCategoryButtonStates(currentCategory);
+
+                    // 5. Refresh visible cards so badges update
+                    if (appAdapter != null) {
+                        appAdapter.notifyDataSetChanged();
+                    }
+
+                    Log.d("MainActivity", "Categories refreshed - " + categories.size() + " categories");
+                });
+            }
+        }
+    };
+
     private Handler statusHandler = new Handler();
     private TextView txtTime;
     private TextView txtIP;
@@ -214,6 +330,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     // ===== END HELPER =====
+
+    /**
+     * Set window size to Meta's standard size (1024x640 dp)
+     */
+    private void setMetaStandardWindowSize() {
+        float density = getResources().getDisplayMetrics().density;
+        int widthPx = (int) (1024 * density);
+        int heightPx = (int) (640 * density);
+
+        Window window = getWindow();
+        android.view.WindowManager.LayoutParams params = window.getAttributes();
+        params.width = widthPx;
+        params.height = heightPx;
+        window.setAttributes(params);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            window.getDecorView().setMinimumWidth(widthPx);
+            window.getDecorView().setMinimumHeight(heightPx);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -352,6 +488,10 @@ public class MainActivity extends AppCompatActivity {
         appAdapter = new AppAdapter(filteredList);
         appsGrid.setAdapter(appAdapter);
 
+        // FIXED: Call setupRecyclerView() so the layout manager and
+        // dynamic resize listener are properly initialized
+        setupRecyclerView();
+
         // Build category bar and highlight the saved category
         buildCategoryBar();
         updateCategoryButtonStates(currentCategory);
@@ -366,6 +506,22 @@ public class MainActivity extends AppCompatActivity {
             registerReceiver(appChangeListener, filter, Context.RECEIVER_EXPORTED);
         } else {
             registerReceiver(appChangeListener, filter);
+        }
+
+        // Register theme change receiver for real-time updates from Settings
+        IntentFilter themeFilter = new IntentFilter(ACTION_THEME_CHANGED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(themeChangeReceiver, themeFilter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(themeChangeReceiver, themeFilter);
+        }
+
+        // Register category change receiver for real-time updates from Settings
+        IntentFilter categoryFilter = new IntentFilter(ACTION_CATEGORIES_CHANGED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(categoryChangeReceiver, categoryFilter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(categoryChangeReceiver, categoryFilter);
         }
 
         IntentFilter batteryFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -394,7 +550,30 @@ public class MainActivity extends AppCompatActivity {
 
         ImageView btnSettings = findViewById(R.id.btnSettings);
         btnSettings.setOnClickListener(v -> {
-            startActivity(new Intent(this, SettingsActivity.class));
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+
+            // Get Main window dimensions
+            android.graphics.Rect mainWindowRect = new android.graphics.Rect();
+            getWindow().getDecorView().getWindowVisibleDisplayFrame(mainWindowRect);
+
+            // Alternative: get actual window dimensions
+            int mainWidth = getWindow().getDecorView().getWidth();
+            int mainHeight = getWindow().getDecorView().getHeight();
+
+            if (mainWidth > 0 && mainHeight > 0) {
+                intent.putExtra("window_width", mainWidth);
+                intent.putExtra("window_height", mainHeight);
+            } else {
+                // Fallback to screen dimensions
+                android.util.DisplayMetrics metrics = new android.util.DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                intent.putExtra("window_width", metrics.widthPixels);
+                intent.putExtra("window_height", metrics.heightPixels);
+            }
+
+            startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
@@ -1077,14 +1256,39 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * RESTORED: Update icon sizes using the old launcher logic
+     * Sets a FIXED column width, letting the GridView calculate columns naturally
+     * This is what made the old launcher work perfectly on Quest
+     */
     public void updateIconSizes() {
-        // FIXED: Use safe boolean helper
         isEditMode = getBooleanPreference("edit_mode", false);
+
+        // Get the user's selected icon scale index (0-4, default 2 = 125dp)
+        int scaleIndex = prefs.getInt("icon_size_scale", DEFAULT_SCALE_INDEX);
+        int iconSizeDp = ICON_SCALES_DP[scaleIndex];
+
+        // Save the actual icon size in dp for the adapter to use
+        prefs.edit().putInt("icon_size", iconSizeDp).apply();
+
+        // Calculate columns based on fixed icon size
         int columns = calculateOptimalColumns();
-        GridLayoutManager layoutManager = new GridLayoutManager(this, columns);
-        appsGrid.setLayoutManager(layoutManager);
-        appAdapter.notifyDataSetChanged();
-        Toast.makeText(this, "Layout updated: " + columns + " columns", Toast.LENGTH_SHORT).show();
+
+        if (appsGrid != null) {
+            GridLayoutManager glm = (GridLayoutManager) appsGrid.getLayoutManager();
+            if (glm != null) {
+                glm.setSpanCount(columns);
+                if (gridSpacingDecoration != null) {
+                    gridSpacingDecoration.setSpanCount(columns);
+                }
+            }
+        }
+
+        if (appAdapter != null) {
+            appAdapter.notifyDataSetChanged();
+        }
+
+        Toast.makeText(this, "Icon size: " + iconSizeDp + "dp, " + columns + " columns", Toast.LENGTH_SHORT).show();
     }
 
     public void updateBackground() {
@@ -1159,6 +1363,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * FIXED: refreshAll() no longer creates a new GridLayoutManager.
+     * It just updates the span count on the existing one, keeping the
+     * OnLayoutChangeListener from setupRecyclerView() intact.
+     */
     public void refreshAll() {
         runOnUiThread(() -> {
             if (searchEditText != null) {
@@ -1184,9 +1393,14 @@ public class MainActivity extends AppCompatActivity {
             filterApps("");
 
             int columns = calculateOptimalColumns();
-            GridLayoutManager layoutManager = new GridLayoutManager(this, columns);
             if (appsGrid != null) {
-                appsGrid.setLayoutManager(layoutManager);
+                GridLayoutManager glm = (GridLayoutManager) appsGrid.getLayoutManager();
+                if (glm != null) {
+                    glm.setSpanCount(columns);
+                    if (gridSpacingDecoration != null) {
+                        gridSpacingDecoration.setSpanCount(columns);
+                    }
+                }
             }
 
             if (appAdapter != null) {
@@ -1206,6 +1420,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private GridSpacingItemDecoration gridSpacingDecoration;
+
     private void setupRecyclerView() {
         int columns = calculateOptimalColumns();
 
@@ -1224,8 +1440,58 @@ public class MainActivity extends AppCompatActivity {
         appsGrid.setItemAnimator(null);
 
         float density = getResources().getDisplayMetrics().density;
-        int spacingInPixels = (int) (4 * density);
-        appsGrid.addItemDecoration(new GridSpacingItemDecoration(columns, spacingInPixels, true));
+        int spacingInPixels = (int) (2 * density);
+        gridSpacingDecoration = new GridSpacingItemDecoration(columns, spacingInPixels, true);
+        appsGrid.addItemDecoration(gridSpacingDecoration);
+
+        // Listen for window resize - recalculate columns when appsGrid bounds change
+        // This handles multi-window resizing on Quest (no Activity restart)
+        appsGrid.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            int lastWidth = 0;
+            int lastHeight = 0;
+            Handler resizeHandler = new Handler();
+            Runnable resizeRunnable;
+
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                int newWidth = right - left;
+                int newHeight = bottom - top;
+
+                if ((newWidth == lastWidth && newHeight == lastHeight) || newWidth == 0) return;
+                lastWidth = newWidth;
+                lastHeight = newHeight;
+
+                // Debounce rapid resize events
+                if (resizeRunnable != null) {
+                    resizeHandler.removeCallbacks(resizeRunnable);
+                }
+
+                resizeRunnable = () -> {
+                    // Recalculate columns for new width
+                    int newColumns = calculateOptimalColumns();
+                    GridLayoutManager glm = (GridLayoutManager) appsGrid.getLayoutManager();
+                    if (glm != null && glm.getSpanCount() != newColumns) {
+                        glm.setSpanCount(newColumns);
+
+                        if (gridSpacingDecoration != null) {
+                            gridSpacingDecoration.setSpanCount(newColumns);
+                        }
+
+                        // Force adapter to recalculate item sizes
+                        if (appAdapter != null) {
+                            appAdapter.notifyDataSetChanged();
+                        }
+
+                        // Force grid to redraw
+                        appsGrid.invalidate();
+                        appsGrid.requestLayout();
+                    }
+                };
+
+                resizeHandler.postDelayed(resizeRunnable, 100);
+            }
+        });
     }
 
     public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
@@ -1237,6 +1503,10 @@ public class MainActivity extends AppCompatActivity {
             this.spanCount = spanCount;
             this.spacing = spacing;
             this.includeEdge = includeEdge;
+        }
+
+        public void setSpanCount(int spanCount) {
+            this.spanCount = spanCount;
         }
 
         @Override
@@ -1262,37 +1532,43 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * RESTORED: Calculate columns based on FIXED icon size (old launcher logic)
+     * This calculates how many fixed-size cards fit in the available width
+     * Instead of calculating icon size based on columns
+     */
     private int calculateOptimalColumns() {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int screenWidthPx = displayMetrics.widthPixels;
-        int screenHeightPx = displayMetrics.heightPixels;
+        // Get current window width - in multi-window mode this differs from full screen
+        int usableWidthPx;
+        if (appsGrid != null && appsGrid.getWidth() > 0) {
+            usableWidthPx = appsGrid.getWidth();
+        } else {
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            usableWidthPx = displayMetrics.widthPixels;
+        }
 
-        int usableWidthPx = Math.min(screenWidthPx, screenHeightPx);
-        int iconSizeDp = prefs.getInt("icon_size", 110);
-        int marginDp = 8;
-
+        // Get the FIXED icon size from user preference (restored old logic)
+        int scaleIndex = prefs.getInt("icon_size_scale", DEFAULT_SCALE_INDEX);
+        int iconSizeDp = ICON_SCALES_DP[scaleIndex];
         float density = getResources().getDisplayMetrics().density;
         int iconWidthPx = (int) (iconSizeDp * density);
-        int marginPx = (int) (marginDp * density);
 
-        int availableWidth = usableWidthPx - (marginPx * 2);
-        int columns = availableWidth / (iconWidthPx + marginPx);
+        // Calculate total card width: icon width + horizontal overhead (margin + padding)
+        int cardOverheadPx = (int) (CARD_HORIZONTAL_OVERHEAD_DP * density);
+        int totalCardWidthPx = iconWidthPx + cardOverheadPx;
 
+        // Calculate how many of these fixed-size cards fit in the available width
+        int columns = usableWidthPx / totalCardWidthPx;
         columns = Math.max(1, columns);
 
+        // Apply maximum column limits (prevent too many tiny cells)
         if (iconSizeDp <= 90) {
             columns = Math.min(columns, 15);
         } else if (iconSizeDp <= 110) {
             columns = Math.min(columns, 12);
         } else {
             columns = Math.min(columns, 10);
-        }
-
-        boolean isLandscape = screenWidthPx > screenHeightPx;
-        if (isLandscape && iconSizeDp <= 110) {
-            columns = (int) (columns * 1.3f);
-            columns = Math.min(columns, 15);
         }
 
         return columns;
@@ -1371,6 +1647,11 @@ public class MainActivity extends AppCompatActivity {
 
                 // Load saved category from preferences
                 String savedCategory = prefs.getString("cat_" + packageName, "Uncategorized");
+                // Defensive: if the saved category no longer exists (e.g., stale
+                // data from a previous version), treat the app as uncategorized.
+                if (!savedCategory.equals("Uncategorized") && !categories.containsKey(savedCategory)) {
+                    savedCategory = "Uncategorized";
+                }
                 app.category = savedCategory;
 
                 // Also check if it's in any category from categoryPrefs
@@ -1480,7 +1761,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         executorService.execute(() -> {
-            int iconSizeDp = prefs.getInt("icon_size", 110);
+            // Use the restored icon scale system
+            int scaleIndex = prefs.getInt("icon_size_scale", DEFAULT_SCALE_INDEX);
+            int iconSizeDp = ICON_SCALES_DP[scaleIndex];
             int iconHeightDp = (int) (iconSizeDp * 0.5625f);
             float density = getResources().getDisplayMetrics().density;
             int iconWidthPx = (int) (iconSizeDp * density);
@@ -1788,7 +2071,7 @@ public class MainActivity extends AppCompatActivity {
                         int removedCount = removeAppsFromCategoriesSync(selectedApps);
                         selectedApps.clear();
                         currentCategory = "All Apps";
-                        saveCurrentCategory(); // ADD THIS LINE
+                        saveCurrentCategory();
                         updateCategoryButtonStates("All Apps");
 
                         if (searchEditText != null) {
@@ -1805,7 +2088,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this, "Removed " + removedCount + " app(s) from categories", Toast.LENGTH_SHORT).show();
                     } else {
                         currentCategory = "All Apps";
-                        saveCurrentCategory(); // ADD THIS LINE
+                        saveCurrentCategory();
                         updateCategoryButtonStates("All Apps");
                         filterApps("");
 
@@ -1880,7 +2163,7 @@ public class MainActivity extends AppCompatActivity {
                         int movedCount = moveAppsToCategorySync(name, selectedApps);
                         selectedApps.clear();
                         currentCategory = name;
-                        saveCurrentCategory(); // ADD THIS LINE
+                        saveCurrentCategory();
                         updateCategoryButtonStates(name);
 
                         if (searchEditText != null) {
@@ -1897,7 +2180,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this, "Moved " + movedCount + " app(s) to " + name, Toast.LENGTH_SHORT).show();
                     } else {
                         currentCategory = name;
-                        saveCurrentCategory(); // ADD THIS LINE
+                        saveCurrentCategory();
                         action.run();
                         updateCategoryButtonStates(name);
                         updateSearchStatus("", false);
@@ -2308,13 +2591,19 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        /**
+         * RESTORED: loadAppIcon now uses the restored icon scale system
+         * Icon width = selected scale from ICON_SCALES_DP (82, 99, 125, 165, 236 dp)
+         * Icon height = width * 0.5625 (always 16:9 landscape)
+         */
         private void loadAppIcon(ViewHolder holder, AppInfo app) {
-            int iconSizeDp = prefs.getInt("icon_size", 110);
-            int iconHeightDp = (int) (iconSizeDp * 0.5625f);
-
             float density = holder.itemView.getResources().getDisplayMetrics().density;
+
+            // Use the restored icon scale system (old launcher logic)
+            int scaleIndex = prefs.getInt("icon_size_scale", DEFAULT_SCALE_INDEX);
+            int iconSizeDp = ICON_SCALES_DP[scaleIndex];
             int iconWidthPx = (int) (iconSizeDp * density);
-            int iconHeightPx = (int) (iconHeightDp * density);
+            int iconHeightPx = (int) (iconWidthPx * 0.5625f);  // 16:9 LANDSCAPE — always
 
             ViewGroup.LayoutParams params = holder.appIcon.getLayoutParams();
             params.width = iconWidthPx;
@@ -2885,6 +3174,20 @@ public class MainActivity extends AppCompatActivity {
 
         if (statusHandler != null && statusUpdateRunnable != null) {
             statusHandler.removeCallbacks(statusUpdateRunnable);
+        }
+
+        // Unregister theme change receiver
+        try {
+            unregisterReceiver(themeChangeReceiver);
+        } catch (IllegalArgumentException e) {
+            // Receiver not registered, ignore
+        }
+
+        // Unregister category change receiver
+        try {
+            unregisterReceiver(categoryChangeReceiver);
+        } catch (IllegalArgumentException e) {
+            // Receiver not registered, ignore
         }
 
         try {
