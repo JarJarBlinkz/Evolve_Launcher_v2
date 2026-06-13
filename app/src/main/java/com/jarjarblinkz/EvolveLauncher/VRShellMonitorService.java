@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -35,6 +36,15 @@ public class VRShellMonitorService extends Service {
      * Called by ALL restart logic to respect cooldown period
      */
     private boolean shouldAllowRestart() {
+        // CRITICAL: respect the user's "Auto-restart" preference. If disabled,
+        // never restart even if the service is somehow still running (e.g., the
+        // user toggled off while the service was already started, or Android
+        // restarted us via START_STICKY).
+        SharedPreferences prefs = getSharedPreferences("VRLPrefs", MODE_PRIVATE);
+        if (!prefs.getBoolean("auto_restart_enabled", true)) {
+            return false;
+        }
+
         // If launcher is visible, no need to restart
         if (isLauncherVisible()) {
             return false;
@@ -510,6 +520,18 @@ public class VRShellMonitorService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        // CRITICAL: respect the user's auto-restart preference. If the user
+        // turned this off, immediately self-stop and return START_NOT_STICKY
+        // so Android won't auto-restart the service later. Without this, the
+        // service can be revived by START_STICKY, BootReceiver, or other
+        // triggers - and would keep reopening the launcher.
+        SharedPreferences prefs = getSharedPreferences("VRLPrefs", MODE_PRIVATE);
+        if (!prefs.getBoolean("auto_restart_enabled", true)) {
+            Log.i(TAG, "Auto-restart disabled by user - stopping service");
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+
         Log.i(TAG, "AGGRESSIVE VR Shell Monitor Service started - launcher will persist");
         return START_STICKY; // ALWAYS restart service if killed by system
     }
