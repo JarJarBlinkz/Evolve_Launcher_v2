@@ -1824,6 +1824,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Applies (or removes) the hover visual state on a card:
+     * thicker accent-colored stroke on hover, thin border stroke otherwise.
+     */
+    private void applyCardHoverVisuals(View v, boolean hovered) {
+        if (!(v instanceof com.google.android.material.card.MaterialCardView)) return;
+        com.google.android.material.card.MaterialCardView cv =
+                (com.google.android.material.card.MaterialCardView) v;
+        com.jarjarblinkz.EvolveLauncher.theme.Theme theme =
+                com.jarjarblinkz.EvolveLauncher.theme.ThemeManager.getInstance(this).getCurrentTheme();
+
+        if (hovered) {
+            cv.setStrokeWidth(4);
+            cv.setStrokeColor(theme.accentPrimary);
+        } else {
+            cv.setStrokeWidth(1);
+            cv.setStrokeColor(theme.borderPrimary);
+        }
+    }
+
     private void applyCardInteractionEffects(View card) {
         if (card == null) return;
 
@@ -1850,6 +1870,7 @@ public class MainActivity extends AppCompatActivity {
                 case android.view.MotionEvent.ACTION_HOVER_MOVE:
                     if (isHovered[0]) break;  // already in hover state
                     isHovered[0] = true;
+                    applyCardHoverVisuals(v, true);
                     v.animate().cancel();
                     v.animate()
                             .scaleX(hoverScale)
@@ -1861,6 +1882,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case android.view.MotionEvent.ACTION_HOVER_EXIT:
                     isHovered[0] = false;
+                    applyCardHoverVisuals(v, false);
                     v.animate().cancel();
                     v.animate()
                             .scaleX(1f)
@@ -1877,6 +1899,7 @@ public class MainActivity extends AppCompatActivity {
         // Keyboard / dpad focus mirrors hover
         card.setOnFocusChangeListener((v, hasFocus) -> {
             v.animate().cancel();
+            applyCardHoverVisuals(v, hasFocus);
             if (hasFocus) {
                 v.animate()
                         .scaleX(hoverScale)
@@ -3084,6 +3107,13 @@ public class MainActivity extends AppCompatActivity {
                 holder.cardView.setStrokeWidth(1);
                 holder.cardView.setStrokeColor(theme.borderPrimary);
             }
+
+            // Disable the default MaterialCardView ripple/press overlay.
+            // This is what was causing the inconsistent color overlay and
+            // the "darken when clicked" effect - the press feedback is
+            // handled by our scale-down + pop animation instead.
+            holder.cardView.setRippleColor(
+                    android.content.res.ColorStateList.valueOf(Color.TRANSPARENT));
 
             if (isEditMode) {
                 holder.cardView.setOnClickListener(v -> toggleAppSelection(app));
