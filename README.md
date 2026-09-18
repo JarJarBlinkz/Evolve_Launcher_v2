@@ -96,6 +96,6 @@
    - Drag and drop the APK
    - Click install
 
-3. **Grant Usage Stats Permission (required for playtime tracking)**:
-   ```bash
-   adb shell pm grant com.jarjarblinkz.EvolveLauncher android.permission.PACKAGE_USAGE_STATS
+3. **Grant Usage Stats Permission (required for playtime tracking)**: (No Longer Needed built Into Settings)
+
+   ~~adb shell pm grant com.jarjarblinkz.EvolveLauncher android.permission.PACKAGE_USAGE_STATS~~
