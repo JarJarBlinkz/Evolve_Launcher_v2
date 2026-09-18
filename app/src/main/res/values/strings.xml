@@ -8,4 +8,8 @@
     <string name="auto_restart_summary">Automatically reopen launcher when returning to Quest home</string>
     <string name="auto_restart_enabled">Auto-restart is ON - Launcher will reopen automatically</string>
     <string name="auto_restart_disabled">Auto-restart is OFF - Launcher stays closed</string>
+
+    <!-- Accessibility Service — Hover to Open Launcher -->
+    <string name="accessibility_service_label">Evolve Launcher hover trigger</string>
+    <string name="accessibility_service_description">Lets you open Evolve Launcher by hovering over the camera app icon in vrshell or the library button in panel apps. No data is collected; the service only reacts to specific UI hover events to launch Evolve Launcher.</string>
 </resources>

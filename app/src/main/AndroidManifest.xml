@@ -46,9 +46,10 @@
     <!-- NEW: For backup to /sdcard/ (Android 11+) -->
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
-    <!-- NEW: VRShellMonitorService permissions -->
+    <!-- Foreground service permissions (kept for future use) -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <!-- Shizuku - for shell-level command execution -->
@@ -82,17 +83,16 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTask"
+            android:launchMode="singleInstance"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
             android:supportsPictureInPicture="false"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|density|uiMode">
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|density|uiMode"
+            android:persistableMode="persistNever">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
             <!-- VR-specific metadata -->
@@ -120,7 +120,7 @@
             android:exported="false"
             android:theme="@style/Theme.AppCompat.Dialog"
             android:taskAffinity=":settings"
-            android:launchMode="singleTask"
+            android:launchMode="singleInstance"
             android:resizeableActivity="true"
             android:excludeFromRecents="true"
             android:screenOrientation="unspecified"
@@ -198,12 +198,25 @@
             </intent-filter>
         </receiver>
 
-        <!-- NEW: VR Shell Monitor Service - Auto-restart launcher -->
+        <!-- Accessibility service for hover-triggered launcher open.
+             Monitors hover/focus events on Quest's system UI packages
+             (vrshell, panel apps) so that hovering over the camera app
+             icon or library button opens Evolve Launcher.
+
+             User must enable this manually in Quest:
+                Settings -> Accessibility -> Evolve Launcher hover trigger -->
         <service
-            android:name=".VRShellMonitorService"
-            android:enabled="true"
+            android:name=".EvolveAccessibilityService"
             android:exported="false"
-            android:foregroundServiceType="dataSync" />
+            android:label="@string/accessibility_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/evolve_accessibility_config" />
+        </service>
 
         <!-- FileProvider for APK installation -->
         <provider

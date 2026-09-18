@@ -95,6 +95,7 @@ public class SettingsActivity extends AppCompatActivity {
      * don't auto-close on focus loss because the user will return.
      */
     private boolean expectingFocusReturn = false;
+    private boolean isTopResumed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +126,10 @@ public class SettingsActivity extends AppCompatActivity {
         AppCompatButton btnUsageAccess = findViewById(R.id.btnUsageAccess);
         SwitchCompat switchAutoStart = findViewById(R.id.switchAutoStart);
 
+        // Hover-trigger accessibility shortcut
+        Button btnHoverTrigger = findViewById(R.id.btnHoverTrigger);
+        TextView lblHoverTriggerStatus = findViewById(R.id.lblHoverTriggerStatus);
+
         // ADD BACKUP/RESTORE BUTTONS
         Button btnBackup = findViewById(R.id.btnBackup);
         Button btnRestore = findViewById(R.id.btnRestore);
@@ -136,6 +141,14 @@ public class SettingsActivity extends AppCompatActivity {
         switchEditMode.setChecked(prefs.getBoolean(KEY_EDIT_MODE, false));
         switchCategories.setChecked(prefs.getBoolean(KEY_SHOW_CATEGORIES, true));
         switchAutoStart.setChecked(prefs.getBoolean(KEY_AUTO_START, true));
+
+        // Update boot status label to reflect actual state
+        TextView autoRestartStatus = findViewById(R.id.autoRestartStatus);
+        if (autoRestartStatus != null) {
+            boolean bootEnabled = prefs.getBoolean(KEY_AUTO_START, true);
+            autoRestartStatus.setText(bootEnabled ? "Status: Enabled" : "Status: Disabled");
+            autoRestartStatus.setTextColor(bootEnabled ? 0xFF66BB6A : 0xFF666666);
+        }
 
         // Setup Icon Size SeekBar - maps to old launcher scale values (82-236 dp)
         if (seekIconSize != null && txtIconSize != null) {
@@ -200,6 +213,11 @@ public class SettingsActivity extends AppCompatActivity {
 
         switchAutoStart.setOnCheckedChangeListener((b, c) -> {
             prefs.edit().putBoolean(KEY_AUTO_START, c).apply();
+            TextView bootStatus = findViewById(R.id.autoRestartStatus);
+            if (bootStatus != null) {
+                bootStatus.setText(c ? "Status: Enabled" : "Status: Disabled");
+                bootStatus.setTextColor(c ? 0xFF66BB6A : 0xFF666666);
+            }
             Toast.makeText(this, c ? "Auto-start enabled - App will launch on boot" : "Auto-start disabled", Toast.LENGTH_SHORT).show();
         });
 
@@ -231,6 +249,20 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
         btnManageCategories.setOnClickListener(v -> showCategoryManager());
+
+        // Hover-trigger accessibility shortcut: tap to open Quest's
+        // accessibility settings so the user can flip the service on/off.
+        // We can't toggle it programmatically (Android security restriction),
+        // but we deep-link straight to the right page.
+        if (btnHoverTrigger != null) {
+            btnHoverTrigger.setOnClickListener(v -> {
+                AccessibilityServiceHelper.openSettings(this);
+                Toast.makeText(this,
+                        "Find 'Evolve Launcher hover trigger' in the list and toggle it ON",
+                        Toast.LENGTH_LONG).show();
+            });
+            refreshHoverTriggerStatus(btnHoverTrigger, lblHoverTriggerStatus);
+        }
         btnBack.setOnClickListener(v -> finish());
 
         btnGameStats.setOnClickListener(new View.OnClickListener() {
@@ -295,9 +327,6 @@ public class SettingsActivity extends AppCompatActivity {
                 });
             });
         }
-
-        // Setup auto-restart toggle
-        setupAutoRestartToggle();
 
         // Initialize Shizuku for shell commands
         initializeShizuku();
@@ -591,6 +620,40 @@ public class SettingsActivity extends AppCompatActivity {
         if (btnNativeSettings != null) {
             updateNativeSettingsButton(btnNativeSettings);
         }
+
+        // Re-check hover-trigger accessibility state - the user may have
+        // come back from toggling it in Quest's accessibility settings.
+        Button btnHoverTrigger = findViewById(R.id.btnHoverTrigger);
+        TextView lblHoverTriggerStatus = findViewById(R.id.lblHoverTriggerStatus);
+        if (btnHoverTrigger != null) {
+            refreshHoverTriggerStatus(btnHoverTrigger, lblHoverTriggerStatus);
+        }
+    }
+
+    /**
+     * Sync the hover-trigger button + status label with the live state
+     * of EvolveAccessibilityService.
+     */
+    private void refreshHoverTriggerStatus(Button btn, TextView statusLabel) {
+        if (btn == null) return;
+        boolean enabled = AccessibilityServiceHelper.isEnabled(this);
+        if (enabled) {
+            btn.setText("Manage in Accessibility Settings");
+            btn.setBackgroundTintList(
+                    android.content.res.ColorStateList.valueOf(0xFF00897B)); // teal
+            if (statusLabel != null) {
+                statusLabel.setText("✅ Enabled — hover Help & Tips to open Evolve");
+                statusLabel.setTextColor(0xFF66BB6A); // light green
+            }
+        } else {
+            btn.setText("Enable Hover Trigger");
+            btn.setBackgroundTintList(
+                    android.content.res.ColorStateList.valueOf(0xFF555555)); // gray
+            if (statusLabel != null) {
+                statusLabel.setText("Hover Help & Tips in the Meta library to open Evolve");
+                statusLabel.setTextColor(0xFF888888); // gray
+            }
+        }
     }
 
     private boolean hasUsageStatsPermission() {
@@ -795,24 +858,16 @@ public class SettingsActivity extends AppCompatActivity {
      *
      * Available since Android 10 (API 29). Quest 3 runs Android 14.
      */
+
     @Override
     public void onTopResumedActivityChanged(boolean isTopResumedActivity) {
         super.onTopResumedActivityChanged(isTopResumedActivity);
 
+        isTopResumed = isTopResumedActivity;
         if (isTopResumedActivity) {
-            // We became the top activity (just opened, or a sub-activity returned).
             expectingFocusReturn = false;
-            return;
         }
-
-        if (isFinishing() || expectingFocusReturn) {
-            return;
-        }
-
-        // We lost top-resumed status and weren't expecting it. The user
-        // tapped on the main launcher panel - close ourselves.
-        Log.d("SettingsActivity", "Auto-closing - launcher gained focus");
-        finish();
+        // Settings is part of the launcher UI - never auto-close on focus changes.
     }
 
     @Override
@@ -1279,50 +1334,6 @@ public class SettingsActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("Cancel", null)
                 .create());
-    }
-
-    // ===== AUTO-RESTART TOGGLE =====
-
-    private void setupAutoRestartToggle() {
-        SwitchCompat autoRestartSwitch = findViewById(R.id.autoRestartSwitch);
-        TextView autoRestartStatus = findViewById(R.id.autoRestartStatus);
-
-        if (autoRestartSwitch == null || autoRestartStatus == null) {
-            Log.w("SettingsActivity", "Auto-restart UI elements not found in layout");
-            return;
-        }
-
-        boolean isEnabled = prefs.getBoolean("auto_restart_enabled", true);
-        autoRestartSwitch.setChecked(isEnabled);
-        updateAutoRestartStatus(autoRestartStatus, isEnabled);
-
-        autoRestartSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            prefs.edit().putBoolean("auto_restart_enabled", isChecked).apply();
-            updateAutoRestartStatus(autoRestartStatus, isChecked);
-
-            Intent serviceIntent = new Intent(this, VRShellMonitorService.class);
-
-            if (isChecked) {
-                try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startForegroundService(serviceIntent);
-                    } else {
-                        startService(serviceIntent);
-                    }
-                    Toast.makeText(this, "Auto-restart enabled", Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    Log.e("SettingsActivity", "Failed to start service", e);
-                    Toast.makeText(this, "Failed to enable auto-restart", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                try {
-                    stopService(serviceIntent);
-                    Toast.makeText(this, "Auto-restart disabled", Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    Log.e("SettingsActivity", "Failed to stop service", e);
-                }
-            }
-        });
     }
 
     private void updateAutoRestartStatus(TextView statusText, boolean isEnabled) {

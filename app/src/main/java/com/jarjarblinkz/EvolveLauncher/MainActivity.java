@@ -13,6 +13,7 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.Rect;
+import android.bluetooth.BluetoothAdapter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -23,6 +24,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.Formatter;
@@ -70,6 +72,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -85,6 +89,18 @@ public class MainActivity extends AppCompatActivity {
 
     // Floating favorites button - stored as field so we can update its color on theme change
     private android.widget.ImageButton floatingFavoritesButton;
+    // Floating bulk-action bar - appears at bottom when apps are selected.
+    // Hosts both bulk actions (Move, Uninstall) and single-app actions
+    // (Rename, Playtime) that show only when exactly one app is selected.
+    private android.widget.LinearLayout bulkActionBar;
+    private android.widget.TextView bulkActionCountLabel;
+    private android.widget.Button bulkActionRenameBtn;
+    private android.widget.Button bulkActionPlaytimeBtn;
+    private android.widget.Button bulkActionRemoveCategoryBtn;
+    // Queue of packages to uninstall sequentially (Android shows the
+    // uninstall confirmation one at a time, so we launch them one by one).
+    private final java.util.Queue<String> pendingUninstalls = new java.util.LinkedList<>();
+    private static final int REQUEST_CODE_UNINSTALL = 9123;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(4);
     private Map<String, Drawable> iconCache = new HashMap<>();
@@ -181,6 +197,19 @@ public class MainActivity extends AppCompatActivity {
     private View quickSettingsPanel;
     private ImageButton btnClosePanel;
     private boolean isQuickSettingsVisible = false;
+    // Persistent edge tab on the right side of the screen that opens the
+    // Quick Settings drawer. Replaces the prior long-press on the settings
+    // button - the tab is always visible so the feature is discoverable.
+    private android.widget.LinearLayout quickSettingsEdgeTab;
+    private android.widget.TextView quickSettingsEdgeTabIcon;
+    // Shizuku for system-level controls (brightness, wifi toggle, reboot, power off)
+    private ShizukuManager shizukuManager;
+    // Programmatic quick-settings controls (added on top of whatever the
+    // XML panel already contains)
+    private android.widget.SeekBar brightnessSeekBar;
+    private android.widget.TextView brightnessValueLabel;
+    private android.widget.Button wifiToggleBtn;
+    private android.widget.Button bluetoothToggleBtn;
     private QuickSettingsManager quickSettingsManager;
     private Handler quickSettingsHandler = new Handler();
     private Runnable quickSettingsUpdateRunnable;
@@ -226,6 +255,7 @@ public class MainActivity extends AppCompatActivity {
                     ThemeApplier.applyThemeToHierarchy(rootView);
                     updateBackground();
                     refreshFloatingFavoritesColor();
+                    refreshQuickSettingsEdgeTabColor();
                     if (appAdapter != null) {
                         appAdapter.notifyDataSetChanged();
                     }
@@ -330,26 +360,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     // ===== END HELPER =====
-
-    /**
-     * Set window size to Meta's standard size (1024x640 dp)
-     */
-    private void setMetaStandardWindowSize() {
-        float density = getResources().getDisplayMetrics().density;
-        int widthPx = (int) (1024 * density);
-        int heightPx = (int) (640 * density);
-
-        Window window = getWindow();
-        android.view.WindowManager.LayoutParams params = window.getAttributes();
-        params.width = widthPx;
-        params.height = heightPx;
-        window.setAttributes(params);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            window.getDecorView().setMinimumWidth(widthPx);
-            window.getDecorView().setMinimumHeight(heightPx);
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -584,24 +594,18 @@ public class MainActivity extends AppCompatActivity {
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
-        // Long press settings button to open Quick Settings
-        btnSettings.setOnLongClickListener(v -> {
-            showQuickSettings();
-            return true;
-        });
-
         // FLOATING FAVORITES BUTTON - bottom-right corner
         addFloatingFavoritesButton();
 
+        // FLOATING BULK ACTION BAR - bottom-center, visible when apps selected
+        addBulkActionBar();
+
+        // QUICK SETTINGS EDGE TAB - persistent handle on right edge that
+        // opens the Quick Settings drawer. Replaces long-press on settings.
+        addQuickSettingsEdgeTab();
+
         // Close Quick Settings button
         btnClosePanel.setOnClickListener(v -> hideQuickSettings());
-
-        if (wifiContainer != null) {
-            wifiContainer.setOnLongClickListener(v -> {
-                showWifiDetails();
-                return true;
-            });
-        }
 
         appsGrid.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -619,50 +623,19 @@ public class MainActivity extends AppCompatActivity {
 
         startStatusUpdates();
 
-        // Setup Quick Settings panel
+        // Setup Quick Settings panel (volume only)
         setupQuickSettings();
-
-        // Start VR Shell Monitor service for auto-restart functionality
-        startVRShellMonitor();
 
         // Apply current theme to entire view hierarchy
         View rootView = findViewById(android.R.id.content);
         ThemeApplier.applyThemeToHierarchy(rootView);
     }
 
-    /**
-     * Start VR Shell Monitor service to auto-restart launcher
-     * Only starts if user has enabled the feature in settings
-     */
-    private void startVRShellMonitor() {
-        try {
-            // Check if auto-restart is enabled in settings
-            SharedPreferences prefs = getSharedPreferences("VRLPrefs", MODE_PRIVATE);
-            boolean autoRestartEnabled = prefs.getBoolean("auto_restart_enabled", true); // Default: enabled
-
-            if (!autoRestartEnabled) {
-                Log.i("MainActivity", "Auto-restart is disabled - not starting VR Shell Monitor");
-                return;
-            }
-
-            Intent serviceIntent = new Intent(this, VRShellMonitorService.class);
-
-            // Use startForegroundService for Android 8.0+
-            // Service will call startForeground() with notification
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent);
-            } else {
-                startService(serviceIntent);
-            }
-
-            Log.i("MainActivity", "VR Shell Monitor service started (auto-restart enabled)");
-        } catch (Exception e) {
-            Log.e("MainActivity", "Failed to start VR Shell Monitor service", e);
-        }
-    }
-
     // ===== QUICK SETTINGS METHODS =====
 
+    /**
+     * Quick Settings drawer - right-side drawer with volume control.
+     */
     private void setupQuickSettings() {
         // Volume control only
         SeekBar volumeSeek = findViewById(R.id.seekVolume);
@@ -764,6 +737,303 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Create the floating bulk-action bar that appears at the bottom of the
+     * screen when one or more apps are selected in edit mode. Provides
+     * quick access to Move-to-Category, Uninstall, and Clear-Selection.
+     * Visibility is managed by updateBulkActionBarVisibility().
+     */
+    private void addBulkActionBar() {
+        try {
+            float d = getResources().getDisplayMetrics().density;
+
+            // Container - horizontal pill bar
+            bulkActionBar = new android.widget.LinearLayout(this);
+            bulkActionBar.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+            bulkActionBar.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            bulkActionBar.setPadding((int)(16 * d), (int)(10 * d), (int)(16 * d), (int)(10 * d));
+            bulkActionBar.setElevation(12 * d);
+            bulkActionBar.setVisibility(View.GONE);
+
+            // Themed pill-shaped background
+            android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+            bg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+            bg.setCornerRadius(28 * d);
+            com.jarjarblinkz.EvolveLauncher.theme.Theme theme =
+                    com.jarjarblinkz.EvolveLauncher.theme.ThemeManager.getInstance(this).getCurrentTheme();
+            bg.setColor(theme.bgSecondary);
+            bg.setStroke((int)(1 * d), theme.borderPrimary);
+            bulkActionBar.setBackground(bg);
+
+            // Count label
+            bulkActionCountLabel = new android.widget.TextView(this);
+            bulkActionCountLabel.setText("0 selected");
+            bulkActionCountLabel.setTextColor(theme.textPrimary);
+            bulkActionCountLabel.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+            bulkActionCountLabel.setPadding(0, 0, (int)(16 * d), 0);
+            bulkActionBar.addView(bulkActionCountLabel);
+
+            // Move-to-Category button
+            android.widget.Button moveBtn = makeBulkBarButton("📁  Move", theme);
+            moveBtn.setOnClickListener(v -> showMultiAssignCategoryDialog());
+            bulkActionBar.addView(moveBtn, makeBulkBarButtonParams(d));
+
+            // Remove from current category button (only shows when viewing
+            // a specific category like "Games" rather than "All Apps")
+            bulkActionRemoveCategoryBtn = makeBulkBarButton("📤  Remove from category", theme);
+            bulkActionRemoveCategoryBtn.setOnClickListener(v -> removeSelectedFromCurrentCategory());
+            bulkActionBar.addView(bulkActionRemoveCategoryBtn, makeBulkBarButtonParams(d));
+
+            // Rename button (only shows when exactly 1 app selected)
+            bulkActionRenameBtn = makeBulkBarButton("✏️  Rename", theme);
+            bulkActionRenameBtn.setOnClickListener(v -> renameSingleSelected());
+            bulkActionBar.addView(bulkActionRenameBtn, makeBulkBarButtonParams(d));
+
+            // Playtime button (only shows when exactly 1 app selected)
+            bulkActionPlaytimeBtn = makeBulkBarButton("📊  Stats", theme);
+            bulkActionPlaytimeBtn.setOnClickListener(v -> showPlaytimeForSingleSelected());
+            bulkActionBar.addView(bulkActionPlaytimeBtn, makeBulkBarButtonParams(d));
+
+            // Uninstall button
+            android.widget.Button uninstallBtn = makeBulkBarButton("🗑️  Uninstall", theme);
+            uninstallBtn.setOnClickListener(v -> confirmAndUninstallSelected());
+            bulkActionBar.addView(uninstallBtn, makeBulkBarButtonParams(d));
+
+            // Clear button
+            android.widget.Button clearBtn = makeBulkBarButton("✕  Clear", theme);
+            clearBtn.setOnClickListener(v -> clearSelection());
+            bulkActionBar.addView(clearBtn, makeBulkBarButtonParams(d));
+
+            // Position at bottom-center
+            android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
+                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT);
+            params.gravity = android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL;
+            int marginBottom = (int)(80 * d); // sits above the floating-favorites button
+            params.setMargins(0, 0, 0, marginBottom);
+
+            addContentView(bulkActionBar, params);
+            android.util.Log.i("MainActivity", "Bulk action bar added");
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Failed to add bulk action bar", e);
+        }
+    }
+
+    private android.widget.Button makeBulkBarButton(String text,
+                                                    com.jarjarblinkz.EvolveLauncher.theme.Theme theme) {
+        float d = getResources().getDisplayMetrics().density;
+        android.widget.Button btn = new android.widget.Button(this);
+        btn.setText(text);
+        btn.setTextColor(theme.textPrimary);
+        btn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
+        btn.setAllCaps(false);
+        btn.setPadding((int)(14 * d), (int)(6 * d), (int)(14 * d), (int)(6 * d));
+        btn.setMinHeight(0);
+        btn.setMinimumHeight(0);
+
+        android.graphics.drawable.GradientDrawable btnBg = new android.graphics.drawable.GradientDrawable();
+        btnBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+        btnBg.setCornerRadius(20 * d);
+        btnBg.setColor(theme.bgSecondary);
+        btnBg.setStroke((int)(1 * d), theme.borderPrimary);
+        btn.setBackground(btnBg);
+        return btn;
+    }
+
+    private android.widget.LinearLayout.LayoutParams makeBulkBarButtonParams(float density) {
+        android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins((int)(4 * density), 0, (int)(4 * density), 0);
+        return lp;
+    }
+
+    /**
+     * Show or hide the bulk action bar based on current selection size.
+     * Also shows/hides conditional buttons (single-app actions visible
+     * only when 1 app selected; remove-from-category visible only when
+     * viewing a specific category).
+     */
+    private void updateBulkActionBarVisibility() {
+        if (bulkActionBar == null) return;
+        int count = selectedApps.size();
+
+        // Conditional buttons: single-app actions
+        boolean singleSelected = (count == 1);
+        if (bulkActionRenameBtn != null) {
+            bulkActionRenameBtn.setVisibility(singleSelected ? View.VISIBLE : View.GONE);
+        }
+        if (bulkActionPlaytimeBtn != null) {
+            bulkActionPlaytimeBtn.setVisibility(singleSelected ? View.VISIBLE : View.GONE);
+        }
+        // Remove-from-category: only when viewing a specific category
+        if (bulkActionRemoveCategoryBtn != null) {
+            boolean inCategoryView = currentCategory != null &&
+                    !currentCategory.equals("All Apps") &&
+                    !currentCategory.isEmpty();
+            bulkActionRemoveCategoryBtn.setVisibility(inCategoryView ? View.VISIBLE : View.GONE);
+        }
+
+        if (count > 0) {
+            bulkActionCountLabel.setText(count + " selected");
+            if (bulkActionBar.getVisibility() != View.VISIBLE) {
+                bulkActionBar.setVisibility(View.VISIBLE);
+                bulkActionBar.setAlpha(0f);
+                bulkActionBar.setTranslationY(40 * getResources().getDisplayMetrics().density);
+                bulkActionBar.animate()
+                        .alpha(1f)
+                        .translationY(0f)
+                        .setDuration(180)
+                        .start();
+            }
+        } else {
+            if (bulkActionBar.getVisibility() == View.VISIBLE) {
+                bulkActionBar.animate()
+                        .alpha(0f)
+                        .translationY(40 * getResources().getDisplayMetrics().density)
+                        .setDuration(140)
+                        .withEndAction(() -> bulkActionBar.setVisibility(View.GONE))
+                        .start();
+            }
+        }
+    }
+
+    /**
+     * Helper: find the AppInfo for the single currently-selected package.
+     */
+    private AppInfo getSingleSelectedApp() {
+        if (selectedApps.size() != 1) return null;
+        String pkg = selectedApps.iterator().next();
+        for (AppInfo app : appList) {
+            if (app.packageName.equals(pkg)) return app;
+        }
+        return null;
+    }
+
+    private void renameSingleSelected() {
+        AppInfo app = getSingleSelectedApp();
+        if (app != null) showRenameDialog(app);
+    }
+
+    private void showPlaytimeForSingleSelected() {
+        AppInfo app = getSingleSelectedApp();
+        if (app != null) showPlaytimeDetails(app);
+    }
+
+    /**
+     * Remove all selected apps from the currently-viewed category.
+     * Only meaningful when the user is browsing a specific category.
+     */
+    private void removeSelectedFromCurrentCategory() {
+        if (selectedApps.isEmpty()) return;
+        if (currentCategory == null || currentCategory.equals("All Apps") || currentCategory.isEmpty()) {
+            Toast.makeText(this, "Switch to a category to remove apps from it", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Set<String> categorySet = categories.get(currentCategory);
+        if (categorySet == null) return;
+
+        int removed = 0;
+        Set<String> newSet = new HashSet<>(categorySet);
+        for (String pkg : selectedApps) {
+            if (newSet.remove(pkg)) {
+                removed++;
+                // Clear the per-app category preference so the badge
+                // doesn't resurrect on the next refresh
+                prefs.edit().remove("cat_" + pkg).apply();
+            }
+        }
+        // Persist the updated category set
+        categoryPrefs.edit().putStringSet("cat_" + currentCategory, newSet).apply();
+
+        Toast.makeText(this,
+                "Removed " + removed + " app" + (removed == 1 ? "" : "s") + " from " + currentCategory,
+                Toast.LENGTH_SHORT).show();
+
+        selectedApps.clear();
+        updateBulkActionBarVisibility();
+        loadCategories();
+        refreshAll();
+    }
+
+    /**
+     * Ask the user to confirm bulk uninstall, then queue the selected
+     * packages and launch the first uninstall dialog. Android only shows
+     * one at a time, so we sequence them via onActivityResult.
+     */
+    private void confirmAndUninstallSelected() {
+        if (selectedApps.isEmpty()) {
+            Toast.makeText(this, "No apps selected", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        final int count = selectedApps.size();
+
+        // Build a preview of which apps will be uninstalled
+        StringBuilder preview = new StringBuilder();
+        int shown = 0;
+        for (String pkg : selectedApps) {
+            String label = pkg;
+            for (AppInfo app : appList) {
+                if (app.packageName.equals(pkg)) {
+                    label = app.label;
+                    break;
+                }
+            }
+            preview.append("• ").append(label).append("\n");
+            shown++;
+            if (shown >= 8 && count > 9) {
+                preview.append("…and ").append(count - shown).append(" more\n");
+                break;
+            }
+        }
+
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle("Uninstall " + count + " app" + (count == 1 ? "" : "s") + "?")
+                .setMessage(preview.toString() +
+                        "\nYou'll be asked to confirm each uninstall.")
+                .setPositiveButton("Uninstall", (d, w) -> {
+                    pendingUninstalls.clear();
+                    pendingUninstalls.addAll(selectedApps);
+                    Set<String> previouslySelected = new HashSet<>(selectedApps);
+                    selectedApps.clear();
+                    updateBulkActionBarVisibility();
+                    if (appAdapter != null) appAdapter.notifyDataSetChanged();
+                    Toast.makeText(this,
+                            "Uninstalling " + count + " app" + (count == 1 ? "" : "s") + "…",
+                            Toast.LENGTH_SHORT).show();
+                    launchNextUninstall();
+                })
+                .setNegativeButton("Cancel", null);
+        ThemedDialog.showThemed(b.create());
+    }
+
+    /**
+     * Launch the system uninstall dialog for the next package in the queue.
+     * After the user confirms or cancels, onActivityResult is called and we
+     * advance to the next package.
+     */
+    private void launchNextUninstall() {
+        String pkg = pendingUninstalls.poll();
+        if (pkg == null) {
+            // Queue drained - refresh app list (some apps may have been removed)
+            Toast.makeText(this, "Bulk uninstall complete", Toast.LENGTH_SHORT).show();
+            refreshAll();
+            return;
+        }
+        try {
+            Intent intent = new Intent(Intent.ACTION_UNINSTALL_PACKAGE);
+            intent.setData(android.net.Uri.parse("package:" + pkg));
+            intent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
+            startActivityForResult(intent, REQUEST_CODE_UNINSTALL);
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Failed to launch uninstall for " + pkg, e);
+            // Skip and try the next one
+            launchNextUninstall();
+        }
+    }
+
+    /**
      * Refresh the floating favorites button's background color to match the current theme.
      * Call this whenever the theme changes.
      */
@@ -787,12 +1057,25 @@ public class MainActivity extends AppCompatActivity {
         isQuickSettingsVisible = true;
         quickSettingsPanel.setVisibility(View.VISIBLE);
 
+        // Refresh the current state of our extended controls (wifi/bt
+        // status, brightness value) so they reflect anything that may
+        // have changed outside the launcher.
+        refreshQuickSettingsState();
+
         // Slide in animation
         quickSettingsPanel.animate()
                 .translationX(0)
                 .alpha(1.0f)
                 .setDuration(300)
                 .start();
+
+        // Edge tab: slide off-screen with the drawer so it doesn't sit on top
+        if (quickSettingsEdgeTab != null) {
+            quickSettingsEdgeTab.animate()
+                    .translationX(quickSettingsEdgeTab.getWidth())
+                    .setDuration(300)
+                    .start();
+        }
     }
 
     private void hideQuickSettings() {
@@ -803,6 +1086,397 @@ public class MainActivity extends AppCompatActivity {
                 .setDuration(300)
                 .withEndAction(() -> quickSettingsPanel.setVisibility(View.GONE))
                 .start();
+
+        // Edge tab: slide back into view
+        if (quickSettingsEdgeTab != null) {
+            quickSettingsEdgeTab.animate()
+                    .translationX(0)
+                    .setDuration(300)
+                    .start();
+        }
+    }
+
+    /**
+     * Create a persistent edge tab on the right side of the screen that
+     * opens the Quick Settings drawer when tapped. The tab is half-pill-
+     * shaped (rounded on the left, flat against the screen edge on the
+     * right) and sits vertically centered. While the drawer is open, the
+     * tab slides off-screen alongside the drawer.
+     */
+    private void addQuickSettingsEdgeTab() {
+        try {
+            float d = getResources().getDisplayMetrics().density;
+            com.jarjarblinkz.EvolveLauncher.theme.Theme theme =
+                    com.jarjarblinkz.EvolveLauncher.theme.ThemeManager.getInstance(this).getCurrentTheme();
+
+            // Container
+            quickSettingsEdgeTab = new android.widget.LinearLayout(this);
+            quickSettingsEdgeTab.setOrientation(android.widget.LinearLayout.VERTICAL);
+            quickSettingsEdgeTab.setGravity(android.view.Gravity.CENTER);
+            quickSettingsEdgeTab.setPadding((int)(2 * d), (int)(10 * d), (int)(2 * d), (int)(10 * d));
+            quickSettingsEdgeTab.setElevation(8 * d);
+            quickSettingsEdgeTab.setClickable(true);
+            quickSettingsEdgeTab.setFocusable(true);
+
+            // Chevron icon
+            quickSettingsEdgeTabIcon = new android.widget.TextView(this);
+            quickSettingsEdgeTabIcon.setText("‹");
+            quickSettingsEdgeTabIcon.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 22);
+            quickSettingsEdgeTabIcon.setTextColor(theme.textPrimary);
+            quickSettingsEdgeTabIcon.setGravity(android.view.Gravity.CENTER);
+            quickSettingsEdgeTab.addView(quickSettingsEdgeTabIcon);
+
+            // Half-pill background: rounded on the left edge, flush right
+            android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+            bg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+            bg.setColor(theme.bgSecondary);
+            bg.setStroke((int)(1 * d), theme.borderPrimary);
+            float r = 18 * d;
+            bg.setCornerRadii(new float[] {
+                    r, r,   // top-left
+                    0, 0,   // top-right
+                    0, 0,   // bottom-right
+                    r, r    // bottom-left
+            });
+            quickSettingsEdgeTab.setBackground(bg);
+
+            // Tap to toggle the drawer
+            quickSettingsEdgeTab.setOnClickListener(v -> {
+                if (isQuickSettingsVisible) {
+                    hideQuickSettings();
+                } else {
+                    showQuickSettings();
+                }
+            });
+
+            // Position: right edge, vertically centered
+            android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
+                    (int)(26 * d),
+                    (int)(72 * d)
+            );
+            params.gravity = android.view.Gravity.END | android.view.Gravity.CENTER_VERTICAL;
+
+            addContentView(quickSettingsEdgeTab, params);
+            android.util.Log.i("MainActivity", "Quick settings edge tab added");
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Failed to add quick settings edge tab", e);
+        }
+    }
+
+    /**
+     * Refresh the edge tab's colors to match the current theme.
+     * Call this whenever the theme changes.
+     */
+    private void refreshQuickSettingsEdgeTabColor() {
+        if (quickSettingsEdgeTab == null) return;
+        try {
+            float d = getResources().getDisplayMetrics().density;
+            com.jarjarblinkz.EvolveLauncher.theme.Theme theme =
+                    com.jarjarblinkz.EvolveLauncher.theme.ThemeManager.getInstance(this).getCurrentTheme();
+            android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+            bg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+            bg.setColor(theme.bgSecondary);
+            bg.setStroke((int)(1 * d), theme.borderPrimary);
+            float r = 18 * d;
+            bg.setCornerRadii(new float[] { r, r, 0, 0, 0, 0, r, r });
+            quickSettingsEdgeTab.setBackground(bg);
+            if (quickSettingsEdgeTabIcon != null) {
+                quickSettingsEdgeTabIcon.setTextColor(theme.textPrimary);
+            }
+        } catch (Exception e) {
+            // ignore theme refresh failures
+        }
+    }
+
+    /**
+     * Initialize Shizuku for the Quick Settings panel - powers brightness
+     * control, wifi/bluetooth toggles, reboot, and power off. If Shizuku
+     * isn't installed/authorized, the controls will degrade gracefully
+     * with helpful toast messages.
+     */
+    private void initializeShizukuForQuickSettings() {
+        try {
+            shizukuManager = new ShizukuManager(this);
+            shizukuManager.initialize(new ShizukuManager.ShizukuStatusListener() {
+                @Override
+                public void onStatusChanged(boolean available, boolean hasPermission) {
+                    android.util.Log.i("MainActivity",
+                            "Shizuku status - Available: " + available + ", Permission: " + hasPermission);
+                }
+                @Override
+                public void onCommandResult(boolean success, String output) {
+                    // Most commands here don't need result feedback - the UI
+                    // reflects state changes itself. Just log for debugging.
+                    android.util.Log.d("MainActivity",
+                            "Shizuku command result: " + success + " " + output);
+                }
+            });
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Failed to initialize Shizuku", e);
+        }
+    }
+
+    /**
+     * Add extended controls to the Quick Settings drawer: brightness slider,
+     * WiFi toggle, Bluetooth toggle, reboot, and power off. These appear
+     * underneath whatever the XML panel already contains. The controls
+     * refresh their state every time the drawer opens.
+     */
+    private void addExtendedQuickSettingsControls() {
+        if (!(quickSettingsPanel instanceof android.view.ViewGroup)) {
+            android.util.Log.w("MainActivity",
+                    "Quick settings panel is not a ViewGroup - cannot add extended controls");
+            return;
+        }
+
+        try {
+            float d = getResources().getDisplayMetrics().density;
+            com.jarjarblinkz.EvolveLauncher.theme.Theme theme =
+                    com.jarjarblinkz.EvolveLauncher.theme.ThemeManager.getInstance(this).getCurrentTheme();
+
+            // If the panel has a ScrollView, target its inner container.
+            // Otherwise add directly to the panel.
+            android.view.ViewGroup container = (android.view.ViewGroup) quickSettingsPanel;
+            for (int i = 0; i < container.getChildCount(); i++) {
+                View child = container.getChildAt(i);
+                if (child instanceof android.widget.ScrollView) {
+                    android.widget.ScrollView sv = (android.widget.ScrollView) child;
+                    if (sv.getChildCount() > 0 && sv.getChildAt(0) instanceof android.view.ViewGroup) {
+                        container = (android.view.ViewGroup) sv.getChildAt(0);
+                        break;
+                    }
+                }
+            }
+
+            android.widget.LinearLayout section = new android.widget.LinearLayout(this);
+            section.setOrientation(android.widget.LinearLayout.VERTICAL);
+            section.setPadding((int)(16 * d), (int)(8 * d), (int)(16 * d), (int)(16 * d));
+
+            // --- Brightness section ---
+            android.widget.TextView brightnessLabel = new android.widget.TextView(this);
+            brightnessLabel.setText("Brightness");
+            brightnessLabel.setTextColor(theme.textPrimary);
+            brightnessLabel.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+            brightnessLabel.setPadding(0, (int)(12 * d), 0, (int)(4 * d));
+            section.addView(brightnessLabel);
+
+            android.widget.LinearLayout brightnessRow = new android.widget.LinearLayout(this);
+            brightnessRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+            brightnessRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+            brightnessSeekBar = new android.widget.SeekBar(this);
+            brightnessSeekBar.setMax(255);
+            brightnessSeekBar.setProgress(readCurrentBrightness());
+            android.widget.LinearLayout.LayoutParams sbParams = new android.widget.LinearLayout.LayoutParams(
+                    0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+            brightnessRow.addView(brightnessSeekBar, sbParams);
+
+            brightnessValueLabel = new android.widget.TextView(this);
+            brightnessValueLabel.setText(brightnessSeekBar.getProgress() + "");
+            brightnessValueLabel.setTextColor(theme.textPrimary);
+            brightnessValueLabel.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
+            brightnessValueLabel.setMinWidth((int)(36 * d));
+            brightnessValueLabel.setGravity(android.view.Gravity.END);
+            brightnessValueLabel.setPadding((int)(8 * d), 0, 0, 0);
+            brightnessRow.addView(brightnessValueLabel);
+
+            section.addView(brightnessRow);
+
+            brightnessSeekBar.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener() {
+                @Override public void onProgressChanged(android.widget.SeekBar bar, int progress, boolean fromUser) {
+                    brightnessValueLabel.setText(progress + "");
+                }
+                @Override public void onStartTrackingTouch(android.widget.SeekBar bar) {}
+                @Override public void onStopTrackingTouch(android.widget.SeekBar bar) {
+                    setBrightnessViaShizuku(bar.getProgress());
+                }
+            });
+
+            // --- Connectivity toggles row ---
+            android.widget.LinearLayout togglesRow = new android.widget.LinearLayout(this);
+            togglesRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+            togglesRow.setPadding(0, (int)(16 * d), 0, 0);
+
+            wifiToggleBtn = makeQuickSettingsButton("Wi-Fi", theme);
+            wifiToggleBtn.setOnClickListener(v -> toggleWifi());
+            android.widget.LinearLayout.LayoutParams half = new android.widget.LinearLayout.LayoutParams(
+                    0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+            half.setMargins(0, 0, (int)(4 * d), 0);
+            togglesRow.addView(wifiToggleBtn, half);
+
+            bluetoothToggleBtn = makeQuickSettingsButton("Bluetooth", theme);
+            bluetoothToggleBtn.setOnClickListener(v -> toggleBluetooth());
+            android.widget.LinearLayout.LayoutParams half2 = new android.widget.LinearLayout.LayoutParams(
+                    0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+            half2.setMargins((int)(4 * d), 0, 0, 0);
+            togglesRow.addView(bluetoothToggleBtn, half2);
+
+            section.addView(togglesRow);
+
+            // --- Power buttons row (Reboot + Power Off) ---
+            android.widget.TextView powerLabel = new android.widget.TextView(this);
+            powerLabel.setText("Power");
+            powerLabel.setTextColor(theme.textPrimary);
+            powerLabel.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+            powerLabel.setPadding(0, (int)(20 * d), 0, (int)(4 * d));
+            section.addView(powerLabel);
+
+            android.widget.LinearLayout powerRow = new android.widget.LinearLayout(this);
+            powerRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+
+            android.widget.Button rebootBtn = makeQuickSettingsButton("🔄  Reboot", theme);
+            rebootBtn.setOnClickListener(v -> confirmReboot());
+            powerRow.addView(rebootBtn, half);
+
+            android.widget.Button powerOffBtn = makeQuickSettingsButton("⏻  Power Off", theme);
+            powerOffBtn.setOnClickListener(v -> confirmPowerOff());
+            powerRow.addView(powerOffBtn, half2);
+
+            section.addView(powerRow);
+
+            container.addView(section);
+            android.util.Log.i("MainActivity", "Extended quick settings controls added");
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Failed to add extended quick settings", e);
+        }
+    }
+
+    private android.widget.Button makeQuickSettingsButton(String text,
+                                                          com.jarjarblinkz.EvolveLauncher.theme.Theme theme) {
+        float d = getResources().getDisplayMetrics().density;
+        android.widget.Button btn = new android.widget.Button(this);
+        btn.setText(text);
+        btn.setTextColor(theme.textPrimary);
+        btn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
+        btn.setAllCaps(false);
+        btn.setPadding((int)(12 * d), (int)(10 * d), (int)(12 * d), (int)(10 * d));
+        btn.setMinHeight(0);
+
+        android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+        bg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+        bg.setCornerRadius(10 * d);
+        bg.setColor(theme.bgSecondary);
+        bg.setStroke((int)(1 * d), theme.borderPrimary);
+        btn.setBackground(bg);
+        return btn;
+    }
+
+    /**
+     * Read current screen brightness from system settings. Returns 0-255.
+     * Doesn't require any permissions for reading.
+     */
+    private int readCurrentBrightness() {
+        try {
+            return android.provider.Settings.System.getInt(getContentResolver(),
+                    android.provider.Settings.System.SCREEN_BRIGHTNESS);
+        } catch (Exception e) {
+            return 128; // mid-range fallback
+        }
+    }
+
+    /**
+     * Set screen brightness via Shizuku (writes to system settings).
+     * Falls back to a toast if Shizuku isn't available.
+     */
+    private void setBrightnessViaShizuku(int value) {
+        if (shizukuManager == null || !shizukuManager.isReady()) {
+            Toast.makeText(this, "Shizuku required to control brightness", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            shizukuManager.executeShellCommand("settings put system screen_brightness " + value);
+        } catch (Exception e) {
+            Toast.makeText(this, "Failed to set brightness", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Toggle WiFi on/off via Shizuku (svc wifi enable/disable).
+     * On Android 10+ apps can't toggle WiFi directly, so Shizuku is required.
+     */
+    private void toggleWifi() {
+        if (shizukuManager == null || !shizukuManager.isReady()) {
+            Toast.makeText(this, "Shizuku required to toggle Wi-Fi", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        boolean isEnabled = wifiManager != null && wifiManager.isWifiEnabled();
+        try {
+            shizukuManager.executeShellCommand(isEnabled ? "svc wifi disable" : "svc wifi enable");
+            // Refresh the toggle label after a short delay
+            new Handler(Looper.getMainLooper()).postDelayed(this::refreshQuickSettingsState, 500);
+        } catch (Exception e) {
+            Toast.makeText(this, "Failed to toggle Wi-Fi", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Toggle Bluetooth on/off via Shizuku (svc bluetooth enable/disable).
+     */
+    private void toggleBluetooth() {
+        if (shizukuManager == null || !shizukuManager.isReady()) {
+            Toast.makeText(this, "Shizuku required to toggle Bluetooth", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        boolean isEnabled = adapter != null && adapter.isEnabled();
+        try {
+            shizukuManager.executeShellCommand(isEnabled ? "svc bluetooth disable" : "svc bluetooth enable");
+            new Handler(Looper.getMainLooper()).postDelayed(this::refreshQuickSettingsState, 500);
+        } catch (Exception e) {
+            Toast.makeText(this, "Failed to toggle Bluetooth", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void confirmReboot() {
+        if (shizukuManager == null || !shizukuManager.isReady()) {
+            Toast.makeText(this, "Shizuku required to reboot", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        ThemedDialog.showThemed(new AlertDialog.Builder(this)
+                .setTitle("Reboot Quest?")
+                .setMessage("The device will restart immediately. Save any in-progress work first.")
+                .setPositiveButton("Reboot", (d, w) -> {
+                    try { shizukuManager.executeShellCommand("reboot"); }
+                    catch (Exception e) { Toast.makeText(this, "Failed to reboot", Toast.LENGTH_SHORT).show(); }
+                })
+                .setNegativeButton("Cancel", null)
+                .create());
+    }
+
+    private void confirmPowerOff() {
+        if (shizukuManager == null || !shizukuManager.isReady()) {
+            Toast.makeText(this, "Shizuku required to power off", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        ThemedDialog.showThemed(new AlertDialog.Builder(this)
+                .setTitle("Power Off Quest?")
+                .setMessage("The device will shut down completely.")
+                .setPositiveButton("Power Off", (d, w) -> {
+                    try { shizukuManager.executeShellCommand("reboot -p"); }
+                    catch (Exception e) { Toast.makeText(this, "Failed to power off", Toast.LENGTH_SHORT).show(); }
+                })
+                .setNegativeButton("Cancel", null)
+                .create());
+    }
+
+    /**
+     * Refresh the labels of the wifi/bluetooth toggle buttons and the
+     * brightness slider to reflect current system state. Called when
+     * the drawer is opened.
+     */
+    private void refreshQuickSettingsState() {
+        if (wifiToggleBtn != null) {
+            boolean wifiOn = wifiManager != null && wifiManager.isWifiEnabled();
+            wifiToggleBtn.setText(wifiOn ? "Wi-Fi: On" : "Wi-Fi: Off");
+        }
+        if (bluetoothToggleBtn != null) {
+            BluetoothAdapter ba = BluetoothAdapter.getDefaultAdapter();
+            boolean btOn = ba != null && ba.isEnabled();
+            bluetoothToggleBtn.setText(btOn ? "Bluetooth: On" : "Bluetooth: Off");
+        }
+        if (brightnessSeekBar != null) {
+            brightnessSeekBar.setProgress(readCurrentBrightness());
+        }
     }
 
     // ===== END QUICK SETTINGS =====
@@ -1824,26 +2498,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Applies (or removes) the hover visual state on a card:
-     * thicker accent-colored stroke on hover, thin border stroke otherwise.
-     */
-    private void applyCardHoverVisuals(View v, boolean hovered) {
-        if (!(v instanceof com.google.android.material.card.MaterialCardView)) return;
-        com.google.android.material.card.MaterialCardView cv =
-                (com.google.android.material.card.MaterialCardView) v;
-        com.jarjarblinkz.EvolveLauncher.theme.Theme theme =
-                com.jarjarblinkz.EvolveLauncher.theme.ThemeManager.getInstance(this).getCurrentTheme();
-
-        if (hovered) {
-            cv.setStrokeWidth(4);
-            cv.setStrokeColor(theme.accentPrimary);
-        } else {
-            cv.setStrokeWidth(1);
-            cv.setStrokeColor(theme.borderPrimary);
-        }
-    }
-
     private void applyCardInteractionEffects(View card) {
         if (card == null) return;
 
@@ -1870,7 +2524,6 @@ public class MainActivity extends AppCompatActivity {
                 case android.view.MotionEvent.ACTION_HOVER_MOVE:
                     if (isHovered[0]) break;  // already in hover state
                     isHovered[0] = true;
-                    applyCardHoverVisuals(v, true);
                     v.animate().cancel();
                     v.animate()
                             .scaleX(hoverScale)
@@ -1882,7 +2535,6 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case android.view.MotionEvent.ACTION_HOVER_EXIT:
                     isHovered[0] = false;
-                    applyCardHoverVisuals(v, false);
                     v.animate().cancel();
                     v.animate()
                             .scaleX(1f)
@@ -1899,7 +2551,6 @@ public class MainActivity extends AppCompatActivity {
         // Keyboard / dpad focus mirrors hover
         card.setOnFocusChangeListener((v, hasFocus) -> {
             v.animate().cancel();
-            applyCardHoverVisuals(v, hasFocus);
             if (hasFocus) {
                 v.animate()
                         .scaleX(hoverScale)
@@ -2442,25 +3093,39 @@ public class MainActivity extends AppCompatActivity {
 
     private void launchApp(AppInfo app) {
         try {
-            Intent intent;
+            Intent intent = packageManager.getLaunchIntentForPackage(app.packageName);
 
-            if (app.activityName != null && !app.activityName.isEmpty()) {
-                intent = new Intent(Intent.ACTION_MAIN);
-                intent.addCategory(Intent.CATEGORY_LAUNCHER);
-                intent.setComponent(new ComponentName(app.packageName, app.activityName));
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            } else {
-                intent = packageManager.getLaunchIntentForPackage(app.packageName);
-                if (intent == null) {
+            if (intent == null) {
+                Intent vrQueryIntent = new Intent(Intent.ACTION_MAIN);
+                vrQueryIntent.addCategory("com.oculus.intent.category.VR");
+                vrQueryIntent.setPackage(app.packageName);
+                List<ResolveInfo> vrActivities =
+                        packageManager.queryIntentActivities(vrQueryIntent, 0);
+
+                if (!vrActivities.isEmpty()) {
+                    ResolveInfo vr = vrActivities.get(0);
+                    intent = new Intent(Intent.ACTION_MAIN);
+                    intent.addCategory("com.oculus.intent.category.VR");
+                    intent.setComponent(new ComponentName(
+                            vr.activityInfo.packageName, vr.activityInfo.name));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                } else if (app.activityName != null && !app.activityName.isEmpty()) {
+                    intent = new Intent(Intent.ACTION_MAIN);
+                    intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                    intent.setComponent(new ComponentName(app.packageName, app.activityName));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                } else {
                     Toast.makeText(this, "Cannot launch " + app.label, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             }
 
+            Log.i("MainActivity", "Launching: " + app.packageName);
+            moveTaskToBack(true);
             startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+
         } catch (Exception e) {
+            Log.e("MainActivity", "Launch failed for " + app.packageName, e);
             Toast.makeText(this, "Error launching " + app.label, Toast.LENGTH_SHORT).show();
         }
     }
@@ -2846,9 +3511,7 @@ public class MainActivity extends AppCompatActivity {
                     appAdapter.notifyDataSetChanged();
                 }
 
-                if (selectedApps.size() > 0) {
-                    Toast.makeText(this, selectedApps.size() + " app(s) selected", Toast.LENGTH_SHORT).show();
-                }
+                updateBulkActionBarVisibility();
 
             } catch (Exception e) {
                 // Ignore selection errors
@@ -2920,6 +3583,8 @@ public class MainActivity extends AppCompatActivity {
                     Set<String> newSet = new HashSet<>(categories.get(targetCategory));
                     newSet.add(foundApp.packageName);
                     categoryPrefs.edit().putStringSet("cat_" + targetCategory, newSet).apply();
+                    // Update in-memory map so next iteration sees the updated set
+                    categories.get(targetCategory).add(foundApp.packageName);
 
                     prefs.edit().putString("cat_" + foundApp.packageName, targetCategory).apply();
                     foundApp.category = targetCategory;
@@ -2927,6 +3592,23 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 loadCategories();
+
+                // Clear the selection now that the move is done. Without this,
+                // the bulk action bar keeps stale selection state and the
+                // moved app tiles stay visually selected in the grid.
+                selectedApps.clear();
+                updateBulkActionBarVisibility();
+
+                // Rebuild the displayed list against the freshly-updated
+                // categories map. When viewing "All Apps", filterApps("")
+                // excludes anything that's now in a category — which is
+                // exactly what needs to happen so the moved tiles vanish.
+                // Without this, the RecyclerView keeps showing the moved
+                // apps in All Apps until the user manually switches categories.
+                filterApps(searchEditText != null ? searchEditText.getText().toString() : "");
+                if (appAdapter != null) {
+                    appAdapter.notifyDataSetChanged();
+                }
 
                 String message = "Moved " + movedCount + " app(s) to " + targetCategory;
                 if (alreadyInCategory > 0) {
@@ -2988,6 +3670,7 @@ public class MainActivity extends AppCompatActivity {
     private void clearSelection() {
         selectedApps.clear();
         appAdapter.notifyDataSetChanged();
+        updateBulkActionBarVisibility();
         Toast.makeText(this, "Selection cleared", Toast.LENGTH_SHORT).show();
     }
 
@@ -2997,6 +3680,7 @@ public class MainActivity extends AppCompatActivity {
             selectedApps.add(app.packageName);
         }
         appAdapter.notifyDataSetChanged();
+        updateBulkActionBarVisibility();
         Toast.makeText(this, "Selected all " + filteredList.size() + " app(s)", Toast.LENGTH_SHORT).show();
     }
 
@@ -3100,20 +3784,16 @@ public class MainActivity extends AppCompatActivity {
 
             loadAppIcon(holder, app);
 
-            if (isEditMode && selectedApps.contains(app.packageName)) {
+            // Selected card visual treatment - works in edit mode OR when
+            // we have an active multi-selection from a long-press "Select"
+            boolean isSelected = selectedApps.contains(app.packageName);
+            if (isSelected) {
                 holder.cardView.setStrokeWidth(4);
                 holder.cardView.setStrokeColor(theme.accentPrimary);
             } else {
                 holder.cardView.setStrokeWidth(1);
                 holder.cardView.setStrokeColor(theme.borderPrimary);
             }
-
-            // Disable the default MaterialCardView ripple/press overlay.
-            // This is what was causing the inconsistent color overlay and
-            // the "darken when clicked" effect - the press feedback is
-            // handled by our scale-down + pop animation instead.
-            holder.cardView.setRippleColor(
-                    android.content.res.ColorStateList.valueOf(Color.TRANSPARENT));
 
             if (isEditMode) {
                 holder.cardView.setOnClickListener(v -> toggleAppSelection(app));
@@ -3122,12 +3802,19 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 });
             } else {
-                // Delay the launch so the pop-out animation is visible first.
-                // Without this, the activity transition starts immediately and
-                // cuts off the pop animation before the user sees it.
-                holder.cardView.setOnClickListener(v -> v.postDelayed(() -> launchApp(app), 240));
+                // Tap: launch if no selection active, otherwise toggle selection
+                holder.cardView.setOnClickListener(v -> {
+                    if (!selectedApps.isEmpty()) {
+                        toggleAppSelection(app);
+                    } else {
+                        v.postDelayed(() -> launchApp(app), 240);
+                    }
+                });
+                // Long-press: just enter selection mode for this app. No menu.
+                // All single-app and bulk actions live on the floating bar
+                // that appears when something is selected.
                 holder.cardView.setOnLongClickListener(v -> {
-                    showVROptions(app);
+                    toggleAppSelection(app);
                     return true;
                 });
             }
@@ -3280,6 +3967,14 @@ public class MainActivity extends AppCompatActivity {
         optionsList.add("📊 Playtime Stats");
         optionsList.add("✏️ Rename");
 
+        // Multi-select entry point. Once selection is active, the floating
+        // bar will appear and tapping cards will toggle their selection.
+        if (selectedApps.contains(app.packageName)) {
+            optionsList.add("☑️ Deselect");
+        } else {
+            optionsList.add("☐ Select");
+        }
+
         if (isInCategory) {
             optionsList.add("Remove from " + currentAppCategory);
         } else {
@@ -3303,6 +3998,8 @@ public class MainActivity extends AppCompatActivity {
                 showPlaytimeDetails(app);
             } else if (selectedOption.equals("✏️ Rename")) {
                 showRenameDialog(app);
+            } else if (selectedOption.equals("☐ Select") || selectedOption.equals("☑️ Deselect")) {
+                toggleAppSelection(app);
             } else if (selectedOption.startsWith("Remove from ")) {
                 removeFromCategory(app, finalCategory);
             } else if (selectedOption.equals("Add to Category")) {
@@ -3414,6 +4111,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (selectedApps.size() > 0) {
             optionsList.add("Move " + selectedApps.size() + " Selected to Category");
+            optionsList.add("🗑️ Uninstall " + selectedApps.size() + " Selected");
             optionsList.add("Clear Selection (" + selectedApps.size() + " selected)");
         } else {
             optionsList.add("Select All Apps");
@@ -3439,6 +4137,8 @@ public class MainActivity extends AppCompatActivity {
 
             if (selectedOption.startsWith("Move ")) {
                 showMultiAssignCategoryDialog();
+            } else if (selectedOption.startsWith("🗑️ Uninstall ")) {
+                confirmAndUninstallSelected();
             } else if (selectedOption.startsWith("Clear Selection")) {
                 clearSelection();
             } else if (selectedOption.equals("Select All Apps")) {
@@ -3659,6 +4359,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_UNINSTALL) {
+            // Continue with the next pending uninstall regardless of whether
+            // this one was confirmed - the queue is the user's intent and
+            // skipping one (cancel) shouldn't abort the rest.
+            launchNextUninstall();
+        }
+    }
+
+    @Override
     public void onBackPressed() {
         if (isQuickSettingsVisible) {
             hideQuickSettings();
@@ -3685,6 +4397,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        // Force compositor refresh when returning from a game.
+        // Simulates the screen off/on that fixes the loading overlay
+        // getting stuck on top of a running game.
+        try {
+            android.os.PowerManager pm = (android.os.PowerManager) getSystemService(POWER_SERVICE);
+            android.os.PowerManager.WakeLock wl = pm.newWakeLock(
+                    android.os.PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
+                            android.os.PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                    "Evolve:CompositorRefresh");
+            wl.acquire(200);
+            wl.release();
+        } catch (Exception e) {
+            Log.e("MainActivity", "WakeLock refresh failed", e);
+        }
 
         // Re-apply theme to view hierarchy in case user changed it in Settings
         View themeRootView = findViewById(android.R.id.content);
@@ -3754,6 +4481,58 @@ public class MainActivity extends AppCompatActivity {
             unregisterReceiver(appChangeListener);
         } catch (IllegalArgumentException e) {
             // Receiver not registered, safe to ignore
+        }
+    }
+
+    /**
+     * Handle Quest panel resize. The manifest declares
+     * configChanges="screenSize|screenLayout|smallestScreenSize|..." so
+     * Android does NOT recreate the activity or trigger an automatic
+     * layout pass when the panel is resized. Without this override, Quest
+     * enlarges the window but the launcher content stays at its previous
+     * dimensions — because no view ever gets told to remeasure.
+     *
+     * The fix is to manually kick off a layout pass on the root view.
+     * That cascades through match_parent children, appsGrid picks up its
+     * new width, and the OnLayoutChangeListener in setupRecyclerView()
+     * fires to recalculate the column count.
+     *
+     * Prerequisite: MainActivity must have android:resizeableActivity="true"
+     * in the manifest. Without it, Android gives the app a fixed-size draw
+     * surface regardless of container size and no amount of requestLayout
+     * calls can force it to grow.
+     */
+    @Override
+    public void onConfigurationChanged(android.content.res.Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        // Kick off a layout pass on the root view so children reflow to
+        // the new window dimensions.
+        View root = findViewById(R.id.mainLayout);
+        if (root != null) {
+            root.requestLayout();
+            root.invalidate();
+        }
+
+        // The OnLayoutChangeListener on appsGrid will handle column
+        // recount and adapter refresh once the new width propagates.
+        // If the grid doesn't naturally get a layout change (rare), poke
+        // it directly as a fallback.
+        if (appsGrid != null) {
+            appsGrid.post(() -> {
+                int newColumns = calculateOptimalColumns();
+                GridLayoutManager glm = (GridLayoutManager) appsGrid.getLayoutManager();
+                if (glm != null && glm.getSpanCount() != newColumns) {
+                    glm.setSpanCount(newColumns);
+                    if (gridSpacingDecoration != null) {
+                        gridSpacingDecoration.setSpanCount(newColumns);
+                    }
+                    if (appAdapter != null) {
+                        appAdapter.notifyDataSetChanged();
+                    }
+                    appsGrid.requestLayout();
+                }
+            });
         }
     }
 

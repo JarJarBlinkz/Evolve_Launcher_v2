@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:accessibilityEventTypes="typeViewHoverEnter|typeViewHoverExit|typeViewFocused|typeViewAccessibilityFocused"
+
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault|flagReportViewIds|flagIncludeNotImportantViews"
+
+    android:canRetrieveWindowContent="true"
+
+    android:notificationTimeout="50"
+
+    android:description="@string/accessibility_service_description"
+
+    android:packageNames="com.oculus.panelapp.library,com.oculus.panelapp.universalmenu,com.oculus.panelapp.notifications,com.oculus.panelapp.store,com.oculus.panelapp.settings,com.oculus.vrshell,com.oculus.systemux" />
