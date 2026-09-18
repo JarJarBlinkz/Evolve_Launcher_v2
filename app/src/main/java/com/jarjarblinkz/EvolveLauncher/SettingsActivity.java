@@ -84,6 +84,7 @@ public class SettingsActivity extends AppCompatActivity {
     private static final String KEY_SHOW_CATEGORIES = "show_categories";
     private static final String KEY_BG_OPACITY = "background_opacity";
     private static final String KEY_AUTO_START = "auto_start";
+    private static final String KEY_SUPPRESS_STORE = "suppress_store";
 
     private static final int REQUEST_CODE_CREATE_BACKUP = 200;
     private static final int REQUEST_CODE_OPEN_BACKUP = 201;
@@ -221,6 +222,18 @@ public class SettingsActivity extends AppCompatActivity {
             Toast.makeText(this, c ? "Auto-start enabled - App will launch on boot" : "Auto-start disabled", Toast.LENGTH_SHORT).show();
         });
 
+        // Suppress Meta Store toggle
+        androidx.appcompat.widget.SwitchCompat switchSuppressStore = findViewById(R.id.switchSuppressStore);
+        if (switchSuppressStore != null) {
+            switchSuppressStore.setChecked(prefs.getBoolean(KEY_SUPPRESS_STORE, false));
+            switchSuppressStore.setOnCheckedChangeListener((b, c) -> {
+                prefs.edit().putBoolean(KEY_SUPPRESS_STORE, c).apply();
+                Toast.makeText(this,
+                        c ? "Meta Store will be suppressed automatically" : "Meta Store suppression disabled",
+                        Toast.LENGTH_SHORT).show();
+            });
+        }
+
         switchCategories.setOnCheckedChangeListener((b, c) -> {
             prefs.edit().putBoolean(KEY_SHOW_CATEGORIES, c).apply();
             if (MainActivity.instance != null) {
@@ -281,6 +294,24 @@ public class SettingsActivity extends AppCompatActivity {
         // ADD BACKUP/RESTORE BUTTON LISTENERS
         btnBackup.setOnClickListener(v -> backupLayout());
         btnRestore.setOnClickListener(v -> restoreLayout());
+
+        // Refresh Icons - clears Glide cache and reloads all cover art
+        Button btnRefreshIcons = findViewById(R.id.btnRefreshIcons);
+        if (btnRefreshIcons != null) {
+            btnRefreshIcons.setOnClickListener(v -> {
+                btnRefreshIcons.setEnabled(false);
+                btnRefreshIcons.setText("Refreshing...");
+                com.bumptech.glide.Glide.get(this).clearMemory();
+                new Thread(() -> {
+                    com.bumptech.glide.Glide.get(this).clearDiskCache();
+                    runOnUiThread(() -> {
+                        btnRefreshIcons.setEnabled(true);
+                        btnRefreshIcons.setText("Refresh Icons");
+                        Toast.makeText(this, "Icon cache cleared - reopen launcher to reload", Toast.LENGTH_SHORT).show();
+                    });
+                }).start();
+            });
+        }
 
         // ADD QUEST UTILITIES BUTTON LISTENERS
         Button btnResetUI = findViewById(R.id.btnResetUI);

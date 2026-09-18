@@ -18,28 +18,23 @@ public class BootReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         Log.d(TAG, "Boot receiver triggered: " + action);
 
-        // Only handle BOOT_COMPLETED - remove QUICKBOOT_POWERON
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
 
-            // Check if auto-start is enabled in preferences
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             boolean autoStartEnabled = prefs.getBoolean(KEY_AUTO_START, true);
 
             if (autoStartEnabled) {
                 Log.d(TAG, "Auto-starting VR Launcher");
 
-                // Small delay to ensure system is fully ready
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     // Ignore
                 }
 
-                // Launch MainActivity
                 Intent launchIntent = new Intent(context, MainActivity.class);
                 launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                // Required for Android 10+ to show activity from background
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     launchIntent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
                 }
@@ -50,6 +45,24 @@ public class BootReceiver extends BroadcastReceiver {
                 } catch (Exception e) {
                     Log.e(TAG, "Failed to start VR Launcher: " + e.getMessage());
                 }
+
+                // Suppress Meta Store on boot if enabled.
+                // Uses Runtime.exec with am force-stop.
+                boolean suppressStore = prefs.getBoolean("suppress_store", false);
+                if (suppressStore) {
+                    new Thread(() -> {
+                        try { Thread.sleep(10000); } catch (InterruptedException ignored) {}
+                        try {
+                            Process p = Runtime.getRuntime().exec(
+                                    new String[]{"am", "force-stop", "com.oculus.store"});
+                            int result = p.waitFor();
+                            Log.d(TAG, "Store force-stop result: " + result);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Store suppression failed: " + e.getMessage());
+                        }
+                    }).start();
+                }
+
             } else {
                 Log.d(TAG, "Auto-start is disabled in settings");
             }

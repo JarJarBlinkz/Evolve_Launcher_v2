@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cardFavorite"
@@ -9,15 +9,14 @@
     app:cardBackgroundColor="#1E1E1E"
     app:cardCornerRadius="20dp"
     app:cardElevation="20dp"
-    app:cardUseCompatPadding="false"
-    app:cardPreventCornerOverlap="false">
+    app:strokeWidth="3dp"
+    app:strokeColor="#FF0000">
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="8dp">
 
-        <!-- App Icon - at top of card -->
         <ImageView
             android:id="@+id/appIcon"
             android:layout_width="160dp"
@@ -27,7 +26,7 @@
             android:layout_centerHorizontal="true"
             android:scaleType="centerCrop" />
 
-        <!-- Favorite Star (top-end, ALWAYS visible and filled in favorites) -->
+        <!-- Favorite Star (always filled in favorites view) -->
         <ImageView
             android:id="@+id/btnStar"
             android:layout_width="28dp"
@@ -40,7 +39,6 @@
             android:contentDescription="Remove from favorites"
             app:tint="#FFD700" />
 
-        <!-- App Name -->
         <TextView
             android:id="@+id/appName"
             android:layout_width="match_parent"
@@ -54,4 +52,4 @@
             android:textSize="12sp" />
 
     </RelativeLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

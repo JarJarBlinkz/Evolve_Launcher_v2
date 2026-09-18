@@ -1,6 +1,7 @@
 package com.jarjarblinkz.EvolveLauncher;
 
 import android.accessibilityservice.AccessibilityService;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -66,6 +67,13 @@ public class EvolveAccessibilityService extends AccessibilityService {
     private long lastWakeLockMs = 0;
     private static final long WAKE_LOCK_COOLDOWN_MS = 3000;
 
+    // Store suppression - push Evolve to front when store appears uninvited
+    private static final String STORE_PKG = "com.oculus.store";
+    private static final String KEY_SUPPRESS_STORE = "suppress_store";
+    private boolean userOpenedStore = false;
+    private long lastStoreSuppressMs = 0;
+    private static final long STORE_SUPPRESS_COOLDOWN_MS = 5000;
+
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (event == null) return;
@@ -75,7 +83,39 @@ public class EvolveAccessibilityService extends AccessibilityService {
         // Detect when a VR game window becomes active and fire a wake lock
         // to force the compositor to refresh and dismiss the loading overlay.
         if (type == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            CharSequence pkgName = event.getPackageName();
             CharSequence className = event.getClassName();
+
+            // Store suppression - bring Evolve back if store appears uninvited
+            if (pkgName != null && STORE_PKG.contentEquals(pkgName)) {
+                android.content.SharedPreferences prefs = getSharedPreferences("VRLPrefs",
+                        android.content.Context.MODE_PRIVATE);
+                boolean suppressEnabled = prefs.getBoolean(KEY_SUPPRESS_STORE, false);
+                long now = System.currentTimeMillis();
+                if (suppressEnabled && !userOpenedStore &&
+                        now - lastStoreSuppressMs > STORE_SUPPRESS_COOLDOWN_MS) {
+                    lastStoreSuppressMs = now;
+                    Log.i(TAG, "🚫 Store appeared uninvited - pushing Evolve to front");
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        try {
+                            Intent intent = new Intent(this, MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                                    Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(intent);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Failed to suppress store", e);
+                        }
+                    }, 500);
+                }
+                // Do NOT reset userOpenedStore here - keep it true while store is open
+            } else if (pkgName != null && !STORE_PKG.contentEquals(pkgName)) {
+                // User navigated away from store - safe to reset the flag now
+                if (userOpenedStore) {
+                    Log.i(TAG, "User left store - resetting suppress bypass");
+                    userOpenedStore = false;
+                }
+            }
+
             if (className != null) {
                 for (String gameClass : VR_GAME_CLASSES) {
                     if (gameClass.contentEquals(className)) {
@@ -215,6 +255,15 @@ public class EvolveAccessibilityService extends AccessibilityService {
         }, 800);
     }
 
+    // Called from MainActivity when user explicitly opens the store
+    // from the Meta Apps category - allows it through the suppression
+    public static EvolveAccessibilityService instance;
+
+    public void setUserOpenedStore() {
+        userOpenedStore = true;
+        Log.i(TAG, "Store opened by user - suppression bypassed");
+    }
+
     private void triggerLauncherOpen(String reason) {
         long now = System.currentTimeMillis();
         if (now - lastLaunchMs < LAUNCH_COOLDOWN_MS) {
@@ -284,12 +333,45 @@ public class EvolveAccessibilityService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
+        instance = this;
         Log.i(TAG, "Accessibility service connected - hover on '" +
                 TRIGGER_APP_NAME + "' for " + HOVER_DWELL_MS + "ms to open Evolve");
+
+        // On boot the store may already be in the foreground by the time
+        // the accessibility service connects. Check after a short delay
+        // and push Evolve to front if store is showing uninvited.
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                android.content.SharedPreferences prefs = getSharedPreferences(
+                        "VRLPrefs", android.content.Context.MODE_PRIVATE);
+                if (!prefs.getBoolean(KEY_SUPPRESS_STORE, false)) return;
+                if (userOpenedStore) return;
+
+                android.app.ActivityManager am = (android.app.ActivityManager)
+                        getSystemService(Context.ACTIVITY_SERVICE);
+                if (am == null) return;
+                java.util.List<android.app.ActivityManager.RunningTaskInfo> tasks =
+                        am.getRunningTasks(1);
+                if (tasks != null && !tasks.isEmpty()) {
+                    android.content.ComponentName top = tasks.get(0).topActivity;
+                    if (top != null && STORE_PKG.equals(top.getPackageName())) {
+                        Log.i(TAG, "🚫 Store in foreground on service connect - pushing Evolve");
+                        lastStoreSuppressMs = System.currentTimeMillis();
+                        Intent intent = new Intent(this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                                Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(intent);
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Boot store check failed", e);
+            }
+        }, 3000);
     }
 
     @Override
     public void onDestroy() {
+        instance = null;
         cancelDwellTimer("service destroyed");
         super.onDestroy();
     }

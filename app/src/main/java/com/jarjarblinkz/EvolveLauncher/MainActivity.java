@@ -117,33 +117,51 @@ public class MainActivity extends AppCompatActivity {
     private static final String ACTION_THEME_CHANGED = "com.jarjarblinkz.EvolveLauncher.THEME_CHANGED";
     private static final String ACTION_CATEGORIES_CHANGED = "com.jarjarblinkz.EvolveLauncher.CATEGORIES_CHANGED";
 
+    // Friendly display names for Meta system apps
+    private static final java.util.Map<String, String> META_APP_NAMES;
+    static {
+        META_APP_NAMES = new java.util.HashMap<>();
+        META_APP_NAMES.put("com.oculus.browser", "Meta Browser");
+        META_APP_NAMES.put("com.oculus.store", "Meta Store");
+        META_APP_NAMES.put("com.oculus.systemux", "System UX");
+        META_APP_NAMES.put("com.oculus.socialplatform", "Social Platform");
+        META_APP_NAMES.put("com.oculus.companion.app", "Meta Companion");
+        META_APP_NAMES.put("com.oculus.avatar2", "Avatars");
+        META_APP_NAMES.put("com.oculus.casting", "Casting");
+        META_APP_NAMES.put("com.oculus.explore", "Explore");
+        META_APP_NAMES.put("com.oculus.guardian", "Guardian");
+        META_APP_NAMES.put("com.oculus.home", "Meta Home");
+        META_APP_NAMES.put("com.oculus.mobile.preferencemanager", "Preferences");
+        META_APP_NAMES.put("com.oculus.mrservice", "Mixed Reality");
+        META_APP_NAMES.put("com.oculus.os.dialogs", "System Dialogs");
+        META_APP_NAMES.put("com.oculus.passthrough", "Passthrough");
+        META_APP_NAMES.put("com.oculus.peoplehub", "People Hub");
+        META_APP_NAMES.put("com.oculus.photos", "Meta Photos");
+        META_APP_NAMES.put("com.oculus.tv", "Meta TV");
+        META_APP_NAMES.put("com.oculus.video", "Meta Video");
+        META_APP_NAMES.put("com.oculus.voiceinput", "Voice Input");
+        META_APP_NAMES.put("com.oculus.workrooms", "Horizon Workrooms");
+        META_APP_NAMES.put("com.oculus.spatialapp", "Spatial App");
+        META_APP_NAMES.put("com.oculus.focus", "Focus Mode");
+        META_APP_NAMES.put("com.oculus.updateservice", "Update Service");
+        META_APP_NAMES.put("com.oculus.accountscenter", "Accounts Center");
+        META_APP_NAMES.put("com.oculus.helpcenter", "Help Center");
+        META_APP_NAMES.put("com.oculus.notification", "Notifications");
+        META_APP_NAMES.put("com.oculus.environmentservice", "Environment");
+        META_APP_NAMES.put("com.oculus.systemdriver", "System Driver");
+        META_APP_NAMES.put("com.oculus.horizon", "Meta Horizon");
+        META_APP_NAMES.put("com.facebook.arvr.quill", "Quill");
+        META_APP_NAMES.put("com.facebook.spatial.player", "Spatial Media Player");
+        META_APP_NAMES.put("com.meta.spatial.editor", "Spatial Editor");
+    }
+
+    // Meta-only packages: shown in Meta Apps view, hidden from main grid
     private static final String[] SYSTEM_PACKAGES = {
-            "com.android.settings",
-            "com.android.systemui",
-            "com.google.android.gms",
-            "com.google.android.googlequicksearchbox",
-            "com.android.vending",
-            "com.google.android.apps.maps",
-            "com.google.android.apps.photos",
-            "com.google.android.youtube",
-            "com.google.android.calendar",
-            "com.google.android.contacts",
-            "com.google.android.dialer",
-            "com.google.android.gm",
             "com.oculus",
             "com.facebook",
-            "com.android.chrome",
-            "com.android.email",
-            "com.android.camera",
-            "com.android.calculator",
-            "com.android.deskclock",
-            "com.android.mms",
-            "com.android.phone",
-            "com.android.providers",
-            "com.android.server",
-            "com.qualcomm",
-            "android",
-            "com.meta"
+            "com.meta.",
+            "com.android.healthconnect.controller",
+            "com.android.documentsui"
     };
 
     private boolean isEditMode = false;
@@ -458,7 +476,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Validate that the saved category still exists
         // If it was deleted, fall back to "All Apps"
-        if (!currentCategory.equals("All Apps") && !categories.containsKey(currentCategory)) {
+        if (!currentCategory.equals("All Apps") && !currentCategory.equals("Meta Apps")
+                && !categories.containsKey(currentCategory)) {
             currentCategory = "All Apps";
             // Save the corrected category
             prefs.edit().putString("last_category", currentCategory).apply();
@@ -597,6 +616,7 @@ public class MainActivity extends AppCompatActivity {
         // FLOATING FAVORITES BUTTON - bottom-right corner
         addFloatingFavoritesButton();
 
+        // META APPS BUTTON - bottom-left corner
         // FLOATING BULK ACTION BAR - bottom-center, visible when apps selected
         addBulkActionBar();
 
@@ -1202,6 +1222,15 @@ public class MainActivity extends AppCompatActivity {
                 public void onStatusChanged(boolean available, boolean hasPermission) {
                     android.util.Log.i("MainActivity",
                             "Shizuku status - Available: " + available + ", Permission: " + hasPermission);
+                    // When Shizuku becomes ready, suppress the store if enabled
+                    if (available && hasPermission) {
+                        boolean suppressStore = getSharedPreferences("VRLPrefs", MODE_PRIVATE)
+                                .getBoolean("suppress_store", false);
+                        if (suppressStore) {
+                            android.util.Log.i("MainActivity", "Shizuku ready - force-stopping Meta Store");
+                            shizukuManager.executeShellCommand("am force-stop com.oculus.store");
+                        }
+                    }
                 }
                 @Override
                 public void onCommandResult(boolean success, String output) {
@@ -2059,7 +2088,8 @@ public class MainActivity extends AppCompatActivity {
             currentCategory = prefs.getString(KEY_LAST_CATEGORY, "All Apps");
 
             // Validate category still exists
-            if (!currentCategory.equals("All Apps") && !categories.containsKey(currentCategory)) {
+            if (!currentCategory.equals("All Apps") && !currentCategory.equals("Meta Apps")
+                    && !categories.containsKey(currentCategory)) {
                 currentCategory = "All Apps";
                 saveCurrentCategory();
             }
@@ -2782,9 +2812,26 @@ public class MainActivity extends AppCompatActivity {
             try {
                 String packageName = appInfo.packageName;
 
-                if (isInSystemPackageList(packageName)) {
+                // Always hidden - never shown in any view
+                if (packageName.equals("com.oculus.os.chargecontrol") ||
+                        packageName.equals("com.oculus.os.clearactivity") ||
+                        packageName.equals("com.oculus.firsttimenux") ||
+                        packageName.equals("com.meta.HyperscapeHmdCapture") ||
+                        packageName.equals("com.oculus.vrshell") ||
+                        packageName.equals("com.oculus.os.qrcodereader") ||
+                        packageName.equals("com.oculus.q4bservice") ||
+                        packageName.equals("com.oculus.os.voidactivity") ||
+                        packageName.equals("com.meta.handseducationmodule") ||
+                        packageName.equals("com.oculus.panelapp.library") ||
+                        packageName.equals("com.android.settings") ||
+                        packageName.equals("com.oculus.panelapp.kiosk") ||
+                        packageName.equals("com.android.documentsui") ||
+                        packageName.equals("com.oculus.systemux") ||
+                        packageName.equals("com.oculus.horizonmediaplayer") ||
+                        packageName.equals("com.oculus.ocms")) {
                     continue;
                 }
+
 
                 // FIXED: Use safe boolean helper for hidden apps
                 boolean isHidden = getBooleanPreference("hidden_" + packageName, false);
@@ -2861,6 +2908,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
+                // Apply friendly name for known Meta system apps
+                if (META_APP_NAMES.containsKey(packageName)) {
+                    app.label = META_APP_NAMES.get(packageName);
+                }
                 appList.add(app);
 
             } catch (Exception e) {
@@ -3022,9 +3073,26 @@ public class MainActivity extends AppCompatActivity {
         List<AppInfo> newFilteredList = new ArrayList<>();
         FavoritesManager favManagerFilter = FavoritesManager.getInstance(this);
 
+        // Meta Apps fixed category - read-only, shows Meta/Oculus apps
+        if ("Meta Apps".equals(currentCategory)) {
+            for (AppInfo app : appList) {
+                if (!isInSystemPackageList(app.packageName)) continue;
+                if (query.isEmpty() || app.label.toLowerCase().contains(query.toLowerCase())) {
+                    newFilteredList.add(app);
+                }
+            }
+            newFilteredList.sort((a1, a2) -> (a1.label != null ? a1.label : "").compareToIgnoreCase(a2.label != null ? a2.label : ""));
+            filteredList.clear();
+            filteredList.addAll(newFilteredList);
+            if (appAdapter != null) appAdapter.notifyDataSetChanged();
+            updateSearchStatus("Meta & system apps", false);
+            return;
+        }
+
         if (query.isEmpty()) {
             if (currentCategory.equals("All Apps")) {
                 for (AppInfo app : appList) {
+                    if (isInSystemPackageList(app.packageName)) continue;
                     if (favManagerFilter.isFavorite(app.packageName)) continue;  // Skip favorites
                     boolean isInAnyCategory = false;
                     for (Set<String> categoryApps : categories.values()) {
@@ -3121,6 +3189,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
             Log.i("MainActivity", "Launching: " + app.packageName);
+            // If user explicitly opens the store, bypass suppression
+            if ("com.oculus.store".equals(app.packageName) &&
+                    EvolveAccessibilityService.instance != null) {
+                EvolveAccessibilityService.instance.setUserOpenedStore();
+            }
             moveTaskToBack(true);
             startActivity(intent);
 
@@ -3337,6 +3410,23 @@ public class MainActivity extends AppCompatActivity {
 
         // VR polish: hover/press effects
         applyButtonInteractionEffects(allAppsBtn);
+
+        // Meta Apps button - before All Apps
+        Button metaAppsBtn = new Button(this);
+        metaAppsBtn.setText("\u2699 Meta");
+        metaAppsBtn.setTextColor(Color.WHITE);
+        metaAppsBtn.setPadding(8, 4, 8, 4);
+        metaAppsBtn.setAllCaps(false);
+        metaAppsBtn.setTextSize(11);
+        metaAppsBtn.setBackgroundColor(currentCategory.equals("Meta Apps") ?
+                Color.parseColor("#6B8EFF") : Color.parseColor("#2D2D2D"));
+        LinearLayout.LayoutParams metaParams = new LinearLayout.LayoutParams(
+                suggestedWidth, (int)(28 * density));
+        metaParams.setMargins(4, 0, 4, 0);
+        metaAppsBtn.setLayoutParams(metaParams);
+        metaAppsBtn.setOnClickListener(v -> switchToCategoryAnimated("Meta Apps"));
+        applyButtonInteractionEffects(metaAppsBtn);
+        categoryBar.addView(metaAppsBtn);
 
         categoryBar.addView(allAppsBtn);
 
@@ -4429,7 +4519,8 @@ public class MainActivity extends AppCompatActivity {
         String savedCategory = prefs.getString(KEY_LAST_CATEGORY, "All Apps");
         if (!savedCategory.equals(currentCategory)) {
             currentCategory = savedCategory;
-            if (!currentCategory.equals("All Apps") && !categories.containsKey(currentCategory)) {
+            if (!currentCategory.equals("All Apps") && !currentCategory.equals("Meta Apps")
+                    && !categories.containsKey(currentCategory)) {
                 currentCategory = "All Apps";
                 saveCurrentCategory();
             }

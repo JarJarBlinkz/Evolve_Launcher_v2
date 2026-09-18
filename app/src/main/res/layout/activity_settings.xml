@@ -373,6 +373,39 @@
                 android:textSize="10sp"
                 android:layout_marginBottom="8dp" />
 
+            <!-- Suppress Meta Store -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Suppress Meta Store"
+                    android:textColor="#E0E0E0"
+                    android:textSize="11sp"
+                    android:paddingEnd="4dp" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchSuppressStore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scaleX="0.85"
+                    android:scaleY="0.85" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Auto-closes Meta Store unless you open it manually"
+                android:textColor="#666666"
+                android:textSize="9sp"
+                android:layout_marginBottom="8dp" />
+
             <!-- SYSTEM section -->
             <TextView
                 android:layout_width="match_parent"
@@ -614,6 +647,31 @@
                     android:minHeight="0dp"
                     android:padding="0dp" />
             </LinearLayout>
+
+            <!-- ICONS section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ICONS"
+                android:textColor="#6B8EFF"
+                android:textSize="10sp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.15"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp" />
+
+            <Button
+                android:id="@+id/btnRefreshIcons"
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:backgroundTint="#2196F3"
+                android:text="Refresh Icons"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:textAllCaps="false"
+                android:minHeight="0dp"
+                android:padding="0dp"
+                android:layout_marginBottom="8dp" />
 
             <!-- STATS section -->
             <TextView
